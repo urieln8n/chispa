@@ -46,6 +46,15 @@ El mismo código se publica con otra marca, **Lumbrera** («Lámpara es a mis pi
 - **Mensaje final** junto al podio, con botones en el móvil **«Quiero saber más»** y **«Pedir oración»**. Piden consentimiento y llegan al panel en **📬 Contactos**, desde donde se pueden descargar o borrar.
 - Texto bíblico: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Para un uso comercial amplio, confirma los límites de cita o pide permiso a las Sociedades Bíblicas.
 
+### 📚 Aprender (tipo Duolingo)
+En Lumbrera, la portada es **Aprender**: la Biblia libro a libro, en un camino de lecciones de 10 preguntas.
+- Cinco tipos de ejercicio: elegir respuesta, verdadero o falso, completar el texto, ordenar hechos y emparejar.
+- Cada pregunta enseña su cita. Las falladas vuelven al final de la lección y quedan guardadas para repasar.
+- Puntos, estrellas por lección, racha de días y meta diaria. El progreso se guarda en el dispositivo, sin registrarse.
+- Libros disponibles: **Juan** y **Génesis** (150 preguntas cada uno). Los demás aparecen como «Pronto».
+- Cada libro se puede usar también en partidas en grupo: en el panel, **⇅ Importar / Exportar** tiene «📖 Juan: 15 rondas para jugar en grupo».
+- El contenido se escribe en `contenido-biblia/` (un archivo `.py` por libro) y se genera con `python3 contenido-biblia/construir.py`.
+
 **Publicarla:** en Cloudflare, **Workers & Pages → Create → Import a repository**, elige este mismo repositorio y ponle de nombre `lumbrera`. En **Deploy command** escribe `npx wrangler deploy --env fe`. Quedará en `https://lumbrera.<tu-subdominio>.workers.dev`.
 
 ## Publicar en Cloudflare (gratis)

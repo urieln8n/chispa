@@ -46,5 +46,23 @@
    "chispa",
    "fe"
   ]
+ },
+ {
+  "archivo": "libro-juan.json",
+  "titulo": "📖 Juan: 15 rondas para jugar en grupo",
+  "descripcion": "Las preguntas de la sección Aprender de Juan, en rondas de 8–10 para partidas en vivo.",
+  "n": 15,
+  "marcas": [
+   "fe"
+  ]
+ },
+ {
+  "archivo": "libro-genesis.json",
+  "titulo": "📖 Génesis: 15 rondas para jugar en grupo",
+  "descripcion": "Las preguntas de la sección Aprender de Génesis, en rondas de 8–10 para partidas en vivo.",
+  "n": 15,
+  "marcas": [
+   "fe"
+  ]
  }
 ]
