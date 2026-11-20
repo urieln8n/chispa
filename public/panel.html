@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chispa · Mis cuestionarios</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .lista{display:grid;gap:12px;margin-top:1rem}
+  .fila{display:flex;align-items:center;gap:1rem;justify-content:space-between;flex-wrap:wrap}
+  .fila h3{font-size:1.25rem}
+  .acciones{display:flex;gap:.5rem;flex-wrap:wrap}
+  .login{max-width:360px;width:100%;display:flex;flex-direction:column;gap:.8rem}
+  .hero{display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap;margin-top:1rem}
+  .ia{margin-top:1rem;display:grid;gap:.6rem}
+  textarea.campo{min-height:90px;resize:vertical}
+</style>
+</head>
+<body>
+<section id="v-login" class="centro oculto">
+  <div id="m1"></div>
+  <div class="tarjeta login">
+    <h2>Zona del presentador</h2>
+    <input id="clave" class="campo" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <button id="b-login" class="btn">Entrar</button>
+    <div id="e-login" class="error"></div>
+  </div>
+  <p class="pie"><a href="./">¿Vienes a jugar? Mete el PIN aquí</a></p>
+</section>
+
+<section id="v-panel" class="oculto">
+  <div class="barra-sup"><div id="m2"></div><button id="b-salir" class="btn sec peq">Salir</button></div>
+  <div class="contenedor">
+    <div class="hero">
+      <div><h1>Mis cuestionarios</h1><p class="pie" style="margin:.2rem 0 0">Crea, edita y lanza una partida en vivo.</p></div>
+      <div class="acciones"><button id="b-ia" class="btn sec">✨ Crear con IA</button><a class="btn" href="editor">+ Nuevo cuestionario</a></div>
+    </div>
+    <div id="caja-ia" class="tarjeta ia oculto">
+      <h3>✨ Crear un cuestionario con IA</h3>
+      <textarea id="ia-tema" class="campo" placeholder="Escribe un tema (p. ej. «La Revolución Francesa para 4.º de ESO») o pega un texto, unos apuntes, una política de empresa…"></textarea>
+      <div class="acciones">
+        <select id="ia-n" class="campo" style="width:auto"><option>5</option><option selected>8</option><option>10</option><option>15</option></select>
+        <select id="ia-nivel" class="campo" style="width:auto"><option value="general">Nivel general</option><option value="primaria">Primaria</option><option value="secundaria">Secundaria</option><option value="universidad">Universidad</option><option value="empresa">Formación de empresa</option><option value="experto">Experto</option></select>
+        <button id="b-ia-gen" class="btn">Generar</button>
+      </div>
+      <div id="ia-msg" class="error"></div>
+    </div>
+    <div id="lista" class="lista"></div>
+  </div>
+</section>
+
+<script src="comun.js"></script>
+<script>
+$('#m1').innerHTML = marca(); $('#m2').innerHTML = marca();
+let IA = false;
+async function cargar() {
+  const lista = await api('cuestionarios');
+  $('#lista').innerHTML = lista.length ? lista.map(q => `
+    <div class="tarjeta fila">
+      <div><h3>${esc(q.titulo)}</h3><span class="pie">${q.n} pregunta${q.n === 1 ? '' : 's'} · ${new Date(q.actualizado).toLocaleDateString('es-ES')}</span></div>
+      <div class="acciones">
+        <a class="btn" href="presentar?id=${q.id}">▶ Jugar</a>
+        <a class="btn sec" href="editor?id=${q.id}">Editar</a>
+        <button class="btn sec" data-dup="${q.id}">Duplicar</button>
+        <button class="btn sec" data-del="${q.id}">Borrar</button>
+      </div>
+    </div>`).join('') : '<p class="tarjeta">Aún no tienes cuestionarios. ¡Crea el primero!</p>';
+  document.querySelectorAll('[data-dup]').forEach(b => b.onclick = async () => { await api(`cuestionarios/${b.dataset.dup}/duplicar`, { method: 'POST' }); cargar(); });
+  document.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+    if (b.dataset.ok) { await api(`cuestionarios/${b.dataset.del}`, { method: 'DELETE' }); cargar(); }
+    else { b.dataset.ok = 1; b.textContent = '¿Seguro?'; b.classList.add('peligro'); }
+  });
+}
+async function login(c) {
+  try {
+    const r = await api('login', { method: 'POST', body: { clave: c } });
+    guardarClave(c); IA = r.ia;
+    $('#v-login').classList.add('oculto'); $('#v-panel').classList.remove('oculto'); cargar();
+  } catch (e) { $('#v-login').classList.remove('oculto'); if (c) $('#e-login').textContent = e.message; }
+}
+$('#b-login').onclick = () => login($('#clave').value);
+$('#clave').onkeydown = e => { if (e.key === 'Enter') login($('#clave').value); };
+$('#b-salir').onclick = () => { guardarClave(''); location.reload(); };
+$('#b-ia').onclick = () => {
+  $('#caja-ia').classList.toggle('oculto');
+  if (!IA) $('#ia-msg').textContent = 'La IA aún no está activada en tu servidor (falta la clave de Anthropic).';
+};
+$('#b-ia-gen').onclick = async () => {
+  const b = $('#b-ia-gen'); b.disabled = true; b.textContent = 'Creando…'; $('#ia-msg').textContent = '';
+  try {
+    const q = await api('ia/generar', { method: 'POST', body: { tema: $('#ia-tema').value, n: $('#ia-n').value, nivel: $('#ia-nivel').value } });
+    const g = await api('cuestionarios', { method: 'POST', body: q });
+    location.href = 'editor?id=' + g.id;
+  } catch (e) { $('#ia-msg').textContent = e.message; }
+  b.disabled = false; b.textContent = 'Generar';
+};
+login(clave());
+</script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chispa · Presentador</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{overflow-x:hidden}
+  .escena{min-height:calc(100vh - 76px);display:flex;flex-direction:column;padding:0 2rem 2rem;gap:1.2rem}
+  /* Sala */
+  .sala{display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:center}
+  .pin-caja{background:#fff;color:var(--noche);border-radius:24px;padding:1.2rem 1.6rem;display:flex;gap:1.6rem;align-items:center}
+  .pin-caja .qr{width:190px;height:190px}
+  .pin-caja .qr img{width:100%;height:100%}
+  .pin-num{font-family:var(--tit);font-weight:800;font-size:clamp(3rem,8vw,6.5rem);line-height:1;letter-spacing:.06em}
+  .url{font-weight:700;opacity:.75;word-break:break-all}
+  .jugadores{display:flex;flex-wrap:wrap;gap:.6rem;align-content:flex-start}
+  .chip{background:var(--noche3);padding:.5em 1em;border-radius:99px;font-weight:800;font-size:1.15rem;animation:pop .35s both;cursor:pointer}
+  .chip.off{opacity:.45}
+  .chip:hover{background:var(--mal)}
+  .contador{font-family:var(--tit);font-size:2.2rem;font-weight:800}
+  /* Pregunta */
+  .q-texto{font-family:var(--tit);font-weight:800;font-size:clamp(1.6rem,3.6vw,3rem);text-align:center;background:#fff;color:var(--noche);border-radius:20px;padding:1rem 1.4rem}
+  .q-medio{flex:1;display:flex;align-items:center;justify-content:space-between;gap:1.5rem}
+  .reloj{width:130px;height:130px;border-radius:50%;background:var(--ambar);color:var(--noche);display:flex;align-items:center;justify-content:center;font-family:var(--tit);font-weight:800;font-size:3.4rem;flex:none}
+  .q-img{max-height:38vh;max-width:50vw;border-radius:16px}
+  .q-resp{text-align:center;font-weight:800;font-size:1.3rem;flex:none;width:130px}
+  .q-resp b{display:block;font-size:3rem;font-family:var(--tit)}
+  .opciones .opcion{font-size:clamp(1.1rem,2vw,1.6rem);min-height:90px}
+  .barras{display:flex;align-items:flex-end;justify-content:center;gap:1.4rem;height:34vh}
+  .barra{width:110px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:.4rem;font-weight:800;font-size:1.4rem}
+  .barra i{display:block;width:100%;background:var(--c);border-radius:12px 12px 0 0;transition:height .8s cubic-bezier(.2,.9,.3,1.2);min-height:6px}
+  .barra .forma{width:2rem;height:2rem;color:var(--c)}
+  .barra.no{opacity:.35}
+  /* Ranking y podio */
+  .rank{max-width:760px;width:100%;margin:0 auto;display:grid;gap:.7rem}
+  .rank div{display:flex;justify-content:space-between;background:var(--noche2);border:1px solid #2a4369;border-radius:16px;padding:.9rem 1.4rem;font-size:1.6rem;font-weight:800;animation:sube .5s both}
+  .rank div:first-child{background:var(--ambar);color:var(--noche)}
+  .podio{display:flex;align-items:flex-end;justify-content:center;gap:1.2rem;flex:1}
+  .escalon{width:min(26vw,240px);display:flex;flex-direction:column;align-items:center;gap:.5rem;animation:sube .8s both}
+  .escalon .bloque{width:100%;border-radius:16px 16px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:1rem;font-family:var(--tit);font-size:3.5rem;font-weight:800;color:var(--noche)}
+  .escalon .nom{font-weight:800;font-size:1.6rem;text-align:center;word-break:break-word}
+  .p1 .bloque{height:42vh;background:var(--ambar)} .p2 .bloque{height:30vh;background:#cfd8e3} .p3 .bloque{height:22vh;background:#d9905a}
+  .p1{animation-delay:1.2s}.p2{animation-delay:.6s}.p3{animation-delay:0s}
+  .control{display:flex;justify-content:flex-end;gap:.7rem}
+  .confeti{position:fixed;top:-20px;width:10px;height:16px;z-index:1;animation:caer linear forwards}
+  @keyframes caer{to{transform:translateY(110vh) rotate(720deg)}}
+  @media(max-width:800px){.sala{grid-template-columns:1fr}.pin-caja{flex-direction:column}.q-medio{flex-wrap:wrap;justify-content:center}}
+</style>
+</head>
+<body>
+<div class="barra-sup"><div id="m"></div><div id="info" class="pie"></div></div>
+<main id="escena" class="escena"><div class="centro" style="min-height:50vh"><h2>Preparando la partida…</h2></div></main>
+<script src="socket.io/socket.io.js"></script>
+<script src="comun.js"></script>
+<script>
+$('#m').innerHTML = marca();
+const qs = new URLSearchParams(location.search);
+const socket = conectar();
+let S = null, CLAVE_HOST = '', jugadores = [], preguntaActual = null, reloj = null;
+const ES = $('#escena');
+
+function joinUrl() { return new URL(BASE + '?pin=' + S.pin, location.href).href; }
+function siguiente() { socket.emit('host:siguiente', { claveHost: CLAVE_HOST }); }
+function guardarSesion() { try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin: S.pin, claveHost: CLAVE_HOST })); } catch {} }
+
+function sala() {
+  const url = joinUrl();
+  ES.innerHTML = `
+    <div class="sala">
+      <div class="pin-caja">
+        <div class="qr"><img alt="Código QR para entrar" src="${BASE}api/qr?t=${encodeURIComponent(url)}"></div>
+        <div><div class="pie" style="opacity:1;font-weight:800">Entra desde el móvil en</div>
+          <div class="url">${esc(url.replace(/\?pin=.*/, '').replace(/^https?:\/\//, ''))}</div>
+          <div class="pie" style="opacity:1;font-weight:800;margin-top:.6rem">con el PIN</div>
+          <div class="pin-num">${S.pin.slice(0, 3)} ${S.pin.slice(3)}</div></div>
+      </div>
+      <div><h1>${esc(S.titulo)}</h1><p class="pie" style="font-size:1rem">Escanea el QR o escribe el PIN. Sin instalar nada y sin registrarse.</p></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center"><div class="contador"><span id="njug">0</span> jugadores</div>
+      <div class="control"><button class="btn" id="b-empezar" disabled>¡Empezar!</button></div></div>
+    <div class="jugadores" id="jugs"></div>`;
+  $('#b-empezar').onclick = siguiente;
+  pintarJugadores();
+}
+function pintarJugadores() {
+  const box = $('#jugs'); if (!box) return;
+  $('#njug').textContent = jugadores.length;
+  $('#b-empezar').disabled = !jugadores.length;
+  box.innerHTML = jugadores.map(j => `<span class="chip ${j.conectado ? '' : 'off'}" title="Pulsa para sacarlo" data-id="${j.id}">${esc(j.apodo)}</span>`).join('');
+  box.querySelectorAll('.chip').forEach(c => c.onclick = () => socket.emit('host:expulsar', { claveHost: CLAVE_HOST, id: c.dataset.id }));
+}
+function pregunta(p) {
+  preguntaActual = p; clearInterval(reloj);
+  ES.innerHTML = `<div class="centro pop" style="min-height:60vh"><p class="pie" style="font-size:1.3rem;opacity:1">Pregunta ${p.indice + 1} de ${p.total}</p><h1 style="font-size:clamp(2rem,5vw,4rem)">${esc(p.texto)}</h1><div class="reloj" id="pre">3</div></div>`;
+  let n = 3; sonido('tic');
+  reloj = setInterval(() => { n--; if (n > 0) { $('#pre').textContent = n; sonido('tic'); } else { clearInterval(reloj); enJuego(p); } }, 1000);
+}
+function enJuego(p) {
+  let t = p.tiempo;
+  ES.innerHTML = `
+    <div class="q-texto">${esc(p.texto)}</div>
+    <div class="q-medio">
+      <div class="reloj" id="reloj">${t}</div>
+      ${p.imagen ? `<img class="q-img" src="${esc(p.imagen)}" alt="">` : '<div></div>'}
+      <div class="q-resp"><b id="nresp">0</b>respuestas</div>
+    </div>
+    <div class="opciones">${p.opciones.map((o, i) => `<div class="opcion op-${i}" id="op${i}">${FORMAS[i]}<span>${esc(o)}</span></div>`).join('')}</div>
+    <div class="control"><button class="btn sec" id="b-saltar">Terminar pregunta ⏭</button></div>`;
+  $('#b-saltar').onclick = siguiente;
+  reloj = setInterval(() => { t--; if (t >= 0) $('#reloj').textContent = t; if (t <= 5 && t > 0) sonido('tic'); if (t <= 0) clearInterval(reloj); }, 1000);
+}
+function resultado(r) {
+  clearInterval(reloj); sonido('fin');
+  const p = preguntaActual, max = Math.max(1, ...r.conteo);
+  ES.innerHTML = `
+    <div class="q-texto">${esc(p.texto)}</div>
+    <div class="barras">${r.conteo.map((c, i) => `<div class="barra op-${i} ${i === r.correcta ? '' : 'no'}"><span>${c}</span><i style="height:0"></i>${FORMAS[i]}${i === r.correcta ? '✔' : ''}</div>`).join('')}</div>
+    <div class="opciones">${p.opciones.map((o, i) => `<div class="opcion op-${i} ${i === r.correcta ? 'correcta' : 'apagada'}">${FORMAS[i]}<span>${esc(o)}</span>${i === r.correcta ? '<span style="margin-left:auto">✔</span>' : ''}</div>`).join('')}</div>
+    <div class="control"><span class="pie" style="align-self:center">Han respondido ${r.respondieron} de ${r.jugadores}</span><button class="btn" id="b-sig">${r.ultima ? 'Ver el podio 🏆' : 'Ver ranking'}</button></div>`;
+  requestAnimationFrame(() => document.querySelectorAll('.barra i').forEach((el, i) => el.style.height = (85 * r.conteo[i] / max) + '%'));
+  $('#b-sig').onclick = siguiente;
+}
+function ranking(d) {
+  const ult = preguntaActual && preguntaActual.indice + 1 >= preguntaActual.total;
+  ES.innerHTML = `<h1 style="text-align:center">Ranking</h1>
+    <div class="rank">${d.top.map((j, i) => `<div style="animation-delay:${i * .08}s"><span>${i + 1}. ${esc(j.apodo)}</span><span>${j.puntos}</span></div>`).join('')}</div>
+    <div class="control" style="margin-top:auto"><button class="btn" id="b-sig">${ult ? 'Ver el podio 🏆' : 'Siguiente pregunta ▶'}</button></div>`;
+  $('#b-sig').onclick = siguiente;
+}
+function podio(d) {
+  const [a, b, c] = d.podio;
+  const esc2 = (j, cls, n) => j ? `<div class="escalon ${cls}"><div class="nom">${esc(j.apodo)}</div><div class="pie" style="opacity:1;font-weight:800;font-size:1.2rem">${j.puntos} pts</div><div class="bloque">${n}</div></div>` : '';
+  ES.innerHTML = `<h1 style="text-align:center">🏆 Podio</h1>
+    <div class="podio">${esc2(b, 'p2', 2)}${esc2(a, 'p1', 1)}${esc2(c, 'p3', 3)}</div>
+    <div class="control" id="ctrl-final"><span class="pie" id="inf-txt" style="align-self:center">Preparando el informe…</span><a class="btn sec" href="panel">Volver a mis cuestionarios</a></div>`;
+  setTimeout(confeti, 1500);
+  if (S.informe) informe(S.informe);
+}
+function informe(inf) {
+  S.informe = inf;
+  const t = $('#inf-txt'); if (!t) return;
+  const dificil = [...inf.preguntas].map((p, i) => ({ ...p, i })).sort((x, y) => x.porcentaje - y.porcentaje)[0];
+  t.innerHTML = dificil ? `La más difícil: P${dificil.i + 1} (${dificil.porcentaje}% de aciertos)` : '';
+  const a = document.createElement('a'); a.className = 'btn'; a.href = BASE + inf.csv; a.textContent = '⬇ Descargar informe (Excel)';
+  $('#ctrl-final').appendChild(a);
+}
+function confeti() {
+  const cols = ['#FF5A5F', '#2EC4B6', '#8B5CF6', '#FFB020', '#fff'];
+  for (let i = 0; i < 120; i++) {
+    const d = document.createElement('div'); d.className = 'confeti';
+    d.style.left = Math.random() * 100 + 'vw'; d.style.background = cols[i % 5];
+    d.style.animationDuration = 2.5 + Math.random() * 2.5 + 's'; d.style.animationDelay = Math.random() * 1.5 + 's';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 7000);
+  }
+}
+function restaurar(estado) {
+  S = estado; jugadores = estado.jugadores; guardarSesion();
+  $('#info').textContent = `PIN ${S.pin}`;
+  if (S.estado === 'sala') sala();
+  else if (S.estado === 'podio') ES.innerHTML = '<div class="centro"><h2>Partida terminada</h2><a class="btn" href="panel">Volver</a></div>';
+  else ES.innerHTML = `<div class="centro"><h2>Partida recuperada</h2><button class="btn" id="b-c">Continuar ▶</button></div>`, $('#b-c').onclick = siguiente;
+}
+
+socket.on('host:jugadores', l => { jugadores = l; pintarJugadores(); });
+socket.on('host:pregunta', pregunta);
+socket.on('host:respuestas', d => { const n = $('#nresp'); if (n) n.textContent = d.respondieron; });
+socket.on('host:resultado', resultado);
+socket.on('host:ranking', ranking);
+socket.on('host:podio', podio);
+socket.on('host:informe', informe);
+
+let arrancado = false;
+socket.on('connect', () => {
+  // Si se recarga la página o se corta la conexión, retoma la misma partida
+  let prev = null; try { prev = JSON.parse(sessionStorage.getItem('chispa-host') || 'null'); } catch {}
+  if (prev && (arrancado || !qs.get('id') || qs.get('pin') === prev.pin)) {
+    return socket.emit('host:reanudar', prev, r => { if (r.error) crear(); else { CLAVE_HOST = prev.claveHost; if (!arrancado) restaurar(r.estado); arrancado = true; } });
+  }
+  crear();
+});
+function crear() {
+  if (arrancado || !qs.get('id')) { if (!qs.get('id')) location.href = 'panel'; return; }
+  socket.emit('host:crear', { clave: clave(), cuestionarioId: qs.get('id') }, r => {
+    if (r.error) { ES.innerHTML = `<div class="centro"><h2>${esc(r.error)}</h2><a class="btn" href="panel">Volver</a></div>`; return; }
+    arrancado = true; CLAVE_HOST = r.claveHost; history.replaceState(null, '', `presentar?id=${qs.get('id')}&pin=${r.pin}`);
+    restaurar(r.estado);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chispa · Editor</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .preg{display:grid;gap:.7rem;margin-top:1rem}
+  .preg-cab{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .ops{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .op{display:flex;align-items:center;gap:.5rem;background:var(--c);border-radius:14px;padding:.35rem .5rem;color:#fff}
+  .op-3.op{color:var(--noche)}
+  .op input[type=text]{flex:1;border:0;background:rgba(255,255,255,.92);color:var(--noche);border-radius:10px;padding:.6em .7em;min-width:0}
+  .op label{display:flex;align-items:center;gap:.25rem;font-size:.8rem;font-weight:800;cursor:pointer;white-space:nowrap}
+  .op input[type=radio]{width:1.2rem;height:1.2rem;accent-color:#fff}
+  textarea.campo{min-height:70px;resize:vertical}
+  .fila2{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+  .guardar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--noche) 40%);padding:1.2rem 0;display:flex;gap:.6rem;justify-content:flex-end}
+  @media(max-width:640px){.ops{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="barra-sup"><div id="m"></div><a href="panel" class="btn sec peq">← Mis cuestionarios</a></div>
+<div class="contenedor">
+  <input id="titulo" class="campo" style="font-size:1.5rem;font-weight:800" placeholder="Título del cuestionario" maxlength="200">
+  <div id="preguntas"></div>
+  <button id="b-add" class="btn sec" style="margin-top:1rem;width:100%">+ Añadir pregunta</button>
+  <div class="guardar"><span id="estado" class="pie" style="align-self:center"></span><button id="b-guardar" class="btn">Guardar</button><button id="b-jugar" class="btn sec">Guardar y jugar ▶</button></div>
+</div>
+<script src="comun.js"></script>
+<script>
+$('#m').innerHTML = marca();
+const id = new URLSearchParams(location.search).get('id');
+let Q = { titulo: '', preguntas: [] };
+const nueva = () => ({ texto: '', opciones: ['', '', '', ''], correcta: 0, tiempo: 20, imagen: '' });
+
+function pintar() {
+  $('#titulo').value = Q.titulo;
+  $('#preguntas').innerHTML = Q.preguntas.map((p, i) => `
+    <div class="tarjeta preg" data-i="${i}">
+      <div class="preg-cab"><h3>Pregunta ${i + 1}</h3>
+        <div class="fila2">
+          <label class="pie">Tiempo <select class="campo t" style="width:auto;padding:.4em">${[5, 10, 15, 20, 30, 45, 60, 90, 120].map(s => `<option ${s == p.tiempo ? 'selected' : ''}>${s}</option>`).join('')}</select> s</label>
+          <button class="btn sec peq up" ${i === 0 ? 'disabled' : ''}>↑</button>
+          <button class="btn sec peq down" ${i === Q.preguntas.length - 1 ? 'disabled' : ''}>↓</button>
+          <button class="btn sec peq del">Borrar</button>
+        </div></div>
+      <textarea class="campo texto" placeholder="Escribe la pregunta (sin límite corto de caracteres)" maxlength="1000">${esc(p.texto)}</textarea>
+      <input class="campo img" placeholder="Imagen (opcional): pega un enlace https://…" value="${esc(p.imagen || '')}">
+      <div class="ops">${[0, 1, 2, 3].map(k => `
+        <div class="op op-${k}">${FORMAS[k]}<input type="text" class="o" data-k="${k}" placeholder="Respuesta ${k + 1}${k > 1 ? ' (opcional)' : ''}" value="${esc(p.opciones[k] || '')}" maxlength="300">
+        <label><input type="radio" name="c${i}" value="${k}" ${p.correcta === k ? 'checked' : ''}>Correcta</label></div>`).join('')}
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.preg').forEach(el => {
+    const i = +el.dataset.i, p = Q.preguntas[i];
+    el.querySelector('.texto').oninput = e => p.texto = e.target.value;
+    el.querySelector('.img').oninput = e => p.imagen = e.target.value;
+    el.querySelector('.t').onchange = e => p.tiempo = +e.target.value;
+    el.querySelectorAll('.o').forEach(inp => inp.oninput = e => p.opciones[+e.target.dataset.k] = e.target.value);
+    el.querySelectorAll('input[type=radio]').forEach(r => r.onchange = e => p.correcta = +e.target.value);
+    el.querySelector('.del').onclick = () => { Q.preguntas.splice(i, 1); if (!Q.preguntas.length) Q.preguntas.push(nueva()); pintar(); };
+    el.querySelector('.up').onclick = () => { [Q.preguntas[i - 1], Q.preguntas[i]] = [Q.preguntas[i], Q.preguntas[i - 1]]; pintar(); };
+    el.querySelector('.down').onclick = () => { [Q.preguntas[i + 1], Q.preguntas[i]] = [Q.preguntas[i], Q.preguntas[i + 1]]; pintar(); };
+  });
+}
+function validar() {
+  for (const [i, p] of Q.preguntas.entries()) {
+    if (!p.texto.trim()) return `A la pregunta ${i + 1} le falta el texto`;
+    const llenas = p.opciones.filter(o => o && o.trim()).length;
+    if (llenas < 2) return `La pregunta ${i + 1} necesita al menos 2 respuestas`;
+    if (!(p.opciones[p.correcta] || '').trim()) return `En la pregunta ${i + 1}, la respuesta marcada como correcta está vacía`;
+  }
+  return '';
+}
+async function guardar() {
+  Q.titulo = $('#titulo').value;
+  const err = validar(); if (err) { aviso(err, 3500); return null; }
+  // Compacta opciones vacías manteniendo la correcta
+  const body = { titulo: Q.titulo, preguntas: Q.preguntas.map(p => {
+    const idx = p.opciones.map((o, k) => k).filter(k => (p.opciones[k] || '').trim());
+    return { ...p, opciones: idx.map(k => p.opciones[k]), correcta: idx.indexOf(p.correcta) };
+  }) };
+  const r = id ? await api('cuestionarios/' + id, { method: 'PUT', body }) : await api('cuestionarios', { method: 'POST', body });
+  $('#estado').textContent = 'Guardado ✔';
+  if (!id) history.replaceState(null, '', 'editor?id=' + r.id);
+  return r;
+}
+$('#b-add').onclick = () => { Q.preguntas.push(nueva()); pintar(); window.scrollTo(0, document.body.scrollHeight); };
+$('#b-guardar').onclick = async () => { const r = await guardar(); if (r && !id) location.href = 'editor?id=' + r.id; };
+$('#b-jugar').onclick = async () => { const r = await guardar(); if (r) location.href = 'presentar?id=' + r.id; };
+(async () => {
+  if (id) { Q = await api('cuestionarios/' + id); Q.preguntas.forEach(p => { while (p.opciones.length < 4) p.opciones.push(''); }); }
+  if (!Q.preguntas.length) Q.preguntas.push(nueva());
+  pintar();
+})();
+</script>
+</body>
+</html>
