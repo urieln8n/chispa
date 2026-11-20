@@ -15,7 +15,39 @@ function aviso(msg, ms = 2500) {
   const d = document.createElement('div'); d.className = 'aviso pop'; d.textContent = msg;
   document.body.appendChild(d); setTimeout(() => d.remove(), ms);
 }
-function conectar() { return io({ path: BASE + 'socket.io', transports: ['websocket', 'polling'] }); }
+// Conexión en tiempo real a una partida (WebSocket con reconexión automática)
+function conectarJuego(pin) {
+  const handlers = {}, acks = new Map(); let ws, n = 0, cola = [], cerrado = false, intentos = 0;
+  const s = {
+    connected: false,
+    on(e, f) { (handlers[e] = handlers[e] || []).push(f); },
+    emit(e, d, cb) {
+      const m = { t: e, d: d || {} };
+      if (cb) { m.id = ++n; acks.set(m.id, cb); }
+      const txt = JSON.stringify(m);
+      if (s.connected) ws.send(txt); else cola.push(txt);
+    },
+    close() { cerrado = true; if (ws) ws.close(); }
+  };
+  const fire = (e, d) => (handlers[e] || []).forEach(f => f(d));
+  function abrir() {
+    ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}${BASE}ws?pin=${pin}`);
+    ws.onopen = () => { s.connected = true; intentos = 0; fire('connect'); cola.splice(0).forEach(t => ws.send(t)); };
+    ws.onmessage = ev => {
+      let m; try { m = JSON.parse(ev.data); } catch { return; }
+      if (m.t === 'ack') { const cb = acks.get(m.id); acks.delete(m.id); if (cb) cb(m.d); } else fire(m.t, m.d);
+    };
+    ws.onclose = () => {
+      const era = s.connected; s.connected = false;
+      if (era) fire('disconnect');
+      if (!cerrado) setTimeout(abrir, Math.min(5000, 400 * 2 ** intentos++));
+    };
+  }
+  abrir();
+  setInterval(() => { if (s.connected) ws.send('{"t":"ping"}'); }, 25000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !s.connected && ws && ws.readyState > 1) abrir(); });
+  return s;
+}
 function clave() { try { return localStorage.getItem('chispa-clave') || ''; } catch { return ''; } }
 function guardarClave(c) { try { localStorage.setItem('chispa-clave', c); } catch {} }
 async function api(ruta, opts = {}) {

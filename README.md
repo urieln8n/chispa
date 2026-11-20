@@ -1,29 +1,50 @@
-# ⚡ Chispa — quiz en vivo
+# ⚡ Chispa — quiz en vivo (Cloudflare)
 
 Quiz multijugador en tiempo real para clases, empresas y eventos. El presentador proyecta la partida con un **PIN y un QR**; los jugadores entran desde el móvil **sin instalar nada ni registrarse**.
 
+Funciona en **Cloudflare Workers + Durable Objects**: gratis para empezar, siempre encendido, con candado (HTTPS) y aguanta cientos de móviles a la vez. Cada partida vive en su propio Durable Object; los cuestionarios y los informes se guardan de forma permanente.
+
 ## Qué incluye
-- Panel del presentador con contraseña y **editor de cuestionarios** (guardar, duplicar, reordenar, imágenes, hasta 240 s por pregunta).
-- Sala de espera con PIN grande + QR y lista de jugadores en directo (pulsa un apodo para sacarlo).
-- Preguntas de 2–4 opciones con color y forma (★ ⚡ ☾ ♥), cuenta atrás y puntos por acierto + rapidez + **racha**.
+- Panel del presentador con contraseña (la creas la primera vez que entras en `/panel`).
+- **Editor de cuestionarios**: guardar, duplicar, reordenar, imágenes y hasta 240 s por pregunta.
+- Sala de espera con PIN grande + QR y la lista de jugadores en directo (pulsa un apodo para sacarlo).
+- Preguntas de 2 a 4 opciones con color y forma (★ ⚡ ☾ ♥), cuenta atrás y puntos por acierto + rapidez + **racha**.
 - Resultados con barras, ranking entre preguntas y **podio** con confeti.
-- **Mejoras:** sin límite artificial de jugadores (500 por defecto, configurable) · **reconexión automática** con los puntos intactos · **informe final descargable** para Excel (por jugador y por pregunta, y cuál fue la más difícil) · preguntas largas · la pregunta también se ve en el móvil.
-- **IA opcional:** crea un cuestionario a partir de un tema o un texto pegado (API de Anthropic, con tope diario).
+- **Mejoras:**
+  - Sin límite artificial de jugadores (500 por defecto, configurable).
+  - **Reconexión automática** con los puntos intactos.
+  - **Informe final descargable** para Excel, por jugador y por pregunta.
+  - Preguntas largas, y la pregunta también se ve en el móvil.
+- **IA opcional**: crea un cuestionario a partir de un tema o un texto pegado (API de Anthropic, con tope diario).
 
-## Instalar en una VPS (Ubuntu/Debian), como root
-```bash
-curl -fsSL https://raw.githubusercontent.com/urieln8n/chispa/main/instalar.sh | bash
-```
-Lo deja publicado en `https://<nombre-de-tu-vps>/` con candado. Si esa dirección ya sirve otra web, no la toca y publica en `/chispa/`. Al final muestra la URL y la **contraseña del presentador**.
+## Publicar en Cloudflare (gratis)
 
-- Usar tu dominio: `DOMINIO=quiz.midominio.com bash instalar.sh` (el dominio debe apuntar ya a la IP de la VPS).
-- Activar la IA: edita `/etc/chispa.env`, pon `ANTHROPIC_API_KEY=...` y ejecuta `systemctl restart chispa`.
-- Actualizar: vuelve a ejecutar el mismo comando.
-- Ver errores: `journalctl -u chispa -n 50`.
+### Opción A: desde el panel de Cloudflare, con GitHub (sin instalar nada)
+1. Crea una cuenta gratis en https://dash.cloudflare.com.
+2. Ve a **Workers & Pages → Create → Import a repository**, conecta GitHub y elige `chispa`.
+3. Deja los valores por defecto (deploy command `npx wrangler deploy`) y pulsa **Deploy**.
+4. Abre la dirección que te da (`https://chispa.<tu-subdominio>.workers.dev`), entra en `/panel` y crea tu contraseña.
 
-## En local
+Cada vez que cambies el código en GitHub, Cloudflare lo vuelve a publicar solo.
+
+### Opción B: desde tu ordenador (necesitas Node.js)
 ```bash
 npm install
-npm start            # http://127.0.0.1:3070  (contraseña en data/contrasena-presentador.txt)
-CLAVE=$(cat data/contrasena-presentador.txt) N=300 npm test   # partida simulada con 300 jugadores
+npx wrangler login      # abre el navegador para entrar en tu cuenta de Cloudflare
+npx wrangler deploy
+```
+
+### Activar la IA (opcional)
+En Cloudflare: **Workers & Pages → chispa → Settings → Variables and Secrets → Add**. Crea un secreto `ANTHROPIC_API_KEY` con tu clave de https://console.anthropic.com.
+
+Desde terminal también vale: `npx wrangler secret put ANTHROPIC_API_KEY`.
+
+### Tu propio dominio (opcional)
+En **chispa → Settings → Domains & Routes → Add → Custom domain**. El dominio tiene que estar en tu cuenta de Cloudflare.
+
+## Probar en local
+```bash
+npm install
+npm run dev                     # http://127.0.0.1:8787
+N=200 CLAVE=prueba123 npm test  # partida simulada con 200 jugadores
 ```

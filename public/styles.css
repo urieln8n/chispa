@@ -12,7 +12,7 @@ a{color:var(--ambar)}
 button,input,textarea,select{font:inherit}
 .marca{display:inline-flex;align-items:center;gap:.4em;font-weight:800;font-size:1.6rem;letter-spacing:.5px;color:var(--texto);text-decoration:none}
 .marca .chispa{width:1.3em;height:1.3em}
-.btn{border:0;border-radius:14px;padding:.85em 1.4em;font-weight:800;cursor:pointer;background:var(--ambar);color:var(--noche);box-shadow:0 4px 0 #c47f00;transition:transform .08s}
+.btn{text-decoration:none;display:inline-block;border:0;border-radius:14px;padding:.85em 1.4em;font-weight:800;cursor:pointer;background:var(--ambar);color:var(--noche);box-shadow:0 4px 0 #c47f00;transition:transform .08s}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #c47f00}
 .btn.sec{background:var(--noche3);color:var(--texto);box-shadow:0 4px 0 #0b1422}
 .btn.peligro{background:var(--mal);color:#fff;box-shadow:0 4px 0 #a32020}

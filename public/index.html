@@ -58,34 +58,36 @@
   <div id="area" class="centro" style="min-height:auto;flex:1"></div>
 </section>
 
-<script src="socket.io/socket.io.js"></script>
 <script src="comun.js"></script>
 <script>
 $('#marca1').innerHTML = marca(); $('#marca2').innerHTML = marca();
-const socket = conectar();
+let socket = null;
 let PIN = '', yo = null, tick = null;
 const qs = new URLSearchParams(location.search);
 
 function ver(id) { ['v-pin', 'v-apodo', 'v-juego'].forEach(v => $('#' + v).classList.toggle('oculto', v !== id)); }
 function guardar() { try { localStorage.setItem('chispa-j-' + PIN, JSON.stringify(yo)); } catch {} }
 function leer(pin) { try { return JSON.parse(localStorage.getItem('chispa-j-' + pin) || 'null'); } catch { return null; } }
-function area(html, cls = '') { const a = $('#area'); a.className = 'centro ' + cls; a.style.minHeight = 'auto'; a.innerHTML = html; }
+function olvidar() { try { localStorage.removeItem('chispa-j-' + PIN); } catch {} }
+function area(html, cls = '') { const a = $('#area'); a.className = 'centro ' + cls; a.style.cssText = 'min-height:auto;flex:1'; a.innerHTML = html; }
 
-function comprobarPin(pin) {
+async function comprobarPin(pin) {
+  if (socket) { socket.close(); socket = null; }
   PIN = String(pin).replace(/\D/g, '');
   $('#e-pin').textContent = '';
-  socket.emit('jugador:comprobar', { pin: PIN }, r => {
-    if (r.error) { ver('v-pin'); $('#e-pin').textContent = r.error; return; }
-    const prev = leer(PIN);
-    if (prev && prev.token) return entrar(null, prev.token);
-    $('#titulo-partida').textContent = r.titulo;
-    ver('v-apodo'); $('#apodo').focus();
-  });
+  if (PIN.length !== 6) { ver('v-pin'); $('#e-pin').textContent = 'El PIN tiene 6 números'; return; }
+  const r = await fetch(BASE + 'api/partidas/' + PIN).then(x => x.json()).catch(() => ({ error: 'Sin conexión, prueba otra vez' }));
+  if (r.error) { ver('v-pin'); $('#e-pin').textContent = r.error; return; }
+  $('#titulo-partida').textContent = r.titulo;
+  yo = leer(PIN);
+  socket = conectarJuego(PIN);
+  escuchar();
+  if (!yo) { ver('v-apodo'); $('#apodo').focus(); }
 }
 function entrar(apodo, token) {
-  socket.emit('jugador:entrar', { pin: PIN, apodo, token }, r => {
+  socket.emit('jugador:entrar', { apodo, token }, r => {
     if (r.error) {
-      if (token) { try { localStorage.removeItem('chispa-j-' + PIN); } catch {} ver('v-apodo'); $('#e-apodo').textContent = ''; return; }
+      if (token) { olvidar(); yo = null; ver('v-apodo'); return; }
       $('#e-apodo').textContent = r.error; return;
     }
     yo = { id: r.id, token: r.token, apodo: r.apodo }; guardar();
@@ -144,20 +146,22 @@ function mostrarFinal(f) {
   area(`<div class="pop"><div class="grande">${med}</div><h2>Has quedado ${f.puesto}.º de ${f.total}</h2><p class="burbuja" style="display:inline-block">${f.puntos} puntos</p><p>¡Gracias por jugar a Chispa!</p></div>`);
 }
 
+function escuchar() {
 socket.on('jugador:pregunta', mostrarPregunta);
 socket.on('jugador:resultado', mostrarResultado);
 socket.on('jugador:final', mostrarFinal);
-socket.on('jugador:expulsado', () => { try { localStorage.removeItem('chispa-j-' + PIN); } catch {} ver('v-juego'); area('<h2>El presentador te ha sacado de la partida</h2>'); });
-socket.on('jugador:cerrada', () => area('<h2>La partida ha terminado</h2><p><a href="./">Volver</a></p>'));
+socket.on('jugador:expulsado', () => { olvidar(); yo = null; socket.close(); ver('v-juego'); area('<h2>El presentador te ha sacado de la partida</h2>'); });
+socket.on('jugador:cerrada', () => { socket.close(); area('<h2>La partida ha terminado</h2><p><a href="./">Volver</a></p>'); });
 // Reconexión automática: al volver la conexión, recupera tu sitio y tus puntos
-socket.on('connect', () => { if (yo && PIN) entrar(null, yo.token); });
+socket.on('connect', () => { if (yo) entrar(null, yo.token); });
 socket.on('disconnect', () => aviso('Conexión perdida… reconectando'));
+}
 
 $('#b-pin').onclick = () => comprobarPin($('#pin').value);
 $('#pin').onkeydown = e => { if (e.key === 'Enter') comprobarPin($('#pin').value); };
 $('#b-apodo').onclick = () => entrar($('#apodo').value);
 $('#apodo').onkeydown = e => { if (e.key === 'Enter') entrar($('#apodo').value); };
-if (qs.get('pin')) { $('#pin').value = qs.get('pin'); socket.once('connect', () => comprobarPin(qs.get('pin'))); if (socket.connected) comprobarPin(qs.get('pin')); }
+if (qs.get('pin')) { $('#pin').value = qs.get('pin'); comprobarPin(qs.get('pin')); }
 </script>
 </body>
 </html>

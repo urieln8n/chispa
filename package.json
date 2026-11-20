@@ -1,15 +1,13 @@
 {
   "name": "chispa",
-  "version": "1.0.0",
-  "description": "Chispa — quiz en vivo multijugador en tiempo real",
-  "main": "server.js",
+  "version": "2.0.0",
+  "description": "Chispa — quiz en vivo multijugador en tiempo real (Cloudflare Workers)",
   "private": true,
-  "scripts": { "start": "node server.js", "test": "node test/simular.js" },
-  "engines": { "node": ">=18" },
-  "dependencies": {
-    "express": "^4.21.2",
-    "qrcode": "^1.5.4",
-    "socket.io": "^4.8.1"
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node test/simular.js"
   },
-  "devDependencies": { "socket.io-client": "^4.8.1" }
+  "dependencies": { "qrcode": "^1.5.4" },
+  "devDependencies": { "wrangler": "^4" }
 }

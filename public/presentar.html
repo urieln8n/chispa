@@ -52,18 +52,17 @@
 <body>
 <div class="barra-sup"><div id="m"></div><div id="info" class="pie"></div></div>
 <main id="escena" class="escena"><div class="centro" style="min-height:50vh"><h2>Preparando la partida…</h2></div></main>
-<script src="socket.io/socket.io.js"></script>
 <script src="comun.js"></script>
 <script>
 $('#m').innerHTML = marca();
 const qs = new URLSearchParams(location.search);
-const socket = conectar();
+let socket = null;
 let S = null, CLAVE_HOST = '', jugadores = [], preguntaActual = null, reloj = null;
 const ES = $('#escena');
 
 function joinUrl() { return new URL(BASE + '?pin=' + S.pin, location.href).href; }
 function siguiente() { socket.emit('host:siguiente', { claveHost: CLAVE_HOST }); }
-function guardarSesion() { try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin: S.pin, claveHost: CLAVE_HOST })); } catch {} }
+function guardarSesion() {}
 
 function sala() {
   const url = joinUrl();
@@ -163,31 +162,38 @@ function restaurar(estado) {
   else ES.innerHTML = `<div class="centro"><h2>Partida recuperada</h2><button class="btn" id="b-c">Continuar ▶</button></div>`, $('#b-c').onclick = siguiente;
 }
 
-socket.on('host:jugadores', l => { jugadores = l; pintarJugadores(); });
-socket.on('host:pregunta', pregunta);
-socket.on('host:respuestas', d => { const n = $('#nresp'); if (n) n.textContent = d.respondieron; });
-socket.on('host:resultado', resultado);
-socket.on('host:ranking', ranking);
-socket.on('host:podio', podio);
-socket.on('host:informe', informe);
-
-let arrancado = false;
-socket.on('connect', () => {
-  // Si se recarga la página o se corta la conexión, retoma la misma partida
-  let prev = null; try { prev = JSON.parse(sessionStorage.getItem('chispa-host') || 'null'); } catch {}
-  if (prev && (arrancado || !qs.get('id') || qs.get('pin') === prev.pin)) {
-    return socket.emit('host:reanudar', prev, r => { if (r.error) crear(); else { CLAVE_HOST = prev.claveHost; if (!arrancado) restaurar(r.estado); arrancado = true; } });
-  }
-  crear();
-});
-function crear() {
-  if (arrancado || !qs.get('id')) { if (!qs.get('id')) location.href = 'panel'; return; }
-  socket.emit('host:crear', { clave: clave(), cuestionarioId: qs.get('id') }, r => {
+function escuchar() {
+  socket.on('host:jugadores', l => { jugadores = l; pintarJugadores(); });
+  socket.on('host:pregunta', pregunta);
+  socket.on('host:respuestas', d => { const n = $('#nresp'); if (n) n.textContent = d.respondieron; });
+  socket.on('host:resultado', resultado);
+  socket.on('host:ranking', ranking);
+  socket.on('host:podio', podio);
+  socket.on('host:informe', informe);
+  // Al conectar (y al reconectar tras un corte) retoma la misma partida
+  let primera = true;
+  socket.on('connect', () => socket.emit('host:reanudar', { claveHost: CLAVE_HOST }, r => {
     if (r.error) { ES.innerHTML = `<div class="centro"><h2>${esc(r.error)}</h2><a class="btn" href="panel">Volver</a></div>`; return; }
-    arrancado = true; CLAVE_HOST = r.claveHost; history.replaceState(null, '', `presentar?id=${qs.get('id')}&pin=${r.pin}`);
-    restaurar(r.estado);
-  });
+    if (primera) { primera = false; restaurar(r.estado); }
+    else { jugadores = r.estado.jugadores; pintarJugadores(); }
+  }));
+  socket.on('disconnect', () => aviso('Conexión perdida… reconectando'));
 }
+function arrancar(pin, claveHost) {
+  CLAVE_HOST = claveHost;
+  try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin, claveHost })); } catch {}
+  socket = conectarJuego(pin); escuchar();
+}
+(async () => {
+  let prev = null; try { prev = JSON.parse(sessionStorage.getItem('chispa-host') || 'null'); } catch {}
+  if (prev && qs.get('pin') === prev.pin) return arrancar(prev.pin, prev.claveHost);
+  if (!qs.get('id')) { location.href = 'panel'; return; }
+  try {
+    const r = await api('partidas', { method: 'POST', body: { cuestionarioId: qs.get('id') } });
+    history.replaceState(null, '', `presentar?id=${qs.get('id')}&pin=${r.pin}`);
+    arrancar(r.pin, r.claveHost);
+  } catch (e) { if (e.message !== 'login') ES.innerHTML = `<div class="centro"><h2>${esc(e.message)}</h2><a class="btn" href="panel">Volver</a></div>`; }
+})();
 </script>
 </body>
 </html>

@@ -73,7 +73,15 @@ async function cargar() {
 }
 async function login(c) {
   try {
-    const r = await api('login', { method: 'POST', body: { clave: c } });
+    let r = await api('login', { method: 'POST', body: { clave: c } });
+    if (r.configurar) {
+      $('#v-login').classList.remove('oculto');
+      $('#v-login h2').textContent = 'Crea tu contraseña de presentador';
+      $('#b-login').textContent = 'Guardar y entrar';
+      $('#clave').setAttribute('autocomplete', 'new-password');
+      if (!c) return;
+      r = await api('configurar', { method: 'POST', body: { clave: c } });
+    }
     guardarClave(c); IA = r.ia;
     $('#v-login').classList.add('oculto'); $('#v-panel').classList.remove('oculto'); cargar();
   } catch (e) { $('#v-login').classList.remove('oculto'); if (c) $('#e-login').textContent = e.message; }
