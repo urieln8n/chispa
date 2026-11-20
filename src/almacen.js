@@ -1,6 +1,6 @@
 // Almacén permanente: cuestionarios, contraseña del presentador e informes de partidas
 import { DurableObject } from 'cloudflare:workers';
-import { idCorto, sha256, DEMO } from './comun.js';
+import { idCorto, sha256, DEMO, huella } from './comun.js';
 
 export class Almacen extends DurableObject {
   async init() {
@@ -54,6 +54,30 @@ export class Almacen extends DurableObject {
   // ---- Informes ----
   async guardarInforme(inf) { await this.ctx.storage.put('inf:' + inf.pin, inf); }
   async leerInforme(pin) { return (await this.ctx.storage.get('inf:' + pin)) || null; }
+
+  // ---- Preguntas ya usadas en cada lugar (bar, iglesia, colegio…) ----
+  claveLugar(lugar) { return 'u:' + lugar.toLowerCase(); }
+  async marcarUsadas(lugar, textos) {
+    const k = this.claveLugar(lugar);
+    const u = (await this.ctx.storage.get(k)) || { nombre: lugar, huellas: [] };
+    const set = new Set(u.huellas);
+    for (const t of textos) set.add(await huella(t));
+    u.huellas = [...set].slice(-20000); u.nombre = lugar; u.ultima = Date.now();
+    await this.ctx.storage.put(k, u);
+    const lista = (await this.ctx.storage.get('lugares')) || [];
+    if (!lista.includes(k)) { lista.push(k); await this.ctx.storage.put('lugares', lista); }
+  }
+  async usadas(lugar) {
+    const u = await this.ctx.storage.get(this.claveLugar(lugar));
+    return new Set(u ? u.huellas : []);
+  }
+  async lugares() {
+    const lista = (await this.ctx.storage.get('lugares')) || [];
+    const mapa = await this.ctx.storage.get(lista);
+    return lista.map(k => mapa.get(k)).filter(Boolean).map(u => ({ nombre: u.nombre, usadas: u.huellas.length, ultima: u.ultima }))
+      .sort((a, b) => (b.ultima || 0) - (a.ultima || 0));
+  }
+  async reiniciarLugar(lugar) { await this.ctx.storage.delete(this.claveLugar(lugar)); }
 
   // ---- Tope diario de IA ----
   async usoIA(limite) {

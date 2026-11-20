@@ -23,7 +23,11 @@
 <body>
 <div class="barra-sup"><div id="m"></div><a href="panel" class="btn sec peq">← Mis cuestionarios</a></div>
 <div class="contenedor">
-  <input id="titulo" class="campo" style="font-size:1.5rem;font-weight:800" placeholder="Título del cuestionario" maxlength="200">
+  <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+    <input id="titulo" class="campo" style="font-size:1.5rem;font-weight:800;flex:3;min-width:240px" placeholder="Título de la ronda" maxlength="200">
+    <input id="categoria" class="campo" style="flex:1;min-width:160px" list="cats" placeholder="Categoría (Cine, Biblia…)" maxlength="40">
+    <datalist id="cats"></datalist>
+  </div>
   <div id="preguntas"></div>
   <button id="b-add" class="btn sec" style="margin-top:1rem;width:100%">+ Añadir pregunta</button>
   <div class="guardar"><span id="estado" class="pie" style="align-self:center"></span><button id="b-guardar" class="btn">Guardar</button><button id="b-jugar" class="btn sec">Guardar y jugar ▶</button></div>
@@ -31,12 +35,15 @@
 <script src="comun.js"></script>
 <script>
 $('#m').innerHTML = marca();
+const pintarAntes = () => {};
+$('#titulo').oninput = e => { Q.titulo = e.target.value; };
+$('#categoria').oninput = e => { Q.categoria = e.target.value; };
 const id = new URLSearchParams(location.search).get('id');
-let Q = { titulo: '', preguntas: [] };
+let Q = { titulo: '', categoria: '', preguntas: [] };
 const nueva = () => ({ texto: '', opciones: ['', '', '', ''], correcta: 0, tiempo: 20, imagen: '' });
 
 function pintar() {
-  $('#titulo').value = Q.titulo;
+  $('#titulo').value = Q.titulo; $('#categoria').value = Q.categoria || '';
   $('#preguntas').innerHTML = Q.preguntas.map((p, i) => `
     <div class="tarjeta preg" data-i="${i}">
       <div class="preg-cab"><h3>Pregunta ${i + 1}</h3>
@@ -75,10 +82,10 @@ function validar() {
   return '';
 }
 async function guardar() {
-  Q.titulo = $('#titulo').value;
+  Q.titulo = $('#titulo').value; Q.categoria = $('#categoria').value;
   const err = validar(); if (err) { aviso(err, 3500); return null; }
   // Compacta opciones vacías manteniendo la correcta
-  const body = { titulo: Q.titulo, preguntas: Q.preguntas.map(p => {
+  const body = { titulo: Q.titulo, categoria: Q.categoria, preguntas: Q.preguntas.map(p => {
     const idx = p.opciones.map((o, k) => k).filter(k => (p.opciones[k] || '').trim());
     return { ...p, opciones: idx.map(k => p.opciones[k]), correcta: idx.indexOf(p.correcta) };
   }) };
@@ -87,13 +94,14 @@ async function guardar() {
   if (!id) history.replaceState(null, '', 'editor?id=' + r.id);
   return r;
 }
-$('#b-add').onclick = () => { Q.preguntas.push(nueva()); pintar(); window.scrollTo(0, document.body.scrollHeight); };
+$('#b-add').onclick = () => { pintarAntes(); Q.preguntas.push(nueva()); pintar(); window.scrollTo(0, document.body.scrollHeight); };
 $('#b-guardar').onclick = async () => { const r = await guardar(); if (r && !id) location.href = 'editor?id=' + r.id; };
 $('#b-jugar').onclick = async () => { const r = await guardar(); if (r) location.href = 'presentar?id=' + r.id; };
 (async () => {
   if (id) { Q = await api('cuestionarios/' + id); Q.preguntas.forEach(p => { while (p.opciones.length < 4) p.opciones.push(''); }); }
   if (!Q.preguntas.length) Q.preguntas.push(nueva());
   pintar();
+  api('cuestionarios').then(l => { $('#cats').innerHTML = [...new Set(l.map(q => q.categoria).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join(''); }).catch(() => {});
 })();
 </script>
 </body>

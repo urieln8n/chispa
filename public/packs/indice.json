@@ -1,0 +1,14 @@
+[
+ {
+  "archivo": "bar.json",
+  "titulo": "Noches de trivial en bares",
+  "descripcion": "6 rondas de 10: cultura general, cine y series, música, deportes, Barcelona y ciencia",
+  "n": 60
+ },
+ {
+  "archivo": "biblia.json",
+  "titulo": "Biblia (Reina-Valera 1960)",
+  "descripcion": "2 rondas de 10: vida de Jesús y Antiguo Testamento, con citas",
+  "n": 20
+ }
+]

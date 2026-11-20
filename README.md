@@ -17,6 +17,13 @@ Funciona en **Cloudflare Workers + Durable Objects**: gratis para empezar, siemp
   - Preguntas largas, y la pregunta también se ve en el móvil.
 - **IA opcional**: crea un cuestionario a partir de un tema o un texto pegado (API de Anthropic, con tope diario).
 
+## Biblioteca y noches
+- **Categorías, buscador y filtros** para organizar tus rondas.
+- **📍 Lugar** (arriba en el panel): escribe dónde juegas hoy (p. ej. «Bar Manolo»). Chispa recuerda qué preguntas se han usado en cada sitio.
+- **🎲 Montar noche**: elige cuántas preguntas al azar quieres de cada ronda. Chispa crea la partida sin repetir las que ya salieron en ese lugar.
+- **⇅ Importar / Exportar**: copia de seguridad, compartir rondas y cargar los **packs de inicio** (6 rondas para bares y 2 de Biblia, Reina-Valera 1960).
+- **Modo automático** (en la pantalla del presentador): enseña resultados y ranking unos segundos y pasa sola a la siguiente pregunta.
+
 ## Publicar en Cloudflare (gratis)
 
 ### Opción A: desde el panel de Cloudflare, con GitHub (sin instalar nada)

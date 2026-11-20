@@ -3,17 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chispa · Mis cuestionarios</title>
+<title>Chispa · Mi biblioteca</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-  .lista{display:grid;gap:12px;margin-top:1rem}
-  .fila{display:flex;align-items:center;gap:1rem;justify-content:space-between;flex-wrap:wrap}
-  .fila h3{font-size:1.25rem}
-  .acciones{display:flex;gap:.5rem;flex-wrap:wrap}
+  .lista{display:grid;gap:10px;margin-top:1rem}
+  .fila{display:flex;align-items:center;gap:1rem;justify-content:space-between;flex-wrap:wrap;padding:1rem 1.2rem}
+  .fila h3{font-size:1.2rem}
+  .acciones{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
   .login{max-width:360px;width:100%;display:flex;flex-direction:column;gap:.8rem}
-  .hero{display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap;margin-top:1rem}
-  .ia{margin-top:1rem;display:grid;gap:.6rem}
+  .hero{display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap;margin-top:.5rem}
+  .caja{margin-top:1rem;display:grid;gap:.7rem}
   textarea.campo{min-height:90px;resize:vertical}
+  .herramientas{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;align-items:center}
+  .herramientas .campo{width:auto;flex:1;min-width:200px;padding:.6em .9em}
+  .chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem}
+  .chipf{border:1px solid #2a4369;background:var(--noche2);color:var(--texto);border-radius:99px;padding:.35em .9em;font-weight:700;cursor:pointer}
+  .chipf.on{background:var(--ambar);color:var(--noche);border-color:var(--ambar)}
+  .etq{display:inline-block;background:var(--noche3);border-radius:99px;padding:.1em .7em;font-size:.8rem;font-weight:800;margin-right:.4rem;color:var(--ambar)}
+  .lugar{display:flex;align-items:center;gap:.5rem;background:var(--noche2);border:1px solid #2a4369;border-radius:14px;padding:.35rem .4rem .35rem .8rem}
+  .lugar input{background:transparent;border:0;color:var(--texto);font-weight:800;outline:none;width:12rem}
+  .mez{display:grid;gap:.4rem;max-height:46vh;overflow:auto;padding-right:.3rem}
+  .mez label{display:flex;align-items:center;justify-content:space-between;gap:.8rem;background:#0b1626;border-radius:12px;padding:.5rem .8rem}
+  .mez input[type=number]{width:4.5rem;padding:.4em;border-radius:10px;border:2px solid var(--noche3);background:var(--noche2);color:var(--texto);font-weight:800;text-align:center}
+  .opc{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center}
+  .opc label{display:flex;gap:.4rem;align-items:center;cursor:pointer}
+  .pack{display:flex;justify-content:space-between;align-items:center;gap:1rem;background:#0b1626;border-radius:12px;padding:.7rem .9rem;flex-wrap:wrap}
+  .info{color:var(--suave);font-size:.92rem}
 </style>
 </head>
 <body>
@@ -29,22 +44,71 @@
 </section>
 
 <section id="v-panel" class="oculto">
-  <div class="barra-sup"><div id="m2"></div><button id="b-salir" class="btn sec peq">Salir</button></div>
+  <div class="barra-sup"><div id="m2"></div>
+    <div class="acciones">
+      <div class="lugar" title="Se guardan las preguntas que usas en cada sitio para no repetirlas">📍 <input id="lugar" list="lista-lugares" placeholder="¿Dónde juegas hoy?" maxlength="60"><datalist id="lista-lugares"></datalist></div>
+      <button id="b-salir" class="btn sec peq">Salir</button>
+    </div>
+  </div>
   <div class="contenedor">
     <div class="hero">
-      <div><h1>Mis cuestionarios</h1><p class="pie" style="margin:.2rem 0 0">Crea, edita y lanza una partida en vivo.</p></div>
-      <div class="acciones"><button id="b-ia" class="btn sec">✨ Crear con IA</button><a class="btn" href="editor">+ Nuevo cuestionario</a></div>
-    </div>
-    <div id="caja-ia" class="tarjeta ia oculto">
-      <h3>✨ Crear un cuestionario con IA</h3>
-      <textarea id="ia-tema" class="campo" placeholder="Escribe un tema (p. ej. «La Revolución Francesa para 4.º de ESO») o pega un texto, unos apuntes, una política de empresa…"></textarea>
+      <div><h1>Mi biblioteca</h1><p class="pie" style="margin:.2rem 0 0">Tus rondas de preguntas, listas para jugar o mezclar.</p></div>
       <div class="acciones">
-        <select id="ia-n" class="campo" style="width:auto"><option>5</option><option selected>8</option><option>10</option><option>15</option></select>
-        <select id="ia-nivel" class="campo" style="width:auto"><option value="general">Nivel general</option><option value="primaria">Primaria</option><option value="secundaria">Secundaria</option><option value="universidad">Universidad</option><option value="empresa">Formación de empresa</option><option value="experto">Experto</option></select>
+        <button id="b-noche" class="btn">🎲 Montar noche</button>
+        <button id="b-ia" class="btn sec">✨ Crear con IA</button>
+        <a class="btn sec" href="editor">+ Nuevo</a>
+        <button id="b-io" class="btn sec">⇅ Importar / Exportar</button>
+      </div>
+    </div>
+
+    <!-- Montar noche -->
+    <div id="caja-noche" class="tarjeta caja oculto">
+      <h3>🎲 Montar una noche mezclando rondas</h3>
+      <p class="info">Elige cuántas preguntas al azar quieres de cada ronda. <span id="info-lugar"></span></p>
+      <div id="mez" class="mez"></div>
+      <div class="opc">
+        <label><input type="checkbox" id="mez-evitar" checked> No repetir preguntas ya usadas en este lugar</label>
+        <label><input type="checkbox" id="mez-barajar" checked> Mezclar el orden</label>
+        <span class="info">Total: <b id="mez-total">0</b> preguntas</span>
+      </div>
+      <div class="acciones">
+        <input id="mez-titulo" class="campo" style="flex:1;min-width:220px" placeholder="Título (opcional): Trivial miércoles en Bar Manolo">
+        <button id="b-mez-crear" class="btn sec">Crear y guardar</button>
+        <button id="b-mez-jugar" class="btn">Crear y jugar ▶</button>
+      </div>
+      <div id="mez-msg" class="error"></div>
+      <div id="lugares-info" class="info"></div>
+    </div>
+
+    <!-- IA -->
+    <div id="caja-ia" class="tarjeta caja oculto">
+      <h3>✨ Crear una ronda con IA</h3>
+      <textarea id="ia-tema" class="campo" placeholder="Escribe un tema (p. ej. «Música española de los 90», «La vida de José en Génesis 37-50 para jóvenes») o pega un texto, unos apuntes…"></textarea>
+      <div class="acciones">
+        <select id="ia-n" class="campo" style="width:auto"><option>5</option><option selected>10</option><option>15</option><option>20</option></select>
+        <select id="ia-nivel" class="campo" style="width:auto"><option value="general">Nivel general</option><option value="fácil, para bar y público variado">Bar / público variado</option><option value="primaria">Niños</option><option value="secundaria">Jóvenes</option><option value="universidad">Universidad</option><option value="empresa">Formación de empresa</option><option value="experto">Experto</option></select>
+        <input id="ia-cat" class="campo" style="width:auto;flex:1;min-width:160px" list="lista-cats" placeholder="Categoría (opcional)">
         <button id="b-ia-gen" class="btn">Generar</button>
       </div>
       <div id="ia-msg" class="error"></div>
+      <p class="info">Revisa siempre las preguntas antes de usarlas: la IA puede equivocarse.</p>
     </div>
+
+    <!-- Importar / Exportar -->
+    <div id="caja-io" class="tarjeta caja oculto">
+      <h3>⇅ Importar / Exportar</h3>
+      <div id="packs" style="display:grid;gap:.5rem"></div>
+      <div class="acciones">
+        <label class="btn sec" style="cursor:pointer">📂 Importar archivo .json<input type="file" id="f-import" accept=".json,application/json" hidden></label>
+        <button id="b-exp-todo" class="btn sec">⬇ Exportar toda la biblioteca</button>
+      </div>
+      <div id="io-msg" class="error"></div>
+      <p class="info">Exporta para hacer copia de seguridad o compartir rondas con otra persona que use Chispa.</p>
+    </div>
+
+    <div class="herramientas"><input id="buscar" class="campo" placeholder="🔍 Buscar por título…"></div>
+    <div id="chips" class="chips"></div>
+    <datalist id="lista-cats"></datalist>
     <div id="lista" class="lista"></div>
   </div>
 </section>
@@ -52,25 +116,126 @@
 <script src="comun.js"></script>
 <script>
 $('#m1').innerHTML = marca(); $('#m2').innerHTML = marca();
-let IA = false;
-async function cargar() {
-  const lista = await api('cuestionarios');
+let IA = false, TODOS = [], CAT = '', LUGARES = [];
+const lugar = () => $('#lugar').value.trim();
+try { $('#lugar').value = localStorage.getItem('chispa-lugar') || ''; } catch {}
+$('#lugar').oninput = () => { try { localStorage.setItem('chispa-lugar', lugar()); } catch {} pintarLugar(); };
+
+function categorias() { return [...new Set(TODOS.map(q => q.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es')); }
+function pintar() {
+  const cats = categorias();
+  $('#lista-cats').innerHTML = cats.map(c => `<option value="${esc(c)}">`).join('');
+  $('#chips').innerHTML = ['', ...cats, ...(TODOS.some(q => !q.categoria) ? ['__sin'] : [])].map(c =>
+    `<button class="chipf ${c === CAT ? 'on' : ''}" data-c="${esc(c)}">${c === '' ? 'Todas' : c === '__sin' ? 'Sin categoría' : esc(c)}</button>`).join('');
+  document.querySelectorAll('.chipf').forEach(b => b.onclick = () => { CAT = b.dataset.c; pintar(); });
+  const txt = $('#buscar').value.trim().toLowerCase();
+  const lista = TODOS.filter(q => (CAT === '' || (CAT === '__sin' ? !q.categoria : q.categoria === CAT)) && (!txt || q.titulo.toLowerCase().includes(txt)));
   $('#lista').innerHTML = lista.length ? lista.map(q => `
     <div class="tarjeta fila">
-      <div><h3>${esc(q.titulo)}</h3><span class="pie">${q.n} pregunta${q.n === 1 ? '' : 's'} · ${new Date(q.actualizado).toLocaleDateString('es-ES')}</span></div>
+      <div><h3>${esc(q.titulo)}</h3><span class="pie">${q.categoria ? `<span class="etq">${esc(q.categoria)}</span>` : ''}${q.n} pregunta${q.n === 1 ? '' : 's'} · ${new Date(q.actualizado).toLocaleDateString('es-ES')}</span></div>
       <div class="acciones">
         <a class="btn" href="presentar?id=${q.id}">▶ Jugar</a>
         <a class="btn sec" href="editor?id=${q.id}">Editar</a>
         <button class="btn sec" data-dup="${q.id}">Duplicar</button>
+        <button class="btn sec" data-exp="${q.id}" title="Exportar">⬇</button>
         <button class="btn sec" data-del="${q.id}">Borrar</button>
       </div>
-    </div>`).join('') : '<p class="tarjeta">Aún no tienes cuestionarios. ¡Crea el primero!</p>';
+    </div>`).join('') : `<p class="tarjeta">${TODOS.length ? 'No hay nada con ese filtro.' : 'Tu biblioteca está vacía. Pulsa «⇅ Importar / Exportar» para cargar las rondas de inicio.'}</p>`;
   document.querySelectorAll('[data-dup]').forEach(b => b.onclick = async () => { await api(`cuestionarios/${b.dataset.dup}/duplicar`, { method: 'POST' }); cargar(); });
+  document.querySelectorAll('[data-exp]').forEach(b => b.onclick = () => descargar('exportar?id=' + b.dataset.exp));
   document.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
     if (b.dataset.ok) { await api(`cuestionarios/${b.dataset.del}`, { method: 'DELETE' }); cargar(); }
     else { b.dataset.ok = 1; b.textContent = '¿Seguro?'; b.classList.add('peligro'); }
   });
+  pintarMezcla();
 }
+async function cargar() {
+  [TODOS, LUGARES] = await Promise.all([api('cuestionarios'), api('lugares')]);
+  $('#lista-lugares').innerHTML = LUGARES.map(l => `<option value="${esc(l.nombre)}">`).join('');
+  pintar(); pintarLugar();
+}
+$('#buscar').oninput = pintar;
+
+// ---- Montar noche ----
+function pintarMezcla() {
+  const rondas = TODOS.filter(q => q.categoria !== 'Noches');
+  const previo = {}; document.querySelectorAll('#mez input[type=number]').forEach(i => previo[i.dataset.id] = i.value);
+  $('#mez').innerHTML = rondas.length ? rondas.map(q => `<label><span>${q.categoria ? `<span class="etq">${esc(q.categoria)}</span>` : ''}${esc(q.titulo)} <span class="pie">(${q.n})</span></span>
+    <input type="number" min="0" max="${q.n}" value="${previo[q.id] || 0}" data-id="${q.id}"></label>`).join('') : '<p class="info">Primero añade rondas a tu biblioteca.</p>';
+  document.querySelectorAll('#mez input').forEach(i => i.oninput = sumar);
+  sumar();
+}
+function sumar() { let t = 0; document.querySelectorAll('#mez input[type=number]').forEach(i => t += +i.value || 0); $('#mez-total').textContent = t; }
+function pintarLugar() {
+  const l = lugar(), dato = LUGARES.find(x => x.nombre.toLowerCase() === l.toLowerCase());
+  $('#info-lugar').innerHTML = l ? `Lugar: <b>${esc(l)}</b>${dato ? ` · ya se han usado ${dato.usadas} preguntas aquí` : ' · aún no se ha jugado aquí'}.` : 'Escribe arriba 📍 dónde juegas para no repetir preguntas en el mismo sitio.';
+  $('#lugares-info').innerHTML = dato ? `<button class="btn sec peq" id="b-reiniciar">Reiniciar preguntas usadas en ${esc(l)}</button>` : '';
+  const br = $('#b-reiniciar'); if (br) br.onclick = async () => {
+    if (!br.dataset.ok) { br.dataset.ok = 1; br.textContent = '¿Seguro? Se podrán repetir todas'; br.classList.add('peligro'); return; }
+    await api('lugares/reiniciar', { method: 'POST', body: { lugar: l } }); cargar();
+  };
+}
+async function mezclar(jugar) {
+  $('#mez-msg').textContent = '';
+  const fuentes = [...document.querySelectorAll('#mez input[type=number]')].map(i => ({ id: i.dataset.id, n: +i.value || 0 })).filter(f => f.n > 0);
+  try {
+    const r = await api('mezclar', { method: 'POST', body: { fuentes, lugar: lugar(), evitarUsadas: $('#mez-evitar').checked, barajar: $('#mez-barajar').checked, titulo: $('#mez-titulo').value } });
+    let msg = `Creada «${r.quiz.titulo}» con ${r.quiz.n} preguntas.`;
+    if (r.evitadas) msg += ` Se han evitado ${r.evitadas} ya usadas aquí.`;
+    if (r.faltan) msg += ` Faltaron ${r.faltan} (no había suficientes nuevas).`;
+    aviso(msg, 4000);
+    if (jugar) location.href = 'presentar?id=' + r.quiz.id; else cargar();
+  } catch (e) { $('#mez-msg').textContent = e.message; }
+}
+$('#b-mez-crear').onclick = () => mezclar(false);
+$('#b-mez-jugar').onclick = () => mezclar(true);
+
+// ---- Importar / Exportar ----
+async function descargar(ruta) {
+  const r = await fetch(BASE + 'api/' + ruta, { headers: { 'x-chispa-clave': clave() } });
+  if (!r.ok) return aviso('No se ha podido exportar');
+  const nombre = (r.headers.get('content-disposition') || '').match(/filename="([^"]+)"/);
+  const a = document.createElement('a'); a.href = URL.createObjectURL(await r.blob()); a.download = nombre ? nombre[1] : 'chispa.json';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+async function importar(datos, saltarRepetidos) {
+  const r = await api('importar', { method: 'POST', body: Array.isArray(datos) ? { cuestionarios: datos, saltarRepetidos } : { ...datos, saltarRepetidos } });
+  aviso(`✔ Importadas ${r.creados} rondas${r.saltados ? ` (${r.saltados} ya las tenías)` : ''}`, 3500);
+  cargar();
+}
+$('#b-exp-todo').onclick = () => descargar('exportar');
+$('#f-import').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  $('#io-msg').textContent = '';
+  try { await importar(JSON.parse(await f.text()), false); } catch (err) { $('#io-msg').textContent = err instanceof SyntaxError ? 'Ese archivo no es un .json válido' : err.message; }
+  e.target.value = '';
+};
+async function cargarPacks() {
+  const packs = await fetch(BASE + 'packs/indice.json').then(r => r.json()).catch(() => []);
+  $('#packs').innerHTML = packs.length ? '<b>Rondas de inicio incluidas</b>' + packs.map(p => `<div class="pack"><div><b>${esc(p.titulo)}</b><div class="info">${esc(p.descripcion)}</div></div><button class="btn peq" data-pack="${esc(p.archivo)}">Añadir a mi biblioteca</button></div>`).join('') : '';
+  document.querySelectorAll('[data-pack]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    try { await importar(await fetch(BASE + 'packs/' + b.dataset.pack).then(r => r.json()), true); b.textContent = '✔ Añadido'; } catch (e) { $('#io-msg').textContent = e.message; b.disabled = false; }
+  });
+}
+
+// ---- Paneles desplegables ----
+function abrir(id) { ['caja-noche', 'caja-ia', 'caja-io'].forEach(c => $('#' + c).classList.toggle('oculto', c !== id || !$('#' + c).classList.contains('oculto'))); }
+$('#b-noche').onclick = () => abrir('caja-noche');
+$('#b-io').onclick = () => { abrir('caja-io'); cargarPacks(); };
+$('#b-ia').onclick = () => { abrir('caja-ia'); if (!IA) $('#ia-msg').textContent = 'La IA aún no está activada (falta el secreto ANTHROPIC_API_KEY en Cloudflare).'; };
+$('#b-ia-gen').onclick = async () => {
+  const b = $('#b-ia-gen'); b.disabled = true; b.textContent = 'Creando…'; $('#ia-msg').textContent = '';
+  try {
+    const q = await api('ia/generar', { method: 'POST', body: { tema: $('#ia-tema').value, n: $('#ia-n').value, nivel: $('#ia-nivel').value } });
+    q.categoria = $('#ia-cat').value.trim() || q.categoria || '';
+    const g = await api('cuestionarios', { method: 'POST', body: q });
+    location.href = 'editor?id=' + g.id;
+  } catch (e) { $('#ia-msg').textContent = e.message; }
+  b.disabled = false; b.textContent = 'Generar';
+};
+
+// ---- Acceso ----
 async function login(c) {
   try {
     let r = await api('login', { method: 'POST', body: { clave: c } });
@@ -89,19 +254,6 @@ async function login(c) {
 $('#b-login').onclick = () => login($('#clave').value);
 $('#clave').onkeydown = e => { if (e.key === 'Enter') login($('#clave').value); };
 $('#b-salir').onclick = () => { guardarClave(''); location.reload(); };
-$('#b-ia').onclick = () => {
-  $('#caja-ia').classList.toggle('oculto');
-  if (!IA) $('#ia-msg').textContent = 'La IA aún no está activada en tu servidor (falta la clave de Anthropic).';
-};
-$('#b-ia-gen').onclick = async () => {
-  const b = $('#b-ia-gen'); b.disabled = true; b.textContent = 'Creando…'; $('#ia-msg').textContent = '';
-  try {
-    const q = await api('ia/generar', { method: 'POST', body: { tema: $('#ia-tema').value, n: $('#ia-n').value, nivel: $('#ia-nivel').value } });
-    const g = await api('cuestionarios', { method: 'POST', body: q });
-    location.href = 'editor?id=' + g.id;
-  } catch (e) { $('#ia-msg').textContent = e.message; }
-  b.disabled = false; b.textContent = 'Generar';
-};
 login(clave());
 </script>
 </body>

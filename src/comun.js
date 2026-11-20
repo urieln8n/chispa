@@ -25,6 +25,7 @@ export function json(data, status = 200, headers = {}) {
 
 export function limpiarCuestionario(body) {
   const titulo = String(body.titulo || '').trim().slice(0, 200) || 'Cuestionario sin título';
+  const categoria = String(body.categoria || '').replace(/\s+/g, ' ').trim().slice(0, 40);
   const preguntas = (Array.isArray(body.preguntas) ? body.preguntas : []).slice(0, 200).map(p => {
     const opciones = (Array.isArray(p.opciones) ? p.opciones : []).slice(0, 4).map(o => String(o || '').trim().slice(0, 300));
     while (opciones.length < 2) opciones.push('');
@@ -35,7 +36,14 @@ export function limpiarCuestionario(body) {
     const imagen = /^https?:\/\//i.test(String(p.imagen || '')) ? String(p.imagen).slice(0, 1000) : '';
     return { texto: String(p.texto || '').trim().slice(0, 1000), opciones, correcta, tiempo, imagen };
   }).filter(p => p.texto && p.opciones.filter(Boolean).length >= 2);
-  return { titulo, preguntas };
+  return { titulo, categoria, preguntas };
+}
+
+export function normalizarLugar(l) {
+  return String(l || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+}
+export async function huella(texto) {
+  return (await sha256(String(texto).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim())).slice(0, 16);
 }
 
 export const DEMO = {

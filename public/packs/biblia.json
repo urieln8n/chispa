@@ -1,0 +1,238 @@
+{
+ "app": "chispa",
+ "version": 1,
+ "cuestionarios": [
+  {
+   "titulo": "Biblia · Vida de Jesús",
+   "categoria": "Biblia",
+   "preguntas": [
+    {
+     "texto": "¿En qué ciudad nació Jesús? (Mateo 2:1)",
+     "opciones": [
+      "Nazaret",
+      "Capernaúm",
+      "Jerusalén",
+      "Belén"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Quién bautizó a Jesús en el río Jordán? (Mateo 3:13)",
+     "opciones": [
+      "Pedro",
+      "Juan el Bautista",
+      "Andrés",
+      "Elías"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "Según Juan 2, ¿cuál fue el primer milagro de Jesús en Caná?",
+     "opciones": [
+      "Multiplicar los panes",
+      "Convertir el agua en vino",
+      "Caminar sobre el agua",
+      "Sanar a un ciego"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántos apóstoles escogió Jesús?",
+     "opciones": [
+      "70",
+      "12",
+      "10",
+      "7"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántos días ayunó Jesús en el desierto? (Mateo 4:2)",
+     "opciones": [
+      "3",
+      "30",
+      "40",
+      "7"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "Completa Juan 3:16: «Porque de tal manera amó Dios al mundo, que ha dado a su Hijo…»",
+     "opciones": [
+      "unigénito",
+      "amado",
+      "primogénito",
+      "escogido"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué discípulo negó a Jesús tres veces?",
+     "opciones": [
+      "Tomás",
+      "Judas",
+      "Pedro",
+      "Juan"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "En la parábola de Lucas 10, ¿quién ayudó al hombre herido en el camino?",
+     "opciones": [
+      "Un fariseo",
+      "Un sacerdote",
+      "Un samaritano",
+      "Un levita"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Con qué alimentó Jesús a los cinco mil? (Juan 6:9)",
+     "opciones": [
+      "Cinco panes y dos peces",
+      "Dos panes y cinco peces",
+      "Doce panes y un pez",
+      "Siete panes y tres peces"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "Según los Evangelios, ¿cuándo resucitó Jesús?",
+     "opciones": [
+      "Al tercer día",
+      "Al séptimo día",
+      "Al segundo día",
+      "A los cuarenta días"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    }
+   ]
+  },
+  {
+   "titulo": "Biblia · Antiguo Testamento",
+   "categoria": "Biblia",
+   "preguntas": [
+    {
+     "texto": "¿Cuál es el primer libro de la Biblia?",
+     "opciones": [
+      "Levítico",
+      "Éxodo",
+      "Génesis",
+      "Salmos"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Quién construyó el arca por mandato de Dios? (Génesis 6)",
+     "opciones": [
+      "Moisés",
+      "Noé",
+      "Abraham",
+      "Jacob"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Quién guio al pueblo de Israel en la salida de Egipto?",
+     "opciones": [
+      "Josué",
+      "David",
+      "Moisés",
+      "Aarón"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántos mandamientos recibió Moisés en el monte Sinaí?",
+     "opciones": [
+      "40",
+      "12",
+      "10",
+      "7"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Con qué derrotó David al gigante Goliat? (1 Samuel 17)",
+     "opciones": [
+      "Con una honda y una piedra",
+      "Con una espada",
+      "Con una lanza",
+      "Con un arco"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Quién fue arrojado al foso de los leones? (Daniel 6)",
+     "opciones": [
+      "Jonás",
+      "Daniel",
+      "Elías",
+      "José"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué profeta pasó tres días en el vientre de un gran pez?",
+     "opciones": [
+      "Jeremías",
+      "Ezequiel",
+      "Isaías",
+      "Jonás"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cómo se llamaba la esposa de Abraham?",
+     "opciones": [
+      "Rebeca",
+      "Sara",
+      "Lea",
+      "Raquel"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Quién fue vendido por sus hermanos y llegó a gobernar en Egipto? (Génesis 37–41)",
+     "opciones": [
+      "Judá",
+      "Benjamín",
+      "Rubén",
+      "José"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué libro está el pasaje «Jehová es mi pastor; nada me faltará»?",
+     "opciones": [
+      "Salmos",
+      "Eclesiastés",
+      "Isaías",
+      "Proverbios"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    }
+   ]
+  }
+ ]
+}

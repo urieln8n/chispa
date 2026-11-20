@@ -1,6 +1,6 @@
 // Chispa en Cloudflare: el Worker sirve la web, la API y reparte cada partida a su Durable Object.
 import QRCode from 'qrcode';
-import { json, iguales, limpiarCuestionario } from './comun.js';
+import { json, iguales, limpiarCuestionario, normalizarLugar, huella } from './comun.js';
 export { Juego } from './juego.js';
 export { Almacen } from './almacen.js';
 
@@ -71,7 +71,7 @@ async function api(req, env, url, ruta) {
   if (!(await autorizado(req, env))) return json({ error: 'Contraseña de presentador incorrecta' }, 401);
 
   if (ruta === 'cuestionarios' && m === 'GET')
-    return json((await st.listar()).map(q => ({ id: q.id, titulo: q.titulo, n: q.preguntas.length, actualizado: q.actualizado })));
+    return json((await st.listar()).map(q => ({ id: q.id, titulo: q.titulo, categoria: q.categoria || '', n: q.preguntas.length, actualizado: q.actualizado })));
   if (ruta === 'cuestionarios' && m === 'POST') return json(await st.guardar(limpiarCuestionario(await cuerpo())));
   if ((r = ruta.match(/^cuestionarios\/([a-f0-9]+)$/))) {
     const id = r[1];
@@ -81,12 +81,78 @@ async function api(req, env, url, ruta) {
   }
   if ((r = ruta.match(/^cuestionarios\/([a-f0-9]+)\/duplicar$/)) && m === 'POST') {
     const q = await st.leer(r[1]); if (!q) return json({ error: 'No existe' }, 404);
-    return json(await st.guardar({ titulo: q.titulo + ' (copia)', preguntas: q.preguntas }));
+    return json(await st.guardar({ titulo: q.titulo + ' (copia)', categoria: q.categoria || '', preguntas: q.preguntas }));
+  }
+
+  // --- Biblioteca: exportar / importar ---
+  if (ruta === 'exportar' && m === 'GET') {
+    const id = url.searchParams.get('id');
+    let lista = await st.listar();
+    if (id) lista = lista.filter(q => q.id === id);
+    const datos = { app: 'chispa', version: 1, exportado: new Date().toISOString(),
+      cuestionarios: lista.map(q => ({ titulo: q.titulo, categoria: q.categoria || '', preguntas: q.preguntas })) };
+    const nombre = id && lista[0] ? 'chispa-' + lista[0].titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) : 'chispa-biblioteca';
+    return new Response(JSON.stringify(datos, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8', 'content-disposition': `attachment; filename="${nombre}.json"` } });
+  }
+  if (ruta === 'importar' && m === 'POST') {
+    const b = await cuerpo();
+    const lista = Array.isArray(b) ? b : Array.isArray(b.cuestionarios) ? b.cuestionarios : (b.preguntas ? [b] : []);
+    if (!lista.length) return json({ error: 'El archivo no tiene cuestionarios de Chispa' }, 400);
+    const existentes = new Set((await st.listar()).map(q => q.titulo));
+    let creados = 0, saltados = 0;
+    for (const q of lista.slice(0, 300)) {
+      const limpio = limpiarCuestionario(q);
+      if (!limpio.preguntas.length) { saltados++; continue; }
+      if (b.saltarRepetidos && existentes.has(limpio.titulo)) { saltados++; continue; }
+      await st.guardar(limpio); creados++;
+    }
+    return json({ creados, saltados });
+  }
+
+  // --- Lugares (para no repetir preguntas en el mismo bar) ---
+  if (ruta === 'lugares' && m === 'GET') return json(await st.lugares());
+  if (ruta === 'lugares/reiniciar' && m === 'POST') {
+    const lugar = normalizarLugar((await cuerpo()).lugar);
+    if (lugar) await st.reiniciarLugar(lugar);
+    return json({ ok: true });
+  }
+
+  // --- Montar una noche mezclando rondas ---
+  if (ruta === 'mezclar' && m === 'POST') {
+    const b = await cuerpo();
+    const lugar = normalizarLugar(b.lugar);
+    const usadas = lugar && b.evitarUsadas !== false ? await st.usadas(lugar) : new Set();
+    const fuentes = (Array.isArray(b.fuentes) ? b.fuentes : []).slice(0, 50);
+    const elegidas = [], vistas = new Set();
+    let evitadas = 0, faltan = 0;
+    for (const f of fuentes) {
+      const q = await st.leer(String(f.id || '')); if (!q) continue;
+      const pedidas = Math.max(0, parseInt(f.n, 10) || 0); if (!pedidas) continue;
+      const candidatas = [];
+      for (const p of q.preguntas) {
+        const h = await huella(p.texto);
+        if (vistas.has(h)) continue;
+        if (usadas.has(h)) { evitadas++; continue; }
+        candidatas.push({ p, h });
+      }
+      barajar(candidatas);
+      const tomar = candidatas.slice(0, pedidas);
+      faltan += pedidas - tomar.length;
+      tomar.forEach(x => { vistas.add(x.h); elegidas.push(x.p); });
+    }
+    if (!elegidas.length) return json({ error: evitadas ? 'Todas esas preguntas ya se usaron en ' + lugar + '. Elige otras rondas o reinicia ese lugar.' : 'Elige al menos una ronda y cuántas preguntas quieres' }, 400);
+    if (b.barajar) barajar(elegidas);
+    const fecha = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const titulo = String(b.titulo || '').trim() || `Noche${lugar ? ' en ' + lugar : ''} · ${fecha}`;
+    const quiz = await st.guardar(limpiarCuestionario({ titulo, categoria: 'Noches', preguntas: elegidas }));
+    return json({ quiz: { id: quiz.id, titulo: quiz.titulo, n: quiz.preguntas.length }, evitadas, faltan });
   }
   if (ruta === 'partidas' && m === 'POST') {
-    const { cuestionarioId } = await cuerpo();
+    const { cuestionarioId, lugar: lugarBruto } = await cuerpo();
     const quiz = await st.leer(String(cuestionarioId || ''));
     if (!quiz || !quiz.preguntas.length) return json({ error: 'Ese cuestionario no tiene preguntas' }, 400);
+    const lugar = normalizarLugar(lugarBruto);
+    if (lugar) await st.marcarUsadas(lugar, quiz.preguntas.map(p => p.texto));
     for (let i = 0; i < 8; i++) {
       const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
       const res = await juego(env, pin).crear(pin, { titulo: quiz.titulo, preguntas: quiz.preguntas });
@@ -96,6 +162,11 @@ async function api(req, env, url, ruta) {
   }
   if (ruta === 'ia/generar' && m === 'POST') return generarIA(env, st, await cuerpo());
   return json({ error: 'No encontrado' }, 404);
+}
+
+function barajar(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
 }
 
 async function informeCsv(env, pin, k) {

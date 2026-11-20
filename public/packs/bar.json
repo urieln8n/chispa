@@ -1,0 +1,702 @@
+{
+ "app": "chispa",
+ "version": 1,
+ "cuestionarios": [
+  {
+   "titulo": "Ronda · Cultura general",
+   "categoria": "Cultura general",
+   "preguntas": [
+    {
+     "texto": "¿Cuál es el océano más grande del mundo?",
+     "opciones": [
+      "Índico",
+      "Ártico",
+      "Atlántico",
+      "Pacífico"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué país están las pirámides de Guiza?",
+     "opciones": [
+      "Egipto",
+      "Sudán",
+      "Perú",
+      "México"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántos minutos tiene un día?",
+     "opciones": [
+      "1.440",
+      "1.200",
+      "2.400",
+      "1.000"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué instrumento tiene 88 teclas en su versión estándar?",
+     "opciones": [
+      "Clavicémbalo",
+      "Acordeón",
+      "Piano",
+      "Órgano"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Quién escribió «Don Quijote de la Mancha»?",
+     "opciones": [
+      "Francisco de Quevedo",
+      "Calderón de la Barca",
+      "Lope de Vega",
+      "Miguel de Cervantes"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuál es el símbolo químico del oro?",
+     "opciones": [
+      "Go",
+      "Ag",
+      "Au",
+      "Or"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántas patas tiene una araña?",
+     "opciones": [
+      "12",
+      "6",
+      "8",
+      "10"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué país regaló la Estatua de la Libertad a Estados Unidos?",
+     "opciones": [
+      "Francia",
+      "Italia",
+      "Reino Unido",
+      "España"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuál es la capital de Australia?",
+     "opciones": [
+      "Sídney",
+      "Canberra",
+      "Melbourne",
+      "Perth"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿De qué color es en realidad la «caja negra» de los aviones?",
+     "opciones": [
+      "Blanca",
+      "Negra",
+      "Naranja",
+      "Roja"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    }
+   ]
+  },
+  {
+   "titulo": "Ronda · Cine y series",
+   "categoria": "Cine y series",
+   "preguntas": [
+    {
+     "texto": "¿Qué película de 1997, dirigida por James Cameron, cuenta un famoso naufragio?",
+     "opciones": [
+      "Avatar",
+      "Titanic",
+      "Poseidón",
+      "Abyss"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cómo se llama el joven mago protagonista de la saga creada por J. K. Rowling?",
+     "opciones": [
+      "Gandalf",
+      "Frodo Bolsón",
+      "Harry Potter",
+      "Merlín"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "En «El Señor de los Anillos», ¿qué objeto hay que destruir?",
+     "opciones": [
+      "Un anillo",
+      "Un libro",
+      "Una espada",
+      "Una corona"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué serie española sobre un atraco a la Fábrica Nacional de Moneda y Timbre triunfó en Netflix?",
+     "opciones": [
+      "Vis a vis",
+      "Las chicas del cable",
+      "Élite",
+      "La casa de papel"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué director ganó el Óscar a mejor película extranjera con «Todo sobre mi madre»?",
+     "opciones": [
+      "J. A. Bayona",
+      "Fernando Trueba",
+      "Alejandro Amenábar",
+      "Pedro Almodóvar"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué serie el profesor de química Walter White se convierte en «Heisenberg»?",
+     "opciones": [
+      "Breaking Bad",
+      "Dexter",
+      "Los Soprano",
+      "The Wire"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué actor interpretó a Jack Sparrow en «Piratas del Caribe»?",
+     "opciones": [
+      "Johnny Depp",
+      "Orlando Bloom",
+      "Brad Pitt",
+      "Leonardo DiCaprio"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué saga aparecen los Jedi y los Sith?",
+     "opciones": [
+      "Star Trek",
+      "Matrix",
+      "Dune",
+      "Star Wars"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué serie gira en torno a seis amigos en Nueva York y la cafetería Central Perk?",
+     "opciones": [
+      "The Big Bang Theory",
+      "Seinfeld",
+      "Friends",
+      "Cómo conocí a vuestra madre"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué película de Pixar trata sobre juguetes que cobran vida?",
+     "opciones": [
+      "Up",
+      "Toy Story",
+      "Cars",
+      "Coco"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    }
+   ]
+  },
+  {
+   "titulo": "Ronda · Música",
+   "categoria": "Música",
+   "preguntas": [
+    {
+     "texto": "¿De qué ciudad era el grupo The Beatles?",
+     "opciones": [
+      "Londres",
+      "Mánchester",
+      "Liverpool",
+      "Birmingham"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué cantante colombiana canta «Hips Don't Lie»?",
+     "opciones": [
+      "Shakira",
+      "Karol G",
+      "Thalía",
+      "Becky G"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántas cuerdas tiene una guitarra española estándar?",
+     "opciones": [
+      "6",
+      "4",
+      "7",
+      "5"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿A quién se conoce como el «Rey del Pop»?",
+     "opciones": [
+      "Michael Jackson",
+      "Elvis Presley",
+      "Freddie Mercury",
+      "Prince"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué cantante catalana publicó el álbum «Motomami»?",
+     "opciones": [
+      "Bad Gyal",
+      "Rosalía",
+      "Aitana",
+      "Lola Índigo"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué grupo cantaba «Bohemian Rhapsody»?",
+     "opciones": [
+      "Pink Floyd",
+      "Queen",
+      "The Rolling Stones",
+      "Led Zeppelin"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué compositor alemán siguió componiendo a pesar de quedarse sordo?",
+     "opciones": [
+      "Bach",
+      "Mozart",
+      "Wagner",
+      "Beethoven"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿De qué país es el cantante Bad Bunny?",
+     "opciones": [
+      "Colombia",
+      "Puerto Rico",
+      "México",
+      "República Dominicana"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué grupo español cantaba «La Flaca»?",
+     "opciones": [
+      "Jarabe de Palo",
+      "Estopa",
+      "El Canto del Loco",
+      "Fito y Fitipaldis"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué cantante británica arrasó en los Grammy con su álbum «21»?",
+     "opciones": [
+      "Adele",
+      "Dua Lipa",
+      "Amy Winehouse",
+      "Ellie Goulding"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    }
+   ]
+  },
+  {
+   "titulo": "Ronda · Deportes",
+   "categoria": "Deportes",
+   "preguntas": [
+    {
+     "texto": "¿Cuántos jugadores tiene un equipo de fútbol en el campo?",
+     "opciones": [
+      "9",
+      "11",
+      "10",
+      "12"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué deporte ha destacado Rafael Nadal?",
+     "opciones": [
+      "Tenis",
+      "Bádminton",
+      "Pádel",
+      "Golf"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué selección ganó el Mundial de fútbol de 2010?",
+     "opciones": [
+      "Brasil",
+      "Alemania",
+      "Holanda",
+      "España"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cada cuántos años se celebran los Juegos Olímpicos de verano?",
+     "opciones": [
+      "3",
+      "2",
+      "4",
+      "5"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cómo se llama el estadio del FC Barcelona?",
+     "opciones": [
+      "Mestalla",
+      "Santiago Bernabéu",
+      "Spotify Camp Nou",
+      "RCDE Stadium"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué deporte se habla de un «hoyo en uno»?",
+     "opciones": [
+      "Billar",
+      "Golf",
+      "Béisbol",
+      "Petanca"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuánto mide una maratón?",
+     "opciones": [
+      "42,195 km",
+      "50 km",
+      "40 km",
+      "21,097 km"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué piloto español fue dos veces campeón del mundo de Fórmula 1?",
+     "opciones": [
+      "Pedro de la Rosa",
+      "Fernando Alonso",
+      "Marc Gené",
+      "Carlos Sainz"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué deporte se juega en la NBA?",
+     "opciones": [
+      "Hockey sobre hielo",
+      "Béisbol",
+      "Fútbol americano",
+      "Baloncesto"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántos puntos vale un triple en baloncesto?",
+     "opciones": [
+      "2",
+      "1",
+      "4",
+      "3"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    }
+   ]
+  },
+  {
+   "titulo": "Ronda · Barcelona y Catalunya",
+   "categoria": "Barcelona",
+   "preguntas": [
+    {
+     "texto": "¿Qué arquitecto diseñó la Sagrada Família?",
+     "opciones": [
+      "Ricardo Bofill",
+      "Josep Puig i Cadafalch",
+      "Antoni Gaudí",
+      "Lluís Domènech i Montaner"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cómo se llama la montaña de Barcelona con un parque de atracciones en la cima?",
+     "opciones": [
+      "Tibidabo",
+      "Montjuïc",
+      "El Carmel",
+      "Montserrat"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué día se celebra Sant Jordi?",
+     "opciones": [
+      "11 de septiembre",
+      "24 de septiembre",
+      "23 de abril",
+      "24 de junio"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué año se celebraron los Juegos Olímpicos de Barcelona?",
+     "opciones": [
+      "1988",
+      "1992",
+      "1996",
+      "1984"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué río da nombre a L'Hospitalet de Llobregat?",
+     "opciones": [
+      "Ebro",
+      "Llobregat",
+      "Ter",
+      "Besòs"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué paseo une la plaça de Catalunya con el puerto?",
+     "opciones": [
+      "Rambla de Catalunya",
+      "Passeig de Gràcia",
+      "La Rambla",
+      "Avinguda Diagonal"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué dulce típico se come en Catalunya en la Castanyada?",
+     "opciones": [
+      "Roscón",
+      "Coca de Sant Joan",
+      "Panellets",
+      "Turrón"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué se celebra el 11 de septiembre en Catalunya?",
+     "opciones": [
+      "La Mercè",
+      "La Diada",
+      "Sant Joan",
+      "Sant Esteve"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cómo se llaman las fiestas mayores de Barcelona, en septiembre?",
+     "opciones": [
+      "Santa Eulàlia",
+      "La Mercè",
+      "Sant Medir",
+      "Fiestas de Gràcia"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué edificio de Gaudí del Passeig de Gràcia se conoce como «La Pedrera»?",
+     "opciones": [
+      "Casa Vicens",
+      "Palau Güell",
+      "Casa Batlló",
+      "Casa Milà"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    }
+   ]
+  },
+  {
+   "titulo": "Ronda · Ciencia y naturaleza",
+   "categoria": "Ciencia",
+   "preguntas": [
+    {
+     "texto": "¿Cuál es el planeta más cercano al Sol?",
+     "opciones": [
+      "La Tierra",
+      "Marte",
+      "Venus",
+      "Mercurio"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué órgano bombea la sangre por el cuerpo?",
+     "opciones": [
+      "El hígado",
+      "Los pulmones",
+      "Los riñones",
+      "El corazón"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿A qué temperatura hierve el agua al nivel del mar?",
+     "opciones": [
+      "100 °C",
+      "90 °C",
+      "80 °C",
+      "120 °C"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuál es el animal terrestre más rápido?",
+     "opciones": [
+      "El antílope",
+      "El guepardo",
+      "El león",
+      "El caballo"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántos huesos tiene aproximadamente el cuerpo de un adulto?",
+     "opciones": [
+      "300",
+      "206",
+      "150",
+      "412"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué gas necesitamos respirar para vivir?",
+     "opciones": [
+      "Dióxido de carbono",
+      "Oxígeno",
+      "Hidrógeno",
+      "Nitrógeno"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuál es el hueso más largo del cuerpo humano?",
+     "opciones": [
+      "El fémur",
+      "El húmero",
+      "La tibia",
+      "El radio"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué científico formuló la teoría de la relatividad?",
+     "opciones": [
+      "Isaac Newton",
+      "Albert Einstein",
+      "Nikola Tesla",
+      "Stephen Hawking"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuál es el animal más grande que existe?",
+     "opciones": [
+      "El tiburón ballena",
+      "El elefante africano",
+      "El cachalote",
+      "La ballena azul"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántos planetas tiene el sistema solar?",
+     "opciones": [
+      "7",
+      "9",
+      "10",
+      "8"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    }
+   ]
+  }
+ ]
+}

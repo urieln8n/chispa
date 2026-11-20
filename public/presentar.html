@@ -44,13 +44,16 @@
   .p1 .bloque{height:42vh;background:var(--ambar)} .p2 .bloque{height:30vh;background:#cfd8e3} .p3 .bloque{height:22vh;background:#d9905a}
   .p1{animation-delay:1.2s}.p2{animation-delay:.6s}.p3{animation-delay:0s}
   .control{display:flex;justify-content:flex-end;gap:.7rem}
+  .auto{display:flex;align-items:center;gap:.4rem;background:var(--noche2);border:1px solid #2a4369;border-radius:99px;padding:.35em .9em;font-weight:800;cursor:pointer;font-size:.9rem}
+  .auto input{accent-color:var(--ambar);width:1.1rem;height:1.1rem}
+  .auto b{color:var(--ambar);min-width:1.5em}
   .confeti{position:fixed;top:-20px;width:10px;height:16px;z-index:1;animation:caer linear forwards}
   @keyframes caer{to{transform:translateY(110vh) rotate(720deg)}}
   @media(max-width:800px){.sala{grid-template-columns:1fr}.pin-caja{flex-direction:column}.q-medio{flex-wrap:wrap;justify-content:center}}
 </style>
 </head>
 <body>
-<div class="barra-sup"><div id="m"></div><div id="info" class="pie"></div></div>
+<div class="barra-sup"><div id="m"></div><div style="display:flex;gap:1rem;align-items:center"><label class="auto" title="Pasa solo de pregunta en pregunta"><input type="checkbox" id="auto"> <span>Modo automático</span> <b id="auto-cd"></b></label><div id="info" class="pie"></div></div></div>
 <main id="escena" class="escena"><div class="centro" style="min-height:50vh"><h2>Preparando la partida…</h2></div></main>
 <script src="comun.js"></script>
 <script>
@@ -61,7 +64,20 @@ let S = null, CLAVE_HOST = '', jugadores = [], preguntaActual = null, reloj = nu
 const ES = $('#escena');
 
 function joinUrl() { return new URL(BASE + '?pin=' + S.pin, location.href).href; }
-function siguiente() { socket.emit('host:siguiente', { claveHost: CLAVE_HOST }); }
+function siguiente() { pararAuto(); socket.emit('host:siguiente', { claveHost: CLAVE_HOST }); }
+// ---- Modo automático: tras cada pregunta enseña resultados y ranking unos segundos y pasa sola ----
+const AUTO_SEG = { resultado: 7, ranking: 6 };
+let autoTimer = null;
+try { $('#auto').checked = localStorage.getItem('chispa-auto') === '1'; } catch {}
+$('#auto').onchange = () => { try { localStorage.setItem('chispa-auto', $('#auto').checked ? '1' : '0'); } catch {} if (!$('#auto').checked) pararAuto(); else if (pendienteAuto) programarAuto(pendienteAuto); };
+let pendienteAuto = null;
+function pararAuto() { clearInterval(autoTimer); autoTimer = null; $('#auto-cd').textContent = ''; }
+function programarAuto(fase) {
+  pendienteAuto = fase; pararAuto();
+  if (!$('#auto').checked) return;
+  let s = AUTO_SEG[fase]; $('#auto-cd').textContent = s;
+  autoTimer = setInterval(() => { s--; $('#auto-cd').textContent = s > 0 ? s : ''; if (s <= 0) { pendienteAuto = null; siguiente(); } }, 1000);
+}
 function guardarSesion() {}
 
 function sala() {
@@ -166,9 +182,10 @@ function escuchar() {
   socket.on('host:jugadores', l => { jugadores = l; pintarJugadores(); });
   socket.on('host:pregunta', pregunta);
   socket.on('host:respuestas', d => { const n = $('#nresp'); if (n) n.textContent = d.respondieron; });
-  socket.on('host:resultado', resultado);
-  socket.on('host:ranking', ranking);
-  socket.on('host:podio', podio);
+  socket.on('host:resultado', r => { resultado(r); programarAuto('resultado'); });
+  socket.on('host:ranking', d => { ranking(d); programarAuto('ranking'); });
+  socket.on('host:pregunta', () => { pendienteAuto = null; pararAuto(); });
+  socket.on('host:podio', d => { pendienteAuto = null; pararAuto(); podio(d); });
   socket.on('host:informe', informe);
   // Al conectar (y al reconectar tras un corte) retoma la misma partida
   let primera = true;
@@ -189,7 +206,8 @@ function arrancar(pin, claveHost) {
   if (prev && qs.get('pin') === prev.pin) return arrancar(prev.pin, prev.claveHost);
   if (!qs.get('id')) { location.href = 'panel'; return; }
   try {
-    const r = await api('partidas', { method: 'POST', body: { cuestionarioId: qs.get('id') } });
+    let lugar = ''; try { lugar = localStorage.getItem('chispa-lugar') || ''; } catch {}
+    const r = await api('partidas', { method: 'POST', body: { cuestionarioId: qs.get('id'), lugar } });
     history.replaceState(null, '', `presentar?id=${qs.get('id')}&pin=${r.pin}`);
     arrancar(r.pin, r.claveHost);
   } catch (e) { if (e.message !== 'login') ES.innerHTML = `<div class="centro"><h2>${esc(e.message)}</h2><a class="btn" href="panel">Volver</a></div>`; }
