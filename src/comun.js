@@ -23,7 +23,19 @@ export function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8', ...headers } });
 }
 
+export function limpiarListaBingo(body) {
+  const titulo = String(body.titulo || '').trim().slice(0, 200) || 'Lista de bingo sin título';
+  const categoria = String(body.categoria || 'Bingo musical').replace(/\s+/g, ' ').trim().slice(0, 40) || 'Bingo musical';
+  const vistas = new Set();
+  const canciones = (Array.isArray(body.canciones) ? body.canciones : []).map(c => ({
+    titulo: String((c && c.titulo) || '').replace(/\s+/g, ' ').trim().slice(0, 80),
+    artista: String((c && c.artista) || '').replace(/\s+/g, ' ').trim().slice(0, 60)
+  })).filter(c => c.titulo && !vistas.has(c.titulo.toLowerCase()) && vistas.add(c.titulo.toLowerCase())).slice(0, 300);
+  return { tipo: 'bingo', titulo, categoria, canciones, preguntas: [] };
+}
+
 export function limpiarCuestionario(body) {
+  if (body && body.tipo === 'bingo') return limpiarListaBingo(body);
   const titulo = String(body.titulo || '').trim().slice(0, 200) || 'Cuestionario sin título';
   const categoria = String(body.categoria || '').replace(/\s+/g, ' ').trim().slice(0, 40);
   const preguntas = (Array.isArray(body.preguntas) ? body.preguntas : []).slice(0, 200).map(p => {

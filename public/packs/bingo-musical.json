@@ -1,0 +1,491 @@
+{
+ "app": "chispa",
+ "version": 1,
+ "cuestionarios": [
+  {
+   "tipo": "bingo",
+   "titulo": "Bingo · Pop español de siempre",
+   "categoria": "Bingo musical",
+   "canciones": [
+    {
+     "titulo": "La Flaca",
+     "artista": "Jarabe de Palo"
+    },
+    {
+     "titulo": "Hijo de la Luna",
+     "artista": "Mecano"
+    },
+    {
+     "titulo": "Me colé en una fiesta",
+     "artista": "Mecano"
+    },
+    {
+     "titulo": "La chica de ayer",
+     "artista": "Nacha Pop"
+    },
+    {
+     "titulo": "A quién le importa",
+     "artista": "Alaska y Dinarama"
+    },
+    {
+     "titulo": "Devuélveme a mi chica",
+     "artista": "Hombres G"
+    },
+    {
+     "titulo": "Sufre mamón",
+     "artista": "Hombres G"
+    },
+    {
+     "titulo": "Entre dos tierras",
+     "artista": "Héroes del Silencio"
+    },
+    {
+     "titulo": "Maldito duende",
+     "artista": "Héroes del Silencio"
+    },
+    {
+     "titulo": "19 días y 500 noches",
+     "artista": "Joaquín Sabina"
+    },
+    {
+     "titulo": "Princesa",
+     "artista": "Joaquín Sabina"
+    },
+    {
+     "titulo": "Corazón partío",
+     "artista": "Alejandro Sanz"
+    },
+    {
+     "titulo": "Amiga mía",
+     "artista": "Alejandro Sanz"
+    },
+    {
+     "titulo": "Y, ¿si fuera ella?",
+     "artista": "Alejandro Sanz"
+    },
+    {
+     "titulo": "Bulería",
+     "artista": "David Bisbal"
+    },
+    {
+     "titulo": "Ave María",
+     "artista": "David Bisbal"
+    },
+    {
+     "titulo": "Mediterráneo",
+     "artista": "Joan Manuel Serrat"
+    },
+    {
+     "titulo": "Puedes contar conmigo",
+     "artista": "La Oreja de Van Gogh"
+    },
+    {
+     "titulo": "Rosas",
+     "artista": "La Oreja de Van Gogh"
+    },
+    {
+     "titulo": "Zapatillas",
+     "artista": "El Canto del Loco"
+    },
+    {
+     "titulo": "Peter Pan",
+     "artista": "El Canto del Loco"
+    },
+    {
+     "titulo": "Como Camarón",
+     "artista": "Estopa"
+    },
+    {
+     "titulo": "La raja de tu falda",
+     "artista": "Estopa"
+    },
+    {
+     "titulo": "Por la boca vive el pez",
+     "artista": "Fito y Fitipaldis"
+    },
+    {
+     "titulo": "Soldadito marinero",
+     "artista": "Fito y Fitipaldis"
+    },
+    {
+     "titulo": "Insurrección",
+     "artista": "El Último de la Fila"
+    },
+    {
+     "titulo": "Malo",
+     "artista": "Bebe"
+    },
+    {
+     "titulo": "Aserejé",
+     "artista": "Las Ketchup"
+    },
+    {
+     "titulo": "Macarena",
+     "artista": "Los del Río"
+    },
+    {
+     "titulo": "Vivir así es morir de amor",
+     "artista": "Camilo Sesto"
+    },
+    {
+     "titulo": "Mi gran noche",
+     "artista": "Raphael"
+    },
+    {
+     "titulo": "Lobo hombre en París",
+     "artista": "La Unión"
+    },
+    {
+     "titulo": "Cadillac solitario",
+     "artista": "Loquillo"
+    },
+    {
+     "titulo": "So payaso",
+     "artista": "Extremoduro"
+    },
+    {
+     "titulo": "Bailando",
+     "artista": "Alaska y los Pegamoides"
+    },
+    {
+     "titulo": "Sin documentos",
+     "artista": "Los Rodríguez"
+    },
+    {
+     "titulo": "Chiquilla",
+     "artista": "Seguridad Social"
+    },
+    {
+     "titulo": "Rosa de los vientos",
+     "artista": "Mägo de Oz"
+    },
+    {
+     "titulo": "Quiero ser santa",
+     "artista": "Parálisis Permanente"
+    },
+    {
+     "titulo": "Toro",
+     "artista": "El Columpio Asesino"
+    }
+   ]
+  },
+  {
+   "tipo": "bingo",
+   "titulo": "Bingo · Latino y reguetón",
+   "categoria": "Bingo musical",
+   "canciones": [
+    {
+     "titulo": "Despacito",
+     "artista": "Luis Fonsi & Daddy Yankee"
+    },
+    {
+     "titulo": "Gasolina",
+     "artista": "Daddy Yankee"
+    },
+    {
+     "titulo": "Danza Kuduro",
+     "artista": "Don Omar & Lucenzo"
+    },
+    {
+     "titulo": "Bailando",
+     "artista": "Enrique Iglesias"
+    },
+    {
+     "titulo": "Hips Don't Lie",
+     "artista": "Shakira"
+    },
+    {
+     "titulo": "La Bicicleta",
+     "artista": "Carlos Vives & Shakira"
+    },
+    {
+     "titulo": "Tusa",
+     "artista": "Karol G & Nicki Minaj"
+    },
+    {
+     "titulo": "Provenza",
+     "artista": "Karol G"
+    },
+    {
+     "titulo": "Dákiti",
+     "artista": "Bad Bunny & Jhay Cortez"
+    },
+    {
+     "titulo": "Tití Me Preguntó",
+     "artista": "Bad Bunny"
+    },
+    {
+     "titulo": "Mi Gente",
+     "artista": "J Balvin & Willy William"
+    },
+    {
+     "titulo": "Taki Taki",
+     "artista": "DJ Snake"
+    },
+    {
+     "titulo": "Felices los 4",
+     "artista": "Maluma"
+    },
+    {
+     "titulo": "Hawái",
+     "artista": "Maluma"
+    },
+    {
+     "titulo": "Chantaje",
+     "artista": "Shakira & Maluma"
+    },
+    {
+     "titulo": "Waka Waka (Esto es África)",
+     "artista": "Shakira"
+    },
+    {
+     "titulo": "Calma",
+     "artista": "Pedro Capó"
+    },
+    {
+     "titulo": "Échame la culpa",
+     "artista": "Luis Fonsi & Demi Lovato"
+    },
+    {
+     "titulo": "Sofia",
+     "artista": "Álvaro Soler"
+    },
+    {
+     "titulo": "El Mismo Sol",
+     "artista": "Álvaro Soler"
+    },
+    {
+     "titulo": "Despechá",
+     "artista": "Rosalía"
+    },
+    {
+     "titulo": "Con Altura",
+     "artista": "Rosalía & J Balvin"
+    },
+    {
+     "titulo": "Malamente",
+     "artista": "Rosalía"
+    },
+    {
+     "titulo": "Propuesta indecente",
+     "artista": "Romeo Santos"
+    },
+    {
+     "titulo": "Obsesión",
+     "artista": "Aventura"
+    },
+    {
+     "titulo": "La Gozadera",
+     "artista": "Gente de Zona & Marc Anthony"
+    },
+    {
+     "titulo": "Vivir mi vida",
+     "artista": "Marc Anthony"
+    },
+    {
+     "titulo": "Rakata",
+     "artista": "Wisin & Yandel"
+    },
+    {
+     "titulo": "El Perdón",
+     "artista": "Nicky Jam & Enrique Iglesias"
+    },
+    {
+     "titulo": "Hasta el amanecer",
+     "artista": "Nicky Jam"
+    },
+    {
+     "titulo": "Pepas",
+     "artista": "Farruko"
+    },
+    {
+     "titulo": "Shakira: Bzrp Music Sessions, Vol. 53",
+     "artista": "Bizarrap & Shakira"
+    },
+    {
+     "titulo": "Quevedo: Bzrp Music Sessions, Vol. 52",
+     "artista": "Bizarrap & Quevedo"
+    },
+    {
+     "titulo": "Ojitos lindos",
+     "artista": "Bad Bunny & Bomba Estéreo"
+    },
+    {
+     "titulo": "La Tortura",
+     "artista": "Shakira & Alejandro Sanz"
+    },
+    {
+     "titulo": "Limbo",
+     "artista": "Daddy Yankee"
+    },
+    {
+     "titulo": "Bichota",
+     "artista": "Karol G"
+    },
+    {
+     "titulo": "Me Porto Bonito",
+     "artista": "Bad Bunny & Chencho Corleone"
+    }
+   ]
+  },
+  {
+   "tipo": "bingo",
+   "titulo": "Bingo · Éxitos para bailar",
+   "categoria": "Bingo musical",
+   "canciones": [
+    {
+     "titulo": "Billie Jean",
+     "artista": "Michael Jackson"
+    },
+    {
+     "titulo": "Thriller",
+     "artista": "Michael Jackson"
+    },
+    {
+     "titulo": "Like a Prayer",
+     "artista": "Madonna"
+    },
+    {
+     "titulo": "Livin' on a Prayer",
+     "artista": "Bon Jovi"
+    },
+    {
+     "titulo": "Take On Me",
+     "artista": "a-ha"
+    },
+    {
+     "titulo": "Sweet Child O' Mine",
+     "artista": "Guns N' Roses"
+    },
+    {
+     "titulo": "Smells Like Teen Spirit",
+     "artista": "Nirvana"
+    },
+    {
+     "titulo": "Wannabe",
+     "artista": "Spice Girls"
+    },
+    {
+     "titulo": "...Baby One More Time",
+     "artista": "Britney Spears"
+    },
+    {
+     "titulo": "Toxic",
+     "artista": "Britney Spears"
+    },
+    {
+     "titulo": "I Want It That Way",
+     "artista": "Backstreet Boys"
+    },
+    {
+     "titulo": "Bohemian Rhapsody",
+     "artista": "Queen"
+    },
+    {
+     "titulo": "Don't Stop Me Now",
+     "artista": "Queen"
+    },
+    {
+     "titulo": "Girls Just Want to Have Fun",
+     "artista": "Cyndi Lauper"
+    },
+    {
+     "titulo": "Eye of the Tiger",
+     "artista": "Survivor"
+    },
+    {
+     "titulo": "Wonderwall",
+     "artista": "Oasis"
+    },
+    {
+     "titulo": "Africa",
+     "artista": "Toto"
+    },
+    {
+     "titulo": "Dancing Queen",
+     "artista": "ABBA"
+    },
+    {
+     "titulo": "I Will Survive",
+     "artista": "Gloria Gaynor"
+    },
+    {
+     "titulo": "Y.M.C.A.",
+     "artista": "Village People"
+    },
+    {
+     "titulo": "Rhythm Is a Dancer",
+     "artista": "Snap!"
+    },
+    {
+     "titulo": "What Is Love",
+     "artista": "Haddaway"
+    },
+    {
+     "titulo": "Blue (Da Ba Dee)",
+     "artista": "Eiffel 65"
+    },
+    {
+     "titulo": "Barbie Girl",
+     "artista": "Aqua"
+    },
+    {
+     "titulo": "Mr. Brightside",
+     "artista": "The Killers"
+    },
+    {
+     "titulo": "Hey Ya!",
+     "artista": "OutKast"
+    },
+    {
+     "titulo": "Crazy in Love",
+     "artista": "Beyoncé"
+    },
+    {
+     "titulo": "Umbrella",
+     "artista": "Rihanna"
+    },
+    {
+     "titulo": "Uptown Funk",
+     "artista": "Mark Ronson & Bruno Mars"
+    },
+    {
+     "titulo": "Happy",
+     "artista": "Pharrell Williams"
+    },
+    {
+     "titulo": "Shape of You",
+     "artista": "Ed Sheeran"
+    },
+    {
+     "titulo": "Rolling in the Deep",
+     "artista": "Adele"
+    },
+    {
+     "titulo": "Wake Me Up Before You Go-Go",
+     "artista": "Wham!"
+    },
+    {
+     "titulo": "Never Gonna Give You Up",
+     "artista": "Rick Astley"
+    },
+    {
+     "titulo": "Pump Up the Jam",
+     "artista": "Technotronic"
+    },
+    {
+     "titulo": "Gonna Make You Sweat (Everybody Dance Now)",
+     "artista": "C+C Music Factory"
+    },
+    {
+     "titulo": "September",
+     "artista": "Earth, Wind & Fire"
+    },
+    {
+     "titulo": "Le Freak",
+     "artista": "Chic"
+    }
+   ]
+  }
+ ]
+}

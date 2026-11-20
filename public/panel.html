@@ -52,11 +52,12 @@
   </div>
   <div class="contenedor">
     <div class="hero">
-      <div><h1>Mi biblioteca</h1><p class="pie" style="margin:.2rem 0 0">Tus rondas de preguntas, listas para jugar o mezclar.</p></div>
+      <div><h1>Mi biblioteca</h1><p class="pie" style="margin:.2rem 0 0">Tus rondas de preguntas y listas de bingo musical, listas para jugar.</p></div>
       <div class="acciones">
         <button id="b-noche" class="btn">🎲 Montar noche</button>
         <button id="b-ia" class="btn sec">✨ Crear con IA</button>
-        <a class="btn sec" href="editor">+ Nuevo</a>
+        <a class="btn sec" href="editor">+ Ronda de preguntas</a>
+        <a class="btn sec" href="bingo-editor">🎵 + Lista de bingo</a>
         <button id="b-io" class="btn sec">⇅ Importar / Exportar</button>
       </div>
     </div>
@@ -132,10 +133,10 @@ function pintar() {
   const lista = TODOS.filter(q => (CAT === '' || (CAT === '__sin' ? !q.categoria : q.categoria === CAT)) && (!txt || q.titulo.toLowerCase().includes(txt)));
   $('#lista').innerHTML = lista.length ? lista.map(q => `
     <div class="tarjeta fila">
-      <div><h3>${esc(q.titulo)}</h3><span class="pie">${q.categoria ? `<span class="etq">${esc(q.categoria)}</span>` : ''}${q.n} pregunta${q.n === 1 ? '' : 's'} · ${new Date(q.actualizado).toLocaleDateString('es-ES')}</span></div>
+      <div><h3>${q.tipo === 'bingo' ? '🎵 ' : ''}${esc(q.titulo)}</h3><span class="pie">${q.categoria ? `<span class="etq">${esc(q.categoria)}</span>` : ''}${q.n} ${q.tipo === 'bingo' ? 'canciones' : 'pregunta' + (q.n === 1 ? '' : 's')} · ${new Date(q.actualizado).toLocaleDateString('es-ES')}</span></div>
       <div class="acciones">
-        <a class="btn" href="presentar?id=${q.id}">▶ Jugar</a>
-        <a class="btn sec" href="editor?id=${q.id}">Editar</a>
+        <a class="btn" href="${q.tipo === 'bingo' ? 'bingo-pantalla' : 'presentar'}?id=${q.id}">▶ Jugar</a>
+        <a class="btn sec" href="${q.tipo === 'bingo' ? 'bingo-editor' : 'editor'}?id=${q.id}">Editar</a>
         <button class="btn sec" data-dup="${q.id}">Duplicar</button>
         <button class="btn sec" data-exp="${q.id}" title="Exportar">⬇</button>
         <button class="btn sec" data-del="${q.id}">Borrar</button>
@@ -158,7 +159,7 @@ $('#buscar').oninput = pintar;
 
 // ---- Montar noche ----
 function pintarMezcla() {
-  const rondas = TODOS.filter(q => q.categoria !== 'Noches');
+  const rondas = TODOS.filter(q => q.categoria !== 'Noches' && q.tipo !== 'bingo');
   const previo = {}; document.querySelectorAll('#mez input[type=number]').forEach(i => previo[i.dataset.id] = i.value);
   $('#mez').innerHTML = rondas.length ? rondas.map(q => `<label><span>${q.categoria ? `<span class="etq">${esc(q.categoria)}</span>` : ''}${esc(q.titulo)} <span class="pie">(${q.n})</span></span>
     <input type="number" min="0" max="${q.n}" value="${previo[q.id] || 0}" data-id="${q.id}"></label>`).join('') : '<p class="info">Primero añade rondas a tu biblioteca.</p>';

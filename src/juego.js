@@ -1,6 +1,7 @@
 // Una partida en vivo = un Durable Object (identificado por su PIN). Todo en tiempo real por WebSocket.
 import { DurableObject } from 'cloudflare:workers';
 import { aleatorio, iguales } from './comun.js';
+import * as B from './bingo.js';
 
 export class Juego extends DurableObject {
   constructor(ctx, env) {
@@ -18,7 +19,16 @@ export class Juego extends DurableObject {
     };
     return { pin, claveHost: this.g.claveHost };
   }
-  async info() { return this.g ? { titulo: this.g.quiz.titulo, estado: this.g.estado } : null; }
+  async crearBingo(pin, lista, opciones) {
+    if (this.g && Date.now() - this.g.ultima < 3 * 3600e3) return { ocupado: true };
+    const r = B.crear(this, pin, lista, opciones);
+    if (r.error) this.g = null;
+    return r;
+  }
+  async info() {
+    if (!this.g) return null;
+    return this.g.tipo === 'bingo' ? B.info(this.g) : { titulo: this.g.quiz.titulo, estado: this.g.estado, tipo: 'trivial' };
+  }
 
   async fetch(req) {
     if (req.headers.get('Upgrade') !== 'websocket') return new Response('Se esperaba WebSocket', { status: 426 });
@@ -55,6 +65,7 @@ export class Juego extends DurableObject {
     const g = this.g, d = m.d || {}, ok = r => this.responder(c, m.id, r);
     if (!g) return ok({ error: 'Esta partida ya no existe' });
     g.ultima = Date.now();
+    if (g.tipo === 'bingo') return B.mensaje(this, c, m, d, ok);
     const esHost = c.rol === 'host';
     switch (m.t) {
       case 'host:reanudar':

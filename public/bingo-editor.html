@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chispa · Lista de bingo musical</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  textarea.campo{min-height:52vh;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.95rem;line-height:1.6}
+  .fila{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+  .info{color:var(--suave);font-size:.92rem}
+  .guardar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--noche) 40%);padding:1.2rem 0;display:flex;gap:.6rem;justify-content:flex-end;align-items:center}
+</style>
+</head>
+<body>
+<div class="barra-sup"><div id="m"></div><a href="panel" class="btn sec peq">← Mi biblioteca</a></div>
+<div class="contenedor" style="display:grid;gap:1rem">
+  <h1>🎵 Lista de bingo musical</h1>
+  <div class="fila">
+    <input id="titulo" class="campo" style="font-size:1.4rem;font-weight:800;flex:3;min-width:240px" placeholder="Nombre de la lista (p. ej. Éxitos de los 80)" maxlength="200">
+    <input id="categoria" class="campo" style="flex:1;min-width:160px" placeholder="Categoría" value="Bingo musical" maxlength="40">
+  </div>
+  <div class="tarjeta" style="display:grid;gap:.6rem">
+    <b>Canciones: una por línea, con el formato <code>Título — Artista</code></b>
+    <span class="info">También vale con guion normal («Título - Artista»). Cuantas más canciones, más largas las partidas: unas 40 es lo ideal para cartones de 4×4.</span>
+    <textarea id="lista" class="campo" placeholder="All I Want for Christmas Is You — Mariah Carey&#10;Last Christmas — Wham!&#10;Feliz Navidad — José Feliciano"></textarea>
+    <div class="fila"><span id="cuenta" class="info"></span></div>
+  </div>
+  <div class="tarjeta" style="display:grid;gap:.6rem" id="caja-ia">
+    <b>✨ Rellenar con IA</b>
+    <div class="fila"><input id="ia-tema" class="campo" style="flex:1;min-width:220px" placeholder="Tema: rock español de los 80, canciones del verano, Disney…">
+      <select id="ia-n" class="campo" style="width:auto"><option>30</option><option selected>40</option><option>60</option></select>
+      <button id="b-ia" class="btn sec">Generar</button></div>
+    <span class="info">Revisa siempre la lista: la IA puede equivocarse en algún título o artista.</span>
+    <div id="ia-msg" class="error"></div>
+  </div>
+  <div class="guardar"><span id="estado" class="info"></span><button id="b-guardar" class="btn sec">Guardar</button><button id="b-jugar" class="btn">Guardar y jugar ▶</button></div>
+</div>
+<script src="comun.js"></script>
+<script>
+$('#m').innerHTML = marca();
+let id = new URLSearchParams(location.search).get('id');
+function aTexto(canciones) { return canciones.map(c => c.artista ? `${c.titulo} — ${c.artista}` : c.titulo).join('\n'); }
+function deTexto(t) {
+  return t.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const m = l.match(/^(.*?)\s+[—–-]\s+(.*)$/);
+    return m ? { titulo: m[1].trim(), artista: m[2].trim() } : { titulo: l, artista: '' };
+  });
+}
+function contar() {
+  const n = deTexto($('#lista').value).length;
+  $('#cuenta').textContent = `${n} canciones · ${n >= 28 ? 'vale para cartones 3×3, 4×4 y 5×5' : n >= 20 ? 'vale para 3×3 y 4×4 (para 5×5 necesitas 28)' : n >= 13 ? 'vale para 3×3 (para 4×4 necesitas 20)' : 'necesitas al menos 13 para jugar'}`;
+}
+$('#lista').oninput = contar;
+async function guardar() {
+  const body = { tipo: 'bingo', titulo: $('#titulo').value, categoria: $('#categoria').value, canciones: deTexto($('#lista').value) };
+  if (body.canciones.length < 13) { aviso('Necesitas al menos 13 canciones', 3000); return null; }
+  const r = id ? await api('cuestionarios/' + id, { method: 'PUT', body }) : await api('cuestionarios', { method: 'POST', body });
+  if (!id) { id = r.id; history.replaceState(null, '', 'bingo-editor?id=' + id); }
+  $('#lista').value = aTexto(r.canciones); contar();
+  $('#estado').textContent = 'Guardado ✔';
+  return r;
+}
+$('#b-guardar').onclick = guardar;
+$('#b-jugar').onclick = async () => { const r = await guardar(); if (r) location.href = 'bingo-pantalla?id=' + r.id; };
+$('#b-ia').onclick = async () => {
+  const b = $('#b-ia'); b.disabled = true; b.textContent = 'Creando…'; $('#ia-msg').textContent = '';
+  try {
+    const r = await api('ia/canciones', { method: 'POST', body: { tema: $('#ia-tema').value, n: $('#ia-n').value } });
+    const actuales = $('#lista').value.trim();
+    $('#lista').value = (actuales ? actuales + '\n' : '') + aTexto(r.canciones);
+    if (!$('#titulo').value) $('#titulo').value = r.titulo;
+    contar();
+  } catch (e) { $('#ia-msg').textContent = e.message; }
+  b.disabled = false; b.textContent = 'Generar';
+};
+(async () => {
+  if (id) {
+    const q = await api('cuestionarios/' + id);
+    if (q.tipo !== 'bingo') { location.href = 'editor?id=' + id; return; }
+    $('#titulo').value = q.titulo; $('#categoria').value = q.categoria || 'Bingo musical'; $('#lista').value = aTexto(q.canciones);
+  }
+  contar();
+})();
+</script>
+</body>
+</html>

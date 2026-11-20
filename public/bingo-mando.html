@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#0F1B2D">
+<title>Chispa · Mando del bingo</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .m{max-width:520px;margin:0 auto;padding:0 1rem 2rem;display:grid;gap:.9rem;position:relative;z-index:2}
+  .bloque{background:rgba(15,27,45,.85);border:1px solid #2a4369;border-radius:18px;padding:1rem}
+  .eti{font-size:.78rem;font-weight:800;letter-spacing:1.5px;color:var(--suave);text-transform:uppercase}
+  .tit{font-family:var(--tit);font-weight:800;font-size:1.5rem;line-height:1.15;margin:.2rem 0}
+  .art{color:var(--ambar);font-weight:700}
+  .grande{width:100%;font-size:1.15rem;padding:1em}
+  .fila2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .lista{display:grid;gap:.35rem;max-height:46vh;overflow:auto;margin-top:.6rem}
+  .lista button{all:unset;cursor:pointer;display:flex;justify-content:space-between;gap:.6rem;padding:.6rem .7rem;border-radius:12px;background:#0b1626;font-weight:700}
+  .lista button span{color:var(--suave);font-weight:600;text-align:right}
+  .lista button.ya{opacity:.35;text-decoration:line-through;cursor:default}
+  .stats{display:flex;justify-content:space-between;gap:.6rem;font-weight:800}
+  .stats div{flex:1;text-align:center;background:#0b1626;border-radius:12px;padding:.5rem}
+  .stats b{display:block;font-family:var(--tit);font-size:1.6rem;color:var(--ambar)}
+</style>
+</head>
+<body>
+<div class="barra-sup" style="position:relative;z-index:2"><div id="m"></div><span class="pie" id="info"></span></div>
+<div class="m" id="app"><div class="bloque">Conectando con la partida…</div></div>
+<script src="comun.js"></script>
+<script>
+$('#m').innerHTML = marca();
+const PIN = new URLSearchParams(location.search).get('pin') || '';
+const CLAVE = decodeURIComponent(location.hash.slice(1));
+let S = null, filtro = '';
+const socket = conectarJuego(PIN);
+const emitir = (t, d = {}) => new Promise(r => socket.emit(t, d, r));
+$('#info').textContent = 'PIN ' + PIN;
+
+function pintar() {
+  if (!S) return;
+  aplicarTema(S.tema);
+  if (S.estado === 'final') { $('#app').innerHTML = `<div class="bloque"><div class="tit">🏆 Partida terminada</div>${S.ganadores.map(r => `<p><b>${esc(r.ronda)}:</b> ${r.jugadores.map(esc).join(', ') || '—'}</p>`).join('')}</div>`; return; }
+  const a = S.actual, sig = S.siguiente;
+  $('#app').innerHTML = `
+    <div class="stats"><div><b>${S.numero}</b>canciones</div><div><b>${S.jugadores.length}</b>jugadores</div><div><b>${S.cerca}</b>a una</div></div>
+    <div class="bloque"><div class="eti">Ronda ${S.ronda + 1} de ${S.rondas.length}</div><div class="tit">${esc(S.nombreRonda)}</div>
+      ${S.ganadores[S.ronda] && S.ganadores[S.ronda].jugadores.length ? `<div class="art">Han cantado: ${S.ganadores[S.ronda].jugadores.map(esc).join(', ')}</div>` : ''}</div>
+    ${a ? `<div class="bloque"><div class="eti">Sonando ahora · ${S.revelada ? 'revelada' : 'oculta en pantalla'}</div><div class="tit">${esc(a.titulo)}</div><div class="art">${esc(a.artista)}</div></div>` : ''}
+    <div class="bloque"><div class="eti">Pon esta canción</div>
+      ${sig ? `<div class="tit">${esc(sig.titulo)}</div><div class="art">${esc(sig.artista)}</div>
+      <button class="btn grande" id="b-ya" style="margin-top:.8rem">▶ Ya está sonando</button>` : '<div class="tit">No quedan canciones</div>'}
+    </div>
+    <div class="fila2">
+      <button class="btn sec" id="b-rev" ${S.revelada || !S.numero ? 'disabled' : ''}>👁 Revelar</button>
+      <button class="btn sec" id="b-des" ${S.numero ? '' : 'disabled'}>↩ Deshacer</button>
+    </div>
+    <button class="btn sec" id="b-ronda">${S.ronda + 1 >= S.rondas.length ? 'Terminar y ver ganadores 🏆' : 'Pasar a la siguiente ronda ➡'}</button>
+    <div class="bloque"><div class="eti">¿Ha sonado otra? Búscala y márcala</div>
+      <input class="campo" id="buscar" placeholder="🔍 Título o artista" value="${esc(filtro)}" style="margin-top:.5rem">
+      <div class="lista" id="lista"></div></div>`;
+  pintarLista();
+  $('#buscar').oninput = e => { filtro = e.target.value; pintarLista(); };
+  const ya = $('#b-ya'); if (ya) ya.onclick = async () => { ya.disabled = true; const r = await emitir('bingo:sonar', { idx: sig.idx }); if (r.error) aviso(r.error); if (navigator.vibrate) navigator.vibrate(30); };
+  $('#b-rev').onclick = () => emitir('bingo:revelar');
+  $('#b-des').onclick = () => emitir('bingo:deshacer');
+  $('#b-ronda').onclick = () => emitir('bingo:siguienteRonda');
+}
+function pintarLista() {
+  const f = filtro.trim().toLowerCase();
+  const l = S.canciones.filter(c => !f || (c.titulo + ' ' + c.artista).toLowerCase().includes(f));
+  $('#lista').innerHTML = l.map(c => `<button data-i="${c.idx}" class="${c.sonada ? 'ya' : ''}" ${c.sonada ? 'disabled' : ''}>${esc(c.titulo)}<span>${esc(c.artista)}</span></button>`).join('');
+  $('#lista').querySelectorAll('button:not(.ya)').forEach(b => b.onclick = async () => { const r = await emitir('bingo:sonar', { idx: +b.dataset.i }); if (r.error) aviso(r.error); else { filtro = ''; aviso('Marcada como sonando'); } });
+}
+socket.on('connect', async () => {
+  const r = await emitir('host:reanudar', { claveHost: CLAVE });
+  if (r.error) { $('#app').innerHTML = `<div class="bloque"><div class="tit">${esc(r.error)}</div><p>Vuelve a escanear el QR del mando desde la pantalla.</p></div>`; return; }
+  S = r.estado; pintar();
+});
+socket.on('bingo:estado', e => { const foco = document.activeElement && document.activeElement.id === 'buscar'; S = e; if (!foco) pintar(); else pintarLista(); });
+socket.on('host:jugadores', l => { if (S) { S.jugadores = l; } });
+socket.on('bingo:ganador', d => { sonido('fin'); if (navigator.vibrate) navigator.vibrate([80, 50, 80]); aviso(`🏆 ¡${d.apodo} canta ${d.nombreRonda.toLowerCase()}! (comprobado)`, 5000); });
+socket.on('bingo:falso', d => aviso(`❌ Bingo falso de ${d.apodo}`, 3000));
+socket.on('disconnect', () => aviso('Conexión perdida… reconectando'));
+</script>
+</body>
+</html>

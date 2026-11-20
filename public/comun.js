@@ -70,3 +70,25 @@ function sonido(tipo) {
     o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .4);
   } catch {}
 }
+
+// Tema visual (Chispa o Navidad)
+function aplicarTema(t) {
+  document.body.classList.toggle('tema-navidad', t === 'navidad');
+  document.querySelectorAll('.copo').forEach(c => c.remove());
+  if (t !== 'navidad') return;
+  for (let i = 0; i < 36; i++) {
+    const c = document.createElement('span'); c.className = 'copo'; c.textContent = '❄';
+    c.style.left = Math.random() * 100 + 'vw'; c.style.fontSize = 8 + Math.random() * 14 + 'px';
+    c.style.animationDuration = 7 + Math.random() * 10 + 's'; c.style.animationDelay = -Math.random() * 15 + 's';
+    c.setAttribute('aria-hidden', 'true'); document.body.appendChild(c);
+  }
+}
+function confeti(n = 120) {
+  const cols = ['#FF5A5F', '#2EC4B6', '#8B5CF6', '#FFB020', '#fff'];
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('div'); d.className = 'confeti';
+    d.style.cssText = `position:fixed;top:-20px;width:10px;height:16px;z-index:60;left:${Math.random() * 100}vw;background:${cols[i % 5]};animation:caer ${2.5 + Math.random() * 2.5}s linear ${Math.random() * 1.2}s forwards`;
+    document.body.appendChild(d); setTimeout(() => d.remove(), 7000);
+  }
+}
+(function () { const st = document.createElement('style'); st.textContent = '@keyframes caer{to{transform:translateY(110vh) rotate(720deg)}}'; document.head.appendChild(st); })();

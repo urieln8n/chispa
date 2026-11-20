@@ -40,3 +40,22 @@ button,input,textarea,select{font:inherit}
 @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .45s ease-out both}
 @keyframes sube{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+/* ---------- Tema Navidad ---------- */
+body.tema-navidad{--ambar:#F5C451;background:radial-gradient(1000px 600px at 85% -10%,#1f6b45 0%,transparent 60%),radial-gradient(900px 600px at -10% 110%,#7a1a24 0%,transparent 60%),#0d2a1e}
+body.tema-navidad .btn{box-shadow:0 4px 0 #a8811f}
+.copo{position:fixed;top:-12px;color:#fff;opacity:.8;pointer-events:none;z-index:0;animation:copo linear infinite;font-size:12px;user-select:none}
+@keyframes copo{to{transform:translateY(108vh) translateX(30px) rotate(200deg)}}
+/* ---------- Bingo ---------- */
+.carton{display:grid;gap:8px;width:100%}
+.celda{position:relative;border:0;border-radius:14px;background:#F4F1EA;color:#0F1B2D;font-weight:800;padding:.45rem .35rem;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.12;font-size:.86rem;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.25);overflow:hidden;word-break:break-word}
+.celda small{font-weight:600;opacity:.7;font-size:.7rem;margin-top:.15rem}
+.celda.marcada{background:var(--ambar);color:#0F1B2D}
+.celda.marcada::after{content:'';position:absolute;inset:6px;border:4px solid rgba(15,27,45,.85);border-radius:50%;animation:sello .25s ease-out both}
+.celda.libre{background:var(--noche3);color:var(--ambar);cursor:default;font-size:1.6rem}
+@keyframes sello{from{transform:scale(1.6);opacity:0}to{transform:scale(1);opacity:1}}
+.ecualizador{display:flex;gap:8px;align-items:flex-end;height:120px}
+.ecualizador i{display:block;width:18px;border-radius:6px;background:var(--ambar);animation:eq 1s ease-in-out infinite}
+.ecualizador i:nth-child(2){animation-delay:.15s;background:#FF5A5F}.ecualizador i:nth-child(3){animation-delay:.3s;background:#2EC4B6}
+.ecualizador i:nth-child(4){animation-delay:.45s;background:#8B5CF6}.ecualizador i:nth-child(5){animation-delay:.6s}
+.ecualizador.parado i{animation-play-state:paused}
+@keyframes eq{0%,100%{height:20%}50%{height:100%}}

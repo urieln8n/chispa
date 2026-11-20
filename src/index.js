@@ -71,7 +71,8 @@ async function api(req, env, url, ruta) {
   if (!(await autorizado(req, env))) return json({ error: 'Contraseña de presentador incorrecta' }, 401);
 
   if (ruta === 'cuestionarios' && m === 'GET')
-    return json((await st.listar()).map(q => ({ id: q.id, titulo: q.titulo, categoria: q.categoria || '', n: q.preguntas.length, actualizado: q.actualizado })));
+    return json((await st.listar()).map(q => ({ id: q.id, titulo: q.titulo, categoria: q.categoria || '', tipo: q.tipo || 'trivial',
+      n: q.tipo === 'bingo' ? q.canciones.length : q.preguntas.length, actualizado: q.actualizado })));
   if (ruta === 'cuestionarios' && m === 'POST') return json(await st.guardar(limpiarCuestionario(await cuerpo())));
   if ((r = ruta.match(/^cuestionarios\/([a-f0-9]+)$/))) {
     const id = r[1];
@@ -81,7 +82,7 @@ async function api(req, env, url, ruta) {
   }
   if ((r = ruta.match(/^cuestionarios\/([a-f0-9]+)\/duplicar$/)) && m === 'POST') {
     const q = await st.leer(r[1]); if (!q) return json({ error: 'No existe' }, 404);
-    return json(await st.guardar({ titulo: q.titulo + ' (copia)', categoria: q.categoria || '', preguntas: q.preguntas }));
+    return json(await st.guardar(limpiarCuestionario({ ...q, id: undefined, titulo: q.titulo + ' (copia)' })));
   }
 
   // --- Biblioteca: exportar / importar ---
@@ -90,7 +91,7 @@ async function api(req, env, url, ruta) {
     let lista = await st.listar();
     if (id) lista = lista.filter(q => q.id === id);
     const datos = { app: 'chispa', version: 1, exportado: new Date().toISOString(),
-      cuestionarios: lista.map(q => ({ titulo: q.titulo, categoria: q.categoria || '', preguntas: q.preguntas })) };
+      cuestionarios: lista.map(q => q.tipo === 'bingo' ? { tipo: 'bingo', titulo: q.titulo, categoria: q.categoria || '', canciones: q.canciones } : { titulo: q.titulo, categoria: q.categoria || '', preguntas: q.preguntas }) };
     const nombre = id && lista[0] ? 'chispa-' + lista[0].titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) : 'chispa-biblioteca';
     return new Response(JSON.stringify(datos, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8', 'content-disposition': `attachment; filename="${nombre}.json"` } });
   }
@@ -102,7 +103,7 @@ async function api(req, env, url, ruta) {
     let creados = 0, saltados = 0;
     for (const q of lista.slice(0, 300)) {
       const limpio = limpiarCuestionario(q);
-      if (!limpio.preguntas.length) { saltados++; continue; }
+      if (limpio.tipo === 'bingo' ? !limpio.canciones.length : !limpio.preguntas.length) { saltados++; continue; }
       if (b.saltarRepetidos && existentes.has(limpio.titulo)) { saltados++; continue; }
       await st.guardar(limpio); creados++;
     }
@@ -126,7 +127,7 @@ async function api(req, env, url, ruta) {
     const elegidas = [], vistas = new Set();
     let evitadas = 0, faltan = 0;
     for (const f of fuentes) {
-      const q = await st.leer(String(f.id || '')); if (!q) continue;
+      const q = await st.leer(String(f.id || '')); if (!q || q.tipo === 'bingo') continue;
       const pedidas = Math.max(0, parseInt(f.n, 10) || 0); if (!pedidas) continue;
       const candidatas = [];
       for (const p of q.preguntas) {
@@ -148,8 +149,17 @@ async function api(req, env, url, ruta) {
     return json({ quiz: { id: quiz.id, titulo: quiz.titulo, n: quiz.preguntas.length }, evitadas, faltan });
   }
   if (ruta === 'partidas' && m === 'POST') {
-    const { cuestionarioId, lugar: lugarBruto } = await cuerpo();
+    const { cuestionarioId, lugar: lugarBruto, opciones } = await cuerpo();
     const quiz = await st.leer(String(cuestionarioId || ''));
+    if (quiz && quiz.tipo === 'bingo') {
+      for (let i = 0; i < 8; i++) {
+        const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
+        const res = await juego(env, pin).crearBingo(pin, { titulo: quiz.titulo, canciones: quiz.canciones }, opciones || {});
+        if (res.error) return json(res, 400);
+        if (!res.ocupado) return json(res);
+      }
+      return json({ error: 'No se ha podido crear la partida, prueba otra vez' }, 503);
+    }
     if (!quiz || !quiz.preguntas.length) return json({ error: 'Ese cuestionario no tiene preguntas' }, 400);
     const lugar = normalizarLugar(lugarBruto);
     if (lugar) await st.marcarUsadas(lugar, quiz.preguntas.map(p => p.texto));
@@ -161,6 +171,7 @@ async function api(req, env, url, ruta) {
     return json({ error: 'No se ha podido crear la partida, prueba otra vez' }, 503);
   }
   if (ruta === 'ia/generar' && m === 'POST') return generarIA(env, st, await cuerpo());
+  if (ruta === 'ia/canciones' && m === 'POST') return generarCanciones(env, st, await cuerpo());
   return json({ error: 'No encontrado' }, 404);
 }
 
@@ -181,6 +192,35 @@ async function informeCsv(env, pin, k) {
   inf.preguntas.forEach((p, i) => filas.push([`P${i + 1}`, p.texto, `${p.porcentaje}% acierto`]));
   const csv = '﻿' + [cab, ...filas].map(f => f.map(esc).join(';')).join('\r\n');
   return new Response(csv, { headers: { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="chispa-informe-${pin}.csv"` } });
+}
+
+async function llamarIA(env, prompt) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || 'claude-sonnet-5-5', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error((data.error && data.error.message) || 'Error de la IA');
+  const texto = (data.content || []).map(c => c.text || '').join('');
+  return JSON.parse(texto.slice(texto.indexOf('{'), texto.lastIndexOf('}') + 1));
+}
+
+async function generarCanciones(env, st, body) {
+  if (!env.ANTHROPIC_API_KEY) return json({ error: 'La IA no está activada. Añade el secreto ANTHROPIC_API_KEY en Cloudflare.' }, 503);
+  const tema = String(body.tema || '').trim().slice(0, 2000);
+  const n = Math.min(Math.max(parseInt(body.n, 10) || 40, 20), 80);
+  if (!tema) return json({ error: 'Escribe un tema para la lista.' }, 400);
+  if (!(await st.usoIA(parseInt(env.AI_DAILY_LIMIT || '50', 10)))) return json({ error: 'Se ha alcanzado el tope diario de IA.' }, 429);
+  try {
+    const j = await llamarIA(env, `Crea una lista de ${n} canciones REALES y muy conocidas para un bingo musical en un bar de España sobre este tema: ${tema}.
+Usa el título original exacto y el artista o grupo más conocido de cada una. Sin repetir canciones. Si no estás seguro de que una canción exista, no la pongas.
+Responde SOLO con JSON válido: {"titulo":"...","canciones":[{"titulo":"...","artista":"..."}]}`);
+    return json(limpiarCuestionario({ tipo: 'bingo', titulo: j.titulo || tema, canciones: j.canciones }));
+  } catch (e) {
+    console.error('IA canciones', e.message);
+    return json({ error: 'La IA no ha podido crear la lista. Prueba otra vez.' }, 502);
+  }
 }
 
 async function generarIA(env, st, body) {

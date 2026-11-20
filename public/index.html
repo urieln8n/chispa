@@ -78,6 +78,7 @@ async function comprobarPin(pin) {
   if (PIN.length !== 6) { ver('v-pin'); $('#e-pin').textContent = 'El PIN tiene 6 números'; return; }
   const r = await fetch(BASE + 'api/partidas/' + PIN).then(x => x.json()).catch(() => ({ error: 'Sin conexión, prueba otra vez' }));
   if (r.error) { ver('v-pin'); $('#e-pin').textContent = r.error; return; }
+  if (r.tipo === 'bingo') { location.href = 'bingo-jugar?pin=' + PIN; return; }
   $('#titulo-partida').textContent = r.titulo;
   yo = leer(PIN);
   socket = conectarJuego(PIN);

@@ -25,7 +25,7 @@ const api = async (ruta, opts = {}) => {
   ok(l.status === 200, 'login ' + JSON.stringify(l.data));
   ok((await api('cuestionarios', { headers: {} })).status === 200, 'lista');
   const sin = await fetch(URL_BASE + '/api/cuestionarios'); ok(sin.status === 401, 'sin contraseña debe dar 401');
-  const quiz = (await api('cuestionarios')).data[0];
+  const quiz = (await api('cuestionarios')).data.find(q => q.tipo !== 'bingo');
   const p = await api('partidas', { method: 'POST', body: { cuestionarioId: quiz.id } });
   ok(p.data.pin, 'crear partida ' + JSON.stringify(p.data));
   const { pin, claveHost } = p.data;

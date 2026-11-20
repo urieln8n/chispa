@@ -24,6 +24,15 @@ Funciona en **Cloudflare Workers + Durable Objects**: gratis para empezar, siemp
 - **⇅ Importar / Exportar**: copia de seguridad, compartir rondas y cargar los **packs de inicio** (6 rondas para bares y 2 de Biblia, Reina-Valera 1960).
 - **Modo automático** (en la pantalla del presentador): enseña resultados y ranking unos segundos y pasa sola a la siguiente pregunta.
 
+## 🎵 Bingo musical
+- Listas de canciones (título y artista) en la biblioteca, con packs de inicio: **Navidad**, pop español, latino y reguetón, y éxitos para bailar. También se pueden crear con IA.
+- Cada jugador recibe en el móvil **un cartón distinto** (3×3, 4×4 o 5×5 con centro libre) y marca las canciones al sonar.
+- Rondas: **línea**, **dos líneas** y **cartón lleno**. Chispa **comprueba cada canto**: solo vale si las canciones marcadas han sonado (un bingo falso deja 10 s sin poder cantar).
+- **Pantalla para el proyector**: número de canción, título revelado a los X segundos o al pulsar, jugadores «a una canción de cantar», historial y ganador con su cartón.
+- **Mando para el móvil del presentador** (por QR): qué canción poner, buscar y marcar otra, revelar, deshacer y pasar de ronda.
+- **Tema Navidad** con nieve.
+- **Chispa no reproduce música**: el presentador la pone con el equipo y la licencia del local y marca aquí qué suena.
+
 ## Publicar en Cloudflare (gratis)
 
 ### Opción A: desde el panel de Cloudflare, con GitHub (sin instalar nada)

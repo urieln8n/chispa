@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0F1B2D">
+<title>Chispa · Bingo musical</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .cab{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;font-weight:800;gap:.6rem;position:relative;z-index:2}
+  .ronda{background:var(--ambar);color:var(--noche);padding:.3em .8em;border-radius:99px;font-size:.85rem}
+  .juego{display:flex;flex-direction:column;gap:.8rem;padding:0 .7rem 1rem;max-width:560px;margin:0 auto;position:relative;z-index:2}
+  .suena{background:rgba(15,27,45,.75);border:1px solid #2a4369;border-radius:16px;padding:.7rem 1rem;display:flex;align-items:center;gap:.8rem;min-height:64px}
+  .suena .ecualizador{height:34px;gap:4px}.suena .ecualizador i{width:6px}
+  .suena b{display:block}
+  .cantar{font-size:1.35rem;padding:1em;width:100%;letter-spacing:.5px}
+  .entrar{max-width:360px;width:100%;display:flex;flex-direction:column;gap:.8rem}
+  #apodo{font-size:1.4rem;text-align:center;font-weight:700}
+  .grande{font-size:3rem}
+  .ayuda{color:var(--suave);font-size:.85rem;text-align:center;margin:0}
+  .velo{position:fixed;inset:0;background:rgba(8,14,24,.82);display:flex;align-items:center;justify-content:center;z-index:40;padding:1.2rem}
+</style>
+</head>
+<body>
+<section id="v-apodo" class="centro oculto" style="position:relative;z-index:2">
+  <div id="marca1"></div>
+  <h2 id="tit-partida">🎵 Bingo musical</h2>
+  <div class="tarjeta entrar">
+    <input id="apodo" class="campo" maxlength="20" placeholder="Tu nombre o el de tu equipo" autocomplete="off">
+    <button id="b-apodo" class="btn">¡Dame mi cartón!</button>
+    <div id="e-apodo" class="error"></div>
+  </div>
+</section>
+
+<section id="v-juego" class="oculto">
+  <div class="cab"><span id="yo"></span><span class="ronda" id="ronda"></span></div>
+  <div class="juego">
+    <div class="suena" id="suena"><div class="ecualizador parado" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div id="suena-txt">Esperando a que empiece…</div></div>
+    <div id="carton" class="carton"></div>
+    <p class="ayuda">Toca una canción de tu cartón cuando suene. Cuando completes la jugada, ¡canta!</p>
+    <button id="b-cantar" class="btn cantar">¡LÍNEA!</button>
+  </div>
+</section>
+
+<section id="v-msg" class="centro oculto" style="position:relative;z-index:2"></section>
+
+<script src="comun.js"></script>
+<script>
+$('#marca1').innerHTML = marca();
+const qs = new URLSearchParams(location.search);
+const PIN = String(qs.get('pin') || '').replace(/\D/g, '');
+let socket = null, yo = null, S = null;
+const KEY = 'chispa-b-' + PIN;
+function ver(id) { ['v-apodo', 'v-juego', 'v-msg'].forEach(v => $('#' + v).classList.toggle('oculto', v !== id)); }
+function msg(html) { $('#v-msg').innerHTML = html; ver('v-msg'); }
+function leer() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { return null; } }
+function guardar() { try { localStorage.setItem(KEY, JSON.stringify(yo)); } catch {} }
+function olvidar() { try { localStorage.removeItem(KEY); } catch {} }
+
+function pintarCarton() {
+  const c = $('#carton'); c.style.gridTemplateColumns = `repeat(${S.n}, 1fr)`;
+  const marc = new Set(S.marcadas);
+  c.innerHTML = S.carton.map((x, k) => x === null
+    ? `<div class="celda libre" aria-label="Casilla libre">★</div>`
+    : `<button class="celda ${marc.has(k) ? 'marcada' : ''}" data-k="${k}" aria-pressed="${marc.has(k)}">${esc(S.mostrar === 'artista' ? (x.artista || x.titulo) : x.titulo)}${S.mostrar === 'artista' || !x.artista ? '' : `<small>${esc(x.artista)}</small>`}</button>`).join('');
+  if (S.n === 3) c.querySelectorAll('.celda').forEach(b => { b.style.minHeight = '96px'; b.style.fontSize = '1rem'; });
+  if (S.n === 5) c.querySelectorAll('.celda').forEach(b => { b.style.minHeight = '62px'; b.style.fontSize = '.72rem'; });
+  c.querySelectorAll('button.celda').forEach(b => b.onclick = () => {
+    const k = +b.dataset.k, on = !b.classList.contains('marcada');
+    b.classList.toggle('marcada', on); b.setAttribute('aria-pressed', on);
+    if (navigator.vibrate) navigator.vibrate(on ? 25 : 10);
+    socket.emit('bingo:marcar', { celda: k, marcar: on }, r => { if (r.marcadas) S.marcadas = r.marcadas; });
+  });
+}
+function pintarRonda() {
+  $('#ronda').textContent = S.estado === 'final' ? 'Final' : `Ronda ${S.ronda + 1}/${S.totalRondas} · ${S.nombreRonda}`;
+  $('#b-cantar').textContent = '¡' + (S.nombreRonda || 'Bingo').toUpperCase() + '!';
+}
+function pintarSuena(numero, cancion) {
+  const eq = $('#suena .ecualizador');
+  if (!numero) { eq.classList.add('parado'); $('#suena-txt').textContent = 'Esperando a que empiece…'; return; }
+  eq.classList.remove('parado');
+  $('#suena-txt').innerHTML = cancion ? `<span class="pie">Canción ${numero}</span><b>${esc(cancion.titulo)}</b><span class="pie">${esc(cancion.artista)}</span>`
+    : `<b>Suena la canción ${numero}</b><span class="pie">¿La tienes en tu cartón?</span>`;
+}
+function final(f) {
+  const gane = f.ganadores.some(r => r.jugadores.includes(yo.apodo));
+  msg(`<div class="pop"><div class="grande">${gane ? '🏆' : '🎶'}</div><h2>${gane ? '¡Has ganado!' : '¡Gracias por jugar!'}</h2>
+    <div class="tarjeta" style="text-align:left;margin-top:1rem">${f.ganadores.map(r => `<p style="margin:.3rem 0"><b>${esc(r.ronda)}:</b> ${r.jugadores.length ? r.jugadores.map(esc).join(', ') : '—'}</p>`).join('')}</div></div>`);
+}
+function entrar(apodo, token) {
+  socket.emit('jugador:entrar', { apodo, token }, r => {
+    if (r.error) { if (token) { olvidar(); yo = null; ver('v-apodo'); return; } $('#e-apodo').textContent = r.error; return; }
+    yo = { token: r.token, apodo: r.apodo }; guardar();
+    S = r; aplicarTema(r.tema);
+    $('#yo').textContent = r.apodo;
+    if (r.final) return final(r.final);
+    ver('v-juego'); pintarCarton(); pintarRonda(); pintarSuena(r.numero, r.revelada);
+  });
+}
+function escuchar() {
+  socket.on('connect', () => { if (yo) entrar(null, yo.token); });
+  socket.on('disconnect', () => aviso('Conexión perdida… reconectando'));
+  socket.on('bingo:cancion', d => { pintarSuena(d.numero, null); if (navigator.vibrate) navigator.vibrate(15); });
+  socket.on('bingo:revelada', d => pintarSuena(d.numero, d.cancion));
+  socket.on('bingo:deshecha', d => { pintarSuena(d.numero, null); aviso('El presentador ha corregido la última canción'); });
+  socket.on('bingo:ronda', d => { S.ronda = d.ronda; S.nombreRonda = d.nombreRonda; pintarRonda(); aviso(`Empieza la ronda: ${d.nombreRonda}`, 3500); });
+  socket.on('bingo:hayGanador', d => { if (d.apodo !== yo.apodo) aviso(`¡${d.apodo} ha cantado ${d.nombreRonda.toLowerCase()}!`, 4000); });
+  socket.on('bingo:final', d => { S.estado = 'final'; final(d); });
+  socket.on('jugador:expulsado', () => { olvidar(); socket.close(); msg('<h2>El presentador te ha sacado de la partida</h2>'); });
+}
+$('#b-cantar').onclick = () => {
+  const b = $('#b-cantar'); b.disabled = true;
+  socket.emit('bingo:cantar', {}, r => {
+    setTimeout(() => b.disabled = false, 800);
+    if (r.error) return aviso(r.error, 3000);
+    if (r.valido) {
+      confeti(); sonido('ok'); if (navigator.vibrate) navigator.vibrate([60, 40, 60, 40, 120]);
+      const v = document.createElement('div'); v.className = 'velo';
+      v.innerHTML = `<div class="tarjeta pop" style="text-align:center;max-width:340px"><div class="grande">🏆</div><h2>¡${esc(r.nombreRonda)} válida!</h2><p>Lo ha comprobado Chispa. ¡Mira la pantalla!</p><button class="btn">Seguir jugando</button></div>`;
+      v.querySelector('button').onclick = () => v.remove(); document.body.appendChild(v);
+    } else { sonido('mal'); if (navigator.vibrate) navigator.vibrate(300); aviso('❌ ' + r.motivo + ' Espera 10 s.', 4000); }
+  });
+};
+$('#b-apodo').onclick = () => entrar($('#apodo').value);
+$('#apodo').onkeydown = e => { if (e.key === 'Enter') entrar($('#apodo').value); };
+
+(async () => {
+  if (PIN.length !== 6) { location.href = './'; return; }
+  const r = await fetch(BASE + 'api/partidas/' + PIN).then(x => x.json()).catch(() => ({ error: 'Sin conexión' }));
+  if (r.error) return msg(`<h2>${esc(r.error)}</h2><p><a href="./">Volver</a></p>`);
+  if (r.tipo !== 'bingo') { location.href = './?pin=' + PIN; return; }
+  aplicarTema(r.tema); $('#tit-partida').textContent = '🎵 ' + r.titulo;
+  yo = leer();
+  socket = conectarJuego(PIN); escuchar();
+  if (!yo) { ver('v-apodo'); $('#apodo').focus(); }
+})();
+</script>
+</body>
+</html>

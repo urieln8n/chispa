@@ -1,0 +1,173 @@
+{
+ "app": "chispa",
+ "version": 1,
+ "cuestionarios": [
+  {
+   "tipo": "bingo",
+   "titulo": "Bingo · Navidad",
+   "categoria": "Bingo musical",
+   "canciones": [
+    {
+     "titulo": "All I Want for Christmas Is You",
+     "artista": "Mariah Carey"
+    },
+    {
+     "titulo": "Last Christmas",
+     "artista": "Wham!"
+    },
+    {
+     "titulo": "Jingle Bell Rock",
+     "artista": "Bobby Helms"
+    },
+    {
+     "titulo": "Feliz Navidad",
+     "artista": "José Feliciano"
+    },
+    {
+     "titulo": "Rockin' Around the Christmas Tree",
+     "artista": "Brenda Lee"
+    },
+    {
+     "titulo": "It's Beginning to Look a Lot Like Christmas",
+     "artista": "Michael Bublé"
+    },
+    {
+     "titulo": "Santa Tell Me",
+     "artista": "Ariana Grande"
+    },
+    {
+     "titulo": "Mistletoe",
+     "artista": "Justin Bieber"
+    },
+    {
+     "titulo": "Let It Snow! Let It Snow! Let It Snow!",
+     "artista": "Dean Martin"
+    },
+    {
+     "titulo": "White Christmas",
+     "artista": "Bing Crosby"
+    },
+    {
+     "titulo": "Happy Xmas (War Is Over)",
+     "artista": "John Lennon & Yoko Ono"
+    },
+    {
+     "titulo": "Do They Know It's Christmas?",
+     "artista": "Band Aid"
+    },
+    {
+     "titulo": "Driving Home for Christmas",
+     "artista": "Chris Rea"
+    },
+    {
+     "titulo": "Merry Christmas Everyone",
+     "artista": "Shakin' Stevens"
+    },
+    {
+     "titulo": "Wonderful Christmastime",
+     "artista": "Paul McCartney"
+    },
+    {
+     "titulo": "Santa Claus Is Comin' to Town",
+     "artista": "Bruce Springsteen"
+    },
+    {
+     "titulo": "Underneath the Tree",
+     "artista": "Kelly Clarkson"
+    },
+    {
+     "titulo": "Christmas Lights",
+     "artista": "Coldplay"
+    },
+    {
+     "titulo": "Snowman",
+     "artista": "Sia"
+    },
+    {
+     "titulo": "Have Yourself a Merry Little Christmas",
+     "artista": "Judy Garland"
+    },
+    {
+     "titulo": "Blue Christmas",
+     "artista": "Elvis Presley"
+    },
+    {
+     "titulo": "Merry Xmas Everybody",
+     "artista": "Slade"
+    },
+    {
+     "titulo": "Step into Christmas",
+     "artista": "Elton John"
+    },
+    {
+     "titulo": "Rudolph the Red-Nosed Reindeer",
+     "artista": "Gene Autry"
+    },
+    {
+     "titulo": "A Holly Jolly Christmas",
+     "artista": "Burl Ives"
+    },
+    {
+     "titulo": "Sleigh Ride",
+     "artista": "The Ronettes"
+    },
+    {
+     "titulo": "Run Rudolph Run",
+     "artista": "Chuck Berry"
+    },
+    {
+     "titulo": "Fairytale of New York",
+     "artista": "The Pogues ft. Kirsty MacColl"
+    },
+    {
+     "titulo": "Christmas (Baby Please Come Home)",
+     "artista": "Darlene Love"
+    },
+    {
+     "titulo": "El tamborilero",
+     "artista": "Raphael"
+    },
+    {
+     "titulo": "Mi burrito sabanero",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "Los peces en el río",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "Campana sobre campana",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "Noche de paz",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "Hacia Belén va una burra",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "Ya vienen los Reyes Magos",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "Dime, niño, ¿de quién eres?",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "Arre borriquito",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "La marimorena",
+     "artista": "Villancico"
+    },
+    {
+     "titulo": "Gatatumba",
+     "artista": "Villancico"
+    }
+   ]
+  }
+ ]
+}

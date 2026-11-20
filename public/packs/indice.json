@@ -1,5 +1,17 @@
 [
  {
+  "archivo": "bingo-navidad.json",
+  "titulo": "🎄 Bingo musical de Navidad",
+  "descripcion": "40 canciones: pop navideño internacional y villancicos españoles",
+  "n": 40
+ },
+ {
+  "archivo": "bingo-musical.json",
+  "titulo": "🎵 Bingo musical para bares",
+  "descripcion": "3 listas: pop español de siempre, latino y reguetón, éxitos para bailar",
+  "n": 118
+ },
+ {
   "archivo": "bar.json",
   "titulo": "Noches de trivial en bares",
   "descripcion": "6 rondas de 10: cultura general, cine y series, música, deportes, Barcelona y ciencia",
