@@ -39,6 +39,7 @@
     <div id="e-pin" class="error"></div>
   </div>
   <p class="pie">¿Vas a presentar? <a href="panel">Crea tu partida</a></p>
+  <p id="creditos" class="pie" style="font-size:.75rem;max-width:520px;text-align:center;margin:1rem auto 0"></p>
 </section>
 
 <!-- 2. Apodo -->
@@ -133,18 +134,39 @@ function enviado() {
 function mostrarResultado(r) {
   $('#mis-pts').textContent = r.puntos;
   const cls = !r.respondio ? 'res-nada' : r.acierto ? 'res-ok' : 'res-mal';
-  const tit = !r.respondio ? 'Se acabó el tiempo' : r.acierto ? '¡Chispazo!' : '¡Casi!';
+  const tit = !r.respondio ? 'Se acabó el tiempo' : r.acierto ? (MARCA.id === 'fe' ? '¡Correcto!' : '¡Chispazo!') : '¡Casi!';
   const ico = !r.respondio ? '⌛' : r.acierto ? '✔' : '✖';
   const racha = r.racha >= 2 ? `<p class="burbuja">🔥 Racha de ${r.racha}</p>` : '';
   const delante = r.puesto === 1 ? '<p>¡Vas primero! 👑</p>' : r.delante ? `<p>A ${r.delante.diferencia} puntos de <b>${esc(r.delante.apodo)}</b></p>` : '';
   area(`<div class="pop" style="display:flex;flex-direction:column;align-items:center;gap:.6rem"><div class="grande">${ico}</div><h2>${tit}</h2>
-    ${r.acierto ? `<p class="burbuja">+${r.ganados}</p>` : ''}${racha}<p>Vas <b>${r.puesto}.º</b></p>${delante}</div>`, cls);
+    ${r.acierto ? `<p class="burbuja">+${r.ganados}</p>` : ''}${racha}<p>Vas <b>${r.puesto}.º</b></p>${delante}
+    ${r.reflexion ? `<div class="reflexion" style="max-width:360px;margin-top:.4rem">${r.reflexion.cita ? `<div class="cita">${esc(r.reflexion.cita)}</div>` : ''}<p style="font-size:1rem">${esc(r.reflexion.texto)}</p></div>` : ''}</div>`, cls);
   document.body.style.background = ''; if (navigator.vibrate) navigator.vibrate(r.acierto ? [40, 40, 40] : 200);
 }
 function mostrarFinal(f) {
   $('#mis-pts').textContent = f.puntos;
   const med = ['🥇', '🥈', '🥉'][f.puesto - 1] || '⭐';
-  area(`<div class="pop"><div class="grande">${med}</div><h2>Has quedado ${f.puesto}.º de ${f.total}</h2><p class="burbuja" style="display:inline-block">${f.puntos} puntos</p><p>¡Gracias por jugar a Chispa!</p></div>`);
+  area(`<div class="pop" style="display:flex;flex-direction:column;align-items:center;gap:.7rem;max-width:420px"><div class="grande">${med}</div><h2>Has quedado ${f.puesto}.º de ${f.total}</h2><p class="burbuja" style="display:inline-block">${f.puntos} puntos</p>
+    ${f.cierre ? `<div class="reflexion"><div class="cita">${esc(f.cierre.titulo || 'Para terminar')}</div><p style="font-size:1rem">${esc(f.cierre.texto)}</p>${f.cierre.cita ? `<p style="color:var(--ambar);font-weight:800;font-size:.95rem">${esc(f.cierre.cita)}</p>` : ''}</div>
+      ${f.cierre.contacto ? `<div style="display:grid;gap:.5rem;width:100%"><button class="btn" id="b-saber">Quiero saber más</button><button class="btn sec" id="b-orar">Pedir oración</button></div><div id="form-contacto" style="width:100%"></div>` : ''}` : '<p>¡Gracias por jugar!</p>'}</div>`);
+  if (f.cierre && f.cierre.contacto) { $('#b-saber').onclick = () => formulario('saber-mas'); $('#b-orar').onclick = () => formulario('oracion'); }
+}
+function formulario(tipo) {
+  const saber = tipo === 'saber-mas';
+  $('#form-contacto').innerHTML = `<div class="tarjeta" style="display:grid;gap:.6rem;text-align:left">
+    <b>${saber ? 'Te contactamos para hablar con calma' : '¿Por qué podemos orar por ti?'}</b>
+    <input class="campo" id="c-nombre" maxlength="80" placeholder="Tu nombre${saber ? '' : ' (opcional)'}" value="${esc(yo ? yo.apodo : '')}">
+    <input class="campo" id="c-contacto" maxlength="120" placeholder="Teléfono o email${saber ? '' : ' (opcional, si quieres que te escriban)'}">
+    <textarea class="campo" id="c-mensaje" maxlength="1000" rows="3" placeholder="${saber ? 'Algo que quieras contarnos (opcional)' : 'Tu petición'}"></textarea>
+    <label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.85rem;color:var(--suave)"><input type="checkbox" id="c-ok" style="margin-top:.2rem"> Acepto que la persona que organiza esta actividad guarde estos datos solo para contactarme o para orar por mí. Puedo pedir que los borre en cualquier momento.</label>
+    <button class="btn" id="c-enviar">Enviar</button><div id="c-msg" class="error"></div></div>`;
+  $('#c-enviar').onclick = async () => {
+    if (!$('#c-ok').checked) { $('#c-msg').textContent = 'Marca la casilla para darnos permiso'; return; }
+    const r = await fetch(BASE + 'api/contactos', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+      pin: PIN, tipo, nombre: $('#c-nombre').value, contacto: $('#c-contacto').value, mensaje: $('#c-mensaje').value, consentimiento: true, actividad: $('#titulo-partida').textContent }) }).then(x => x.json()).catch(() => ({ error: 'Sin conexión' }));
+    if (r.error) { $('#c-msg').textContent = r.error; return; }
+    $('#form-contacto').innerHTML = `<div class="reflexion"><p>${saber ? '¡Gracias! Te contactaremos pronto.' : '¡Gracias! Vamos a orar por ti.'}</p></div>`;
+  };
 }
 
 function escuchar() {

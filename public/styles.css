@@ -59,3 +59,12 @@ body.tema-navidad .btn{box-shadow:0 4px 0 #a8811f}
 .ecualizador i:nth-child(4){animation-delay:.45s;background:#8B5CF6}.ecualizador i:nth-child(5){animation-delay:.6s}
 .ecualizador.parado i{animation-play-state:paused}
 @keyframes eq{0%,100%{height:20%}50%{height:100%}}
+/* ---------- Tema Lumbrera (Biblia y evangelismo) ---------- */
+body.tema-fe{--ambar:#F2C46B;--noche:#1B1640;--noche2:#241E52;--noche3:#332B6E;--suave:#B9B2D9;
+  background:radial-gradient(900px 560px at 50% -12%,rgba(242,196,107,.28) 0%,transparent 62%),radial-gradient(900px 600px at -10% 110%,#3b2462 0%,transparent 55%),#1B1640}
+body.tema-fe .btn{box-shadow:0 4px 0 #a9802f}
+body.tema-fe .btn.sec{box-shadow:0 4px 0 #120e2c}
+body.tema-fe .tarjeta{background:rgba(36,30,82,.85);border-color:#433a86}
+.reflexion{background:linear-gradient(135deg,rgba(242,196,107,.16),rgba(242,196,107,.05));border:1px solid rgba(242,196,107,.45);border-radius:20px;padding:1.1rem 1.4rem;text-align:left}
+.reflexion .cita{font-weight:800;color:var(--ambar);letter-spacing:.5px;font-size:.95rem;text-transform:uppercase}
+.reflexion p{margin:.4rem 0 0;font-size:1.15rem;line-height:1.5}

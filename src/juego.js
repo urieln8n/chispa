@@ -137,9 +137,9 @@ export class Juego extends DurableObject {
       p.historial[g.indice] = r ? { opcion: r.opcion, ok: acierto, ms: r.ms } : null;
       p.ultimo = { ganados, acierto, respondio: !!r };
     }
-    this.aHosts('host:resultado', { correcta: q.correcta, conteo, respondieron: g.respuestas.size, jugadores: g.jugadores.size, ultima: g.indice === g.quiz.preguntas.length - 1 });
+    this.aHosts('host:resultado', { correcta: q.correcta, conteo, respondieron: g.respuestas.size, jugadores: g.jugadores.size, ultima: g.indice === g.quiz.preguntas.length - 1, reflexion: q.reflexion || null });
     const rk = this.ranking();
-    rk.forEach((p, i) => this.aJugador(p, 'jugador:resultado', this.resultado(p, rk, i)));
+    rk.forEach((p, i) => this.aJugador(p, 'jugador:resultado', { ...this.resultado(p, rk, i), reflexion: q.reflexion || null }));
   }
 
   resultado(p, rk = this.ranking(), i = rk.indexOf(p)) {
@@ -157,8 +157,9 @@ export class Juego extends DurableObject {
     const g = this.g; clearTimeout(g.timer);
     g.estado = 'podio';
     const rk = this.ranking(), podio = rk.slice(0, 3).map(p => ({ apodo: p.apodo, puntos: p.puntos }));
-    this.aHosts('host:podio', { podio, total: rk.length });
-    rk.forEach((p, i) => this.aJugador(p, 'jugador:final', { puesto: i + 1, puntos: p.puntos, total: rk.length, podio }));
+    const cierre = g.quiz.cierre || null;
+    this.aHosts('host:podio', { podio, total: rk.length, cierre });
+    rk.forEach((p, i) => this.aJugador(p, 'jugador:final', { puesto: i + 1, puntos: p.puntos, total: rk.length, podio, cierre }));
     this.guardarInforme(rk);
   }
 
@@ -194,7 +195,7 @@ export class Juego extends DurableObject {
         } else if (g.estado === 'resultado' || g.estado === 'ranking') r.resultado = this.resultado(p);
         else if (g.estado === 'podio') {
           const rk = this.ranking();
-          r.final = { puesto: rk.indexOf(p) + 1, puntos: p.puntos, total: rk.length, podio: rk.slice(0, 3).map(x => ({ apodo: x.apodo, puntos: x.puntos })) };
+          r.final = { puesto: rk.indexOf(p) + 1, puntos: p.puntos, total: rk.length, podio: rk.slice(0, 3).map(x => ({ apodo: x.apodo, puntos: x.puntos })), cierre: g.quiz.cierre || null };
         }
         return r;
       }

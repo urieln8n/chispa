@@ -80,7 +80,7 @@ async function configurar(id) {
     <div class="tarjeta grupo"><b>Revelar el título en pantalla</b><div class="opciones-b">
       ${[[15, 'A los 15 s'], [25, 'A los 25 s'], [40, 'A los 40 s'], [0, 'Solo cuando yo pulse']].map(([v, t]) => `<label class="opt"><input type="radio" name="revelar" value="${v}" ${v === 25 ? 'checked' : ''}> ${t}</label>`).join('')}</div></div>
     <div class="tarjeta grupo"><b>Tema</b><div class="opciones-b">
-      <label class="opt"><input type="radio" name="tema" value="chispa" ${esNavidad ? '' : 'checked'}> ⚡ Chispa</label>
+      <label class="opt"><input type="radio" name="tema" value="chispa" ${esNavidad ? '' : 'checked'}> ⚡ Normal</label>
       <label class="opt"><input type="radio" name="tema" value="navidad" ${esNavidad ? 'checked' : ''}> 🎄 Navidad (con nieve)</label></div></div>
     <div class="control"><a class="btn sec" href="panel">Cancelar</a><button class="btn" id="b-crear">Crear partida ▶</button></div>
     <div id="e-crear" class="error"></div></div>`;
@@ -198,7 +198,7 @@ function ganador(d) {
     <h1>¡${esc(d.nombreRonda.toUpperCase())}!</h1>
     <div style="font-family:var(--tit);font-size:clamp(2rem,5vw,3.6rem);font-weight:800">${esc(d.apodo)}</div>
     <div class="mini" style="grid-template-columns:repeat(${d.n},1fr)">${d.carton.map(c => `<div class="${c.patron ? 'p' : c.sonada ? 's' : ''}">${esc(c.titulo)}</div>`).join('')}</div>
-    <p class="pie" style="font-size:1rem;opacity:.9">✔ Comprobado por Chispa: todas las canciones marcadas han sonado.</p>
+    <p class="pie" style="font-size:1rem;opacity:.9">✔ Comprobado automáticamente: todas las canciones marcadas han sonado.</p>
     <div class="control" style="justify-content:center"><button class="btn sec" data-a="seguir">Seguir en esta ronda</button><button class="btn" data-a="ronda">${d.ultima ? 'Ver ganadores 🏆' : 'Siguiente ronda ➡'}</button></div></div>`;
   v.querySelector('[data-a=seguir]').onclick = () => v.remove();
   v.querySelector('[data-a=ronda]').onclick = () => { v.remove(); emitir('bingo:siguienteRonda'); };

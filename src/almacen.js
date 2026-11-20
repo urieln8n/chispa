@@ -1,6 +1,6 @@
 // Almacén permanente: cuestionarios, contraseña del presentador e informes de partidas
 import { DurableObject } from 'cloudflare:workers';
-import { idCorto, sha256, DEMO, huella } from './comun.js';
+import { idCorto, sha256, DEMO, DEMO_FE, huella } from './comun.js';
 
 export class Almacen extends DurableObject {
   async init() {
@@ -8,7 +8,7 @@ export class Almacen extends DurableObject {
     const ids = await this.ctx.storage.get('indice');
     if (!ids) {
       const id = idCorto();
-      await this.ctx.storage.put('q:' + id, { id, ...DEMO, actualizado: Date.now() });
+      await this.ctx.storage.put('q:' + id, { id, ...(this.env.MARCA === 'fe' ? DEMO_FE : DEMO), actualizado: Date.now() });
       await this.ctx.storage.put('indice', [id]);
     }
     this.listo = true;
@@ -78,6 +78,21 @@ export class Almacen extends DurableObject {
       .sort((a, b) => (b.ultima || 0) - (a.ultima || 0));
   }
   async reiniciarLugar(lugar) { await this.ctx.storage.delete(this.claveLugar(lugar)); }
+
+  // ---- Contactos («Quiero saber más» / petición de oración), con consentimiento ----
+  async guardarContacto(c) {
+    const lista = (await this.ctx.storage.get('contactos')) || [];
+    if (lista.length >= 5000) return false;
+    lista.unshift({ id: idCorto(), fecha: new Date().toISOString(), ...c });
+    await this.ctx.storage.put('contactos', lista);
+    return true;
+  }
+  async contactos() { return (await this.ctx.storage.get('contactos')) || []; }
+  async borrarContacto(id) {
+    const lista = ((await this.ctx.storage.get('contactos')) || []).filter(c => c.id !== id);
+    await this.ctx.storage.put('contactos', lista);
+  }
+  async borrarContactos() { await this.ctx.storage.delete('contactos'); }
 
   // ---- Tope diario de IA ----
   async usoIA(limite) {

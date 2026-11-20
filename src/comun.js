@@ -46,9 +46,16 @@ export function limpiarCuestionario(body) {
     let tiempo = parseInt(p.tiempo, 10);
     if (!(tiempo >= 5 && tiempo <= 240)) tiempo = 20;
     const imagen = /^https?:\/\//i.test(String(p.imagen || '')) ? String(p.imagen).slice(0, 1000) : '';
-    return { texto: String(p.texto || '').trim().slice(0, 1000), opciones, correcta, tiempo, imagen };
+    const r = p.reflexion || {};
+    const reflexion = String(r.texto || '').trim() ? { cita: String(r.cita || '').trim().slice(0, 80), texto: String(r.texto).trim().slice(0, 600) } : null;
+    return { texto: String(p.texto || '').trim().slice(0, 1000), opciones, correcta, tiempo, imagen, reflexion };
   }).filter(p => p.texto && p.opciones.filter(Boolean).length >= 2);
-  return { titulo, categoria, preguntas };
+  const c = body.cierre || {};
+  const cierre = String(c.texto || '').trim() ? {
+    titulo: String(c.titulo || '').trim().slice(0, 120), texto: String(c.texto).trim().slice(0, 1500),
+    cita: String(c.cita || '').trim().slice(0, 120), contacto: c.contacto !== false
+  } : null;
+  return { titulo, categoria, preguntas, cierre };
 }
 
 export function normalizarLugar(l) {
@@ -57,6 +64,22 @@ export function normalizarLugar(l) {
 export async function huella(texto) {
   return (await sha256(String(texto).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim())).slice(0, 16);
 }
+
+export const MARCAS = {
+  chispa: { id: 'chispa', nombre: 'Chispa', tema: 'chispa', lema: 'Quiz y bingo musical en vivo' },
+  fe: { id: 'fe', nombre: 'Lumbrera', tema: 'fe', lema: 'Lámpara es a mis pies tu palabra (Salmo 119:105)',
+    creditos: 'Texto bíblico: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988.' }
+};
+export const marcaDe = env => MARCAS[env && env.MARCA] || MARCAS.chispa;
+
+export const DEMO_FE = {
+  titulo: 'Vida de Jesús · Prueba rápida', categoria: 'Vida de Jesús',
+  preguntas: [
+    { texto: '¿En qué ciudad nació Jesús? (Mateo 2:1)', opciones: ['Nazaret', 'Belén', 'Jerusalén', 'Capernaum'], correcta: 1, tiempo: 20, imagen: '' },
+    { texto: '¿Quién bautizó a Jesús en el río Jordán?', opciones: ['Pedro', 'Elías', 'Juan el Bautista', 'Andrés'], correcta: 2, tiempo: 20, imagen: '' },
+    { texto: '¿Cuántos apóstoles escogió Jesús?', opciones: ['12', '7', '10', '70'], correcta: 0, tiempo: 15, imagen: '' }
+  ]
+};
 
 export const DEMO = {
   titulo: 'Cultura general exprés',

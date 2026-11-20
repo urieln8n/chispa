@@ -12,5 +12,18 @@
   },
   "migrations": [ { "tag": "v1", "new_sqlite_classes": ["Juego", "Almacen"] } ],
   "vars": { "MAX_PLAYERS": "500", "AI_DAILY_LIMIT": "50", "ANTHROPIC_MODEL": "claude-sonnet-5-5" },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Segunda marca con el mismo motor: «Lumbrera» (Biblia y evangelismo). Se publica con: npx wrangler deploy --env fe
+  "env": {
+    "fe": {
+      "name": "lumbrera",
+      "durable_objects": {
+        "bindings": [
+          { "name": "JUEGO", "class_name": "Juego" },
+          { "name": "ALMACEN", "class_name": "Almacen" }
+        ]
+      },
+      "vars": { "MARCA": "fe", "MAX_PLAYERS": "500", "AI_DAILY_LIMIT": "50", "ANTHROPIC_MODEL": "claude-sonnet-5-5" }
+    }
+  }
 }

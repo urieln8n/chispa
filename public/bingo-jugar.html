@@ -117,7 +117,7 @@ $('#b-cantar').onclick = () => {
     if (r.valido) {
       confeti(); sonido('ok'); if (navigator.vibrate) navigator.vibrate([60, 40, 60, 40, 120]);
       const v = document.createElement('div'); v.className = 'velo';
-      v.innerHTML = `<div class="tarjeta pop" style="text-align:center;max-width:340px"><div class="grande">🏆</div><h2>¡${esc(r.nombreRonda)} válida!</h2><p>Lo ha comprobado Chispa. ¡Mira la pantalla!</p><button class="btn">Seguir jugando</button></div>`;
+      v.innerHTML = `<div class="tarjeta pop" style="text-align:center;max-width:340px"><div class="grande">🏆</div><h2>¡${esc(r.nombreRonda)} válida!</h2><p>Comprobado automáticamente. ¡Mira la pantalla!</p><button class="btn">Seguir jugando</button></div>`;
       v.querySelector('button').onclick = () => v.remove(); document.body.appendChild(v);
     } else { sonido('mal'); if (navigator.vibrate) navigator.vibrate(300); aviso('❌ ' + r.motivo + ' Espera 10 s.', 4000); }
   });

@@ -1,6 +1,6 @@
 // Chispa en Cloudflare: el Worker sirve la web, la API y reparte cada partida a su Durable Object.
 import QRCode from 'qrcode';
-import { json, iguales, limpiarCuestionario, normalizarLugar, huella } from './comun.js';
+import { json, iguales, limpiarCuestionario, normalizarLugar, huella, marcaDe } from './comun.js';
 export { Juego } from './juego.js';
 export { Almacen } from './almacen.js';
 
@@ -53,6 +53,21 @@ async function api(req, env, url, ruta) {
     return (await st.ponerClave(String(clave))) ? json({ ok: true, ia: !!env.ANTHROPIC_API_KEY }) : json({ error: 'La contraseña ya está configurada' }, 400);
   }
 
+  // --- Públicas ---
+  if (ruta === 'marca' && m === 'GET') return json(marcaDe(env), 200, { 'cache-control': 'public, max-age=300' });
+  if (ruta === 'contactos' && m === 'POST') {
+    const b = await cuerpo();
+    const pin = String(b.pin || '');
+    if (!/^\d{6}$/.test(pin) || !(await juego(env, pin).info())) return json({ error: 'La actividad ya no está abierta' }, 400);
+    if (b.consentimiento !== true) return json({ error: 'Necesitamos tu permiso para guardar estos datos' }, 400);
+    const tipo = b.tipo === 'oracion' ? 'oracion' : 'saber-mas';
+    const contacto = String(b.contacto || '').trim().slice(0, 120);
+    if (tipo === 'saber-mas' && !contacto) return json({ error: 'Déjanos un teléfono o un email para poder contactarte' }, 400);
+    const ok = await st.guardarContacto({ tipo, pin, actividad: String(b.actividad || '').slice(0, 200),
+      nombre: String(b.nombre || '').trim().slice(0, 80), contacto, mensaje: String(b.mensaje || '').trim().slice(0, 1000) });
+    return ok ? json({ ok: true }) : json({ error: 'No se ha podido guardar ahora mismo' }, 503);
+  }
+
   // --- Jugadores (sin contraseña) ---
   let r;
   if ((r = ruta.match(/^partidas\/(\d{6})$/)) && m === 'GET') {
@@ -91,7 +106,7 @@ async function api(req, env, url, ruta) {
     let lista = await st.listar();
     if (id) lista = lista.filter(q => q.id === id);
     const datos = { app: 'chispa', version: 1, exportado: new Date().toISOString(),
-      cuestionarios: lista.map(q => q.tipo === 'bingo' ? { tipo: 'bingo', titulo: q.titulo, categoria: q.categoria || '', canciones: q.canciones } : { titulo: q.titulo, categoria: q.categoria || '', preguntas: q.preguntas }) };
+      cuestionarios: lista.map(q => q.tipo === 'bingo' ? { tipo: 'bingo', titulo: q.titulo, categoria: q.categoria || '', canciones: q.canciones } : { titulo: q.titulo, categoria: q.categoria || '', preguntas: q.preguntas, cierre: q.cierre || null }) };
     const nombre = id && lista[0] ? 'chispa-' + lista[0].titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) : 'chispa-biblioteca';
     return new Response(JSON.stringify(datos, null, 2), { headers: { 'content-type': 'application/json; charset=utf-8', 'content-disposition': `attachment; filename="${nombre}.json"` } });
   }
@@ -109,6 +124,11 @@ async function api(req, env, url, ruta) {
     }
     return json({ creados, saltados });
   }
+
+  // --- Contactos recibidos ---
+  if (ruta === 'contactos' && m === 'GET') return json(await st.contactos());
+  if (ruta === 'contactos/borrar-todo' && m === 'POST') { await st.borrarContactos(); return json({ ok: true }); }
+  if ((r = ruta.match(/^contactos\/([a-f0-9]+)$/)) && m === 'DELETE') { await st.borrarContacto(r[1]); return json({ ok: true }); }
 
   // --- Lugares (para no repetir preguntas en el mismo bar) ---
   if (ruta === 'lugares' && m === 'GET') return json(await st.lugares());
@@ -165,7 +185,7 @@ async function api(req, env, url, ruta) {
     if (lugar) await st.marcarUsadas(lugar, quiz.preguntas.map(p => p.texto));
     for (let i = 0; i < 8; i++) {
       const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
-      const res = await juego(env, pin).crear(pin, { titulo: quiz.titulo, preguntas: quiz.preguntas });
+      const res = await juego(env, pin).crear(pin, { titulo: quiz.titulo, preguntas: quiz.preguntas, cierre: quiz.cierre || null });
       if (!res.ocupado) return json(res);
     }
     return json({ error: 'No se ha podido crear la partida, prueba otra vez' }, 503);

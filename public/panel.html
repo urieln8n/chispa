@@ -59,6 +59,7 @@
         <a class="btn sec" href="editor">+ Ronda de preguntas</a>
         <a class="btn sec" href="bingo-editor">🎵 + Lista de bingo</a>
         <button id="b-io" class="btn sec">⇅ Importar / Exportar</button>
+        <button id="b-contactos" class="btn sec">📬 Contactos <span id="n-contactos"></span></button>
       </div>
     </div>
 
@@ -104,13 +105,22 @@
         <button id="b-exp-todo" class="btn sec">⬇ Exportar toda la biblioteca</button>
       </div>
       <div id="io-msg" class="error"></div>
-      <p class="info">Exporta para hacer copia de seguridad o compartir rondas con otra persona que use Chispa.</p>
+      <p class="info">Exporta para hacer copia de seguridad o compartir rondas con otra persona que use esta app.</p>
+    </div>
+
+    <!-- Contactos -->
+    <div id="caja-contactos" class="tarjeta caja oculto">
+      <h3>📬 Personas que quieren saber más o piden oración</h3>
+      <p class="info">Llegan desde el mensaje final de una partida. Trátalos con cuidado: solo para lo que la persona pidió, y bórralos cuando ya no los necesites.</p>
+      <div id="lista-contactos" style="display:grid;gap:.5rem"></div>
+      <div class="acciones"><button class="btn sec" id="b-cont-csv">⬇ Descargar (Excel)</button><button class="btn sec" id="b-cont-borrar">Borrar todos</button></div>
     </div>
 
     <div class="herramientas"><input id="buscar" class="campo" placeholder="🔍 Buscar por título…"></div>
     <div id="chips" class="chips"></div>
     <datalist id="lista-cats"></datalist>
     <div id="lista" class="lista"></div>
+  <p id="creditos" class="pie" style="font-size:.75rem;max-width:520px;text-align:center;margin:1rem auto 0"></p>
   </div>
 </section>
 
@@ -212,7 +222,7 @@ $('#f-import').onchange = async e => {
   e.target.value = '';
 };
 async function cargarPacks() {
-  const packs = await fetch(BASE + 'packs/indice.json').then(r => r.json()).catch(() => []);
+  const packs = (await fetch(BASE + 'packs/indice.json').then(r => r.json()).catch(() => [])).filter(p => !p.marcas || p.marcas.includes(MARCA.id));
   $('#packs').innerHTML = packs.length ? '<b>Rondas de inicio incluidas</b>' + packs.map(p => `<div class="pack"><div><b>${esc(p.titulo)}</b><div class="info">${esc(p.descripcion)}</div></div><button class="btn peq" data-pack="${esc(p.archivo)}">Añadir a mi biblioteca</button></div>`).join('') : '';
   document.querySelectorAll('[data-pack]').forEach(b => b.onclick = async () => {
     b.disabled = true;
@@ -221,8 +231,30 @@ async function cargarPacks() {
 }
 
 // ---- Paneles desplegables ----
-function abrir(id) { ['caja-noche', 'caja-ia', 'caja-io'].forEach(c => $('#' + c).classList.toggle('oculto', c !== id || !$('#' + c).classList.contains('oculto'))); }
+function abrir(id) { ['caja-noche', 'caja-ia', 'caja-io', 'caja-contactos'].forEach(c => $('#' + c).classList.toggle('oculto', c !== id || !$('#' + c).classList.contains('oculto'))); }
 $('#b-noche').onclick = () => abrir('caja-noche');
+let CONTACTOS = [];
+async function cargarContactos() {
+  CONTACTOS = await api('contactos');
+  $('#n-contactos').textContent = CONTACTOS.length ? `(${CONTACTOS.length})` : '';
+  $('#lista-contactos').innerHTML = CONTACTOS.length ? CONTACTOS.map(c => `<div class="pack"><div>
+      <b>${c.tipo === 'oracion' ? '🙏 Petición de oración' : '💬 Quiere saber más'}</b> · <span class="info">${new Date(c.fecha).toLocaleString('es-ES')} · ${esc(c.actividad || '')}</span>
+      <div>${esc(c.nombre || 'Sin nombre')}${c.contacto ? ' · <b>' + esc(c.contacto) + '</b>' : ''}</div>
+      ${c.mensaje ? `<div class="info" style="white-space:pre-wrap">${esc(c.mensaje)}</div>` : ''}</div>
+      <button class="btn sec peq" data-borrar="${c.id}">Borrar</button></div>`).join('') : '<p class="info">Todavía no ha llegado ninguno.</p>';
+  document.querySelectorAll('[data-borrar]').forEach(b => b.onclick = async () => { await api('contactos/' + b.dataset.borrar, { method: 'DELETE' }); cargarContactos(); });
+}
+$('#b-contactos').onclick = () => { abrir('caja-contactos'); cargarContactos(); };
+$('#b-cont-csv').onclick = () => {
+  const e = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const csv = '\uFEFF' + [['Fecha', 'Tipo', 'Nombre', 'Contacto', 'Mensaje', 'Actividad'], ...CONTACTOS.map(c => [new Date(c.fecha).toLocaleString('es-ES'), c.tipo === 'oracion' ? 'Oración' : 'Saber más', c.nombre, c.contacto, c.mensaje, c.actividad])].map(f => f.map(e).join(';')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'contactos.csv'; a.click();
+};
+$('#b-cont-borrar').onclick = async () => {
+  const b = $('#b-cont-borrar');
+  if (!b.dataset.ok) { b.dataset.ok = 1; b.textContent = '¿Seguro? No se puede deshacer'; b.classList.add('peligro'); return; }
+  await api('contactos/borrar-todo', { method: 'POST' }); b.dataset.ok = ''; b.textContent = 'Borrar todos'; b.classList.remove('peligro'); cargarContactos();
+};
 $('#b-io').onclick = () => { abrir('caja-io'); cargarPacks(); };
 $('#b-ia').onclick = () => { abrir('caja-ia'); if (!IA) $('#ia-msg').textContent = 'La IA aún no está activada (falta el secreto ANTHROPIC_API_KEY en Cloudflare).'; };
 $('#b-ia-gen').onclick = async () => {
@@ -250,6 +282,7 @@ async function login(c) {
     }
     guardarClave(c); IA = r.ia;
     $('#v-login').classList.add('oculto'); $('#v-panel').classList.remove('oculto'); cargar();
+    api('contactos').then(l => { $('#n-contactos').textContent = l.length ? `(${l.length})` : ''; }).catch(() => {});
   } catch (e) { $('#v-login').classList.remove('oculto'); if (c) $('#e-login').textContent = e.message; }
 }
 $('#b-login').onclick = () => login($('#clave').value);

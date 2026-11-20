@@ -41,6 +41,7 @@
   .escalon{width:min(26vw,240px);display:flex;flex-direction:column;align-items:center;gap:.5rem;animation:sube .8s both}
   .escalon .bloque{width:100%;border-radius:16px 16px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:1rem;font-family:var(--tit);font-size:3.5rem;font-weight:800;color:var(--noche)}
   .escalon .nom{font-weight:800;font-size:1.6rem;text-align:center;word-break:break-word}
+  .podio:has(+ .reflexion) .bloque{max-height:24vh}
   .p1 .bloque{height:42vh;background:var(--ambar)} .p2 .bloque{height:30vh;background:#cfd8e3} .p3 .bloque{height:22vh;background:#d9905a}
   .p1{animation-delay:1.2s}.p2{animation-delay:.6s}.p3{animation-delay:0s}
   .control{display:flex;justify-content:flex-end;gap:.7rem}
@@ -66,7 +67,7 @@ const ES = $('#escena');
 function joinUrl() { return new URL(BASE + '?pin=' + S.pin, location.href).href; }
 function siguiente() { pararAuto(); socket.emit('host:siguiente', { claveHost: CLAVE_HOST }); }
 // ---- Modo automático: tras cada pregunta enseña resultados y ranking unos segundos y pasa sola ----
-const AUTO_SEG = { resultado: 7, ranking: 6 };
+const AUTO_SEG = { resultado: 7, reflexion: 16, ranking: 6 };
 let autoTimer = null;
 try { $('#auto').checked = localStorage.getItem('chispa-auto') === '1'; } catch {}
 $('#auto').onchange = () => { try { localStorage.setItem('chispa-auto', $('#auto').checked ? '1' : '0'); } catch {} if (!$('#auto').checked) pararAuto(); else if (pendienteAuto) programarAuto(pendienteAuto); };
@@ -131,8 +132,11 @@ function resultado(r) {
   const p = preguntaActual, max = Math.max(1, ...r.conteo);
   ES.innerHTML = `
     <div class="q-texto">${esc(p.texto)}</div>
-    <div class="barras">${r.conteo.map((c, i) => `<div class="barra op-${i} ${i === r.correcta ? '' : 'no'}"><span>${c}</span><i style="height:0"></i>${FORMAS[i]}${i === r.correcta ? '✔' : ''}</div>`).join('')}</div>
-    <div class="opciones">${p.opciones.map((o, i) => `<div class="opcion op-${i} ${i === r.correcta ? 'correcta' : 'apagada'}">${FORMAS[i]}<span>${esc(o)}</span>${i === r.correcta ? '<span style="margin-left:auto">✔</span>' : ''}</div>`).join('')}</div>
+    <div class="barras" ${r.reflexion ? 'style="height:20vh"' : ''}>${r.conteo.map((c, i) => `<div class="barra op-${i} ${i === r.correcta ? '' : 'no'}"><span>${c}</span><i style="height:0"></i>${FORMAS[i]}${i === r.correcta ? '✔' : ''}</div>`).join('')}</div>
+    ${r.reflexion
+      ? `<div class="opciones" style="grid-template-columns:1fr"><div class="opcion op-${r.correcta} correcta" style="min-height:64px">${FORMAS[r.correcta]}<span>${esc(p.opciones[r.correcta])}</span><span style="margin-left:auto">✔</span></div></div>`
+      : `<div class="opciones">${p.opciones.map((o, i) => `<div class="opcion op-${i} ${i === r.correcta ? 'correcta' : 'apagada'}">${FORMAS[i]}<span>${esc(o)}</span>${i === r.correcta ? '<span style="margin-left:auto">✔</span>' : ''}</div>`).join('')}</div>`}
+    ${r.reflexion ? `<div class="reflexion pop">${r.reflexion.cita ? `<div class="cita">${esc(r.reflexion.cita)}</div>` : ''}<p style="font-size:clamp(1.1rem,1.8vw,1.5rem)">${esc(r.reflexion.texto)}</p></div>` : ''}
     <div class="control"><span class="pie" style="align-self:center">Han respondido ${r.respondieron} de ${r.jugadores}</span><button class="btn" id="b-sig">${r.ultima ? 'Ver el podio 🏆' : 'Ver ranking'}</button></div>`;
   requestAnimationFrame(() => document.querySelectorAll('.barra i').forEach((el, i) => el.style.height = (85 * r.conteo[i] / max) + '%'));
   $('#b-sig').onclick = siguiente;
@@ -149,6 +153,7 @@ function podio(d) {
   const esc2 = (j, cls, n) => j ? `<div class="escalon ${cls}"><div class="nom">${esc(j.apodo)}</div><div class="pie" style="opacity:1;font-weight:800;font-size:1.2rem">${j.puntos} pts</div><div class="bloque">${n}</div></div>` : '';
   ES.innerHTML = `<h1 style="text-align:center">🏆 Podio</h1>
     <div class="podio">${esc2(b, 'p2', 2)}${esc2(a, 'p1', 1)}${esc2(c, 'p3', 3)}</div>
+    ${d.cierre ? `<div class="reflexion" style="max-width:900px;margin:0 auto;width:100%;animation:sube .8s 2.2s both"><div class="cita">${esc(d.cierre.titulo || 'Para terminar')}</div><p style="font-size:1.35rem">${esc(d.cierre.texto)}</p>${d.cierre.cita ? `<p style="color:var(--ambar);font-weight:800">${esc(d.cierre.cita)}</p>` : ''}${d.cierre.contacto ? '<p class="pie" style="opacity:1">📱 En tu móvil tienes un botón para saber más o pedir oración.</p>' : ''}</div>` : ''}
     <div class="control" id="ctrl-final"><span class="pie" id="inf-txt" style="align-self:center">Preparando el informe…</span><a class="btn sec" href="panel">Volver a mis cuestionarios</a></div>`;
   setTimeout(confeti, 1500);
   if (S.informe) informe(S.informe);
@@ -182,7 +187,7 @@ function escuchar() {
   socket.on('host:jugadores', l => { jugadores = l; pintarJugadores(); });
   socket.on('host:pregunta', pregunta);
   socket.on('host:respuestas', d => { const n = $('#nresp'); if (n) n.textContent = d.respondieron; });
-  socket.on('host:resultado', r => { resultado(r); programarAuto('resultado'); });
+  socket.on('host:resultado', r => { resultado(r); programarAuto(r.reflexion ? 'reflexion' : 'resultado'); });
   socket.on('host:ranking', d => { ranking(d); programarAuto('ranking'); });
   socket.on('host:pregunta', () => { pendienteAuto = null; pararAuto(); });
   socket.on('host:podio', d => { pendienteAuto = null; pararAuto(); podio(d); });

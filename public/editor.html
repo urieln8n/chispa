@@ -30,6 +30,14 @@
   </div>
   <div id="preguntas"></div>
   <button id="b-add" class="btn sec" style="margin-top:1rem;width:100%">+ Añadir pregunta</button>
+  <details class="tarjeta" id="caja-cierre" style="margin-top:1rem"><summary style="cursor:pointer;font-weight:800">🙏 Mensaje final (opcional)</summary>
+    <div style="display:grid;gap:.6rem;margin-top:.8rem">
+      <span class="pie">Se muestra junto al podio y en el móvil de cada jugador. Ideal para cerrar con un mensaje o una invitación.</span>
+      <input id="ci-titulo" class="campo" maxlength="120" placeholder="Título (p. ej. Jesús te invita)">
+      <textarea id="ci-texto" class="campo" maxlength="1500" placeholder="El mensaje"></textarea>
+      <input id="ci-cita" class="campo" maxlength="120" placeholder="Cita (opcional)">
+      <label style="display:flex;gap:.5rem;align-items:center"><input type="checkbox" id="ci-contacto" checked> Mostrar en el móvil los botones «Quiero saber más» y «Pedir oración»</label>
+    </div></details>
   <div class="guardar"><span id="estado" class="pie" style="align-self:center"></span><button id="b-guardar" class="btn">Guardar</button><button id="b-jugar" class="btn sec">Guardar y jugar ▶</button></div>
 </div>
 <script src="comun.js"></script>
@@ -40,10 +48,12 @@ $('#titulo').oninput = e => { Q.titulo = e.target.value; };
 $('#categoria').oninput = e => { Q.categoria = e.target.value; };
 const id = new URLSearchParams(location.search).get('id');
 let Q = { titulo: '', categoria: '', preguntas: [] };
-const nueva = () => ({ texto: '', opciones: ['', '', '', ''], correcta: 0, tiempo: 20, imagen: '' });
+const nueva = () => ({ texto: '', opciones: ['', '', '', ''], correcta: 0, tiempo: 20, imagen: '', reflexion: null });
 
 function pintar() {
   $('#titulo').value = Q.titulo; $('#categoria').value = Q.categoria || '';
+  const ci = Q.cierre || {}; $('#ci-titulo').value = ci.titulo || ''; $('#ci-texto').value = ci.texto || ''; $('#ci-cita').value = ci.cita || ''; $('#ci-contacto').checked = ci.contacto !== false;
+  if (Q.cierre) $('#caja-cierre').open = true;
   $('#preguntas').innerHTML = Q.preguntas.map((p, i) => `
     <div class="tarjeta preg" data-i="${i}">
       <div class="preg-cab"><h3>Pregunta ${i + 1}</h3>
@@ -59,6 +69,11 @@ function pintar() {
         <div class="op op-${k}">${FORMAS[k]}<input type="text" class="o" data-k="${k}" placeholder="Respuesta ${k + 1}${k > 1 ? ' (opcional)' : ''}" value="${esc(p.opciones[k] || '')}" maxlength="300">
         <label><input type="radio" name="c${i}" value="${k}" ${p.correcta === k ? 'checked' : ''}>Correcta</label></div>`).join('')}
       </div>
+      <details ${p.reflexion ? 'open' : ''}><summary class="pie" style="cursor:pointer;opacity:1;font-weight:700">💬 Reflexión tras la respuesta (opcional)</summary>
+        <div style="display:grid;gap:.5rem;margin-top:.5rem">
+          <input class="campo r-cita" maxlength="80" placeholder="Cita (p. ej. Juan 3:16)" value="${esc(p.reflexion ? p.reflexion.cita : '')}">
+          <textarea class="campo r-texto" maxlength="600" placeholder="Un versículo o un comentario breve para leer después de la respuesta">${esc(p.reflexion ? p.reflexion.texto : '')}</textarea>
+        </div></details>
     </div>`).join('');
   document.querySelectorAll('.preg').forEach(el => {
     const i = +el.dataset.i, p = Q.preguntas[i];
@@ -67,6 +82,9 @@ function pintar() {
     el.querySelector('.t').onchange = e => p.tiempo = +e.target.value;
     el.querySelectorAll('.o').forEach(inp => inp.oninput = e => p.opciones[+e.target.dataset.k] = e.target.value);
     el.querySelectorAll('input[type=radio]').forEach(r => r.onchange = e => p.correcta = +e.target.value);
+    const rc = el.querySelector('.r-cita'), rt = el.querySelector('.r-texto');
+    const actR = () => { p.reflexion = rt.value.trim() ? { cita: rc.value, texto: rt.value } : null; };
+    rc.oninput = actR; rt.oninput = actR;
     el.querySelector('.del').onclick = () => { Q.preguntas.splice(i, 1); if (!Q.preguntas.length) Q.preguntas.push(nueva()); pintar(); };
     el.querySelector('.up').onclick = () => { [Q.preguntas[i - 1], Q.preguntas[i]] = [Q.preguntas[i], Q.preguntas[i - 1]]; pintar(); };
     el.querySelector('.down').onclick = () => { [Q.preguntas[i + 1], Q.preguntas[i]] = [Q.preguntas[i], Q.preguntas[i + 1]]; pintar(); };
@@ -85,7 +103,9 @@ async function guardar() {
   Q.titulo = $('#titulo').value; Q.categoria = $('#categoria').value;
   const err = validar(); if (err) { aviso(err, 3500); return null; }
   // Compacta opciones vacías manteniendo la correcta
-  const body = { titulo: Q.titulo, categoria: Q.categoria, preguntas: Q.preguntas.map(p => {
+  const cierre = $('#ci-texto').value.trim() ? { titulo: $('#ci-titulo').value, texto: $('#ci-texto').value, cita: $('#ci-cita').value, contacto: $('#ci-contacto').checked } : null;
+  Q.cierre = cierre;
+  const body = { titulo: Q.titulo, categoria: Q.categoria, cierre, preguntas: Q.preguntas.map(p => {
     const idx = p.opciones.map((o, k) => k).filter(k => (p.opciones[k] || '').trim());
     return { ...p, opciones: idx.map(k => p.opciones[k]), correcta: idx.indexOf(p.correcta) };
   }) };

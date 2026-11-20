@@ -33,6 +33,15 @@ Funciona en **Cloudflare Workers + Durable Objects**: gratis para empezar, siemp
 - **Tema Navidad** con nieve.
 - **Chispa no reproduce música**: el presentador la pone con el equipo y la licencia del local y marca aquí qué suena.
 
+## ✝️ Lumbrera: la misma app para iglesias, Biblia y evangelismo
+El mismo código se publica con otra marca, **Lumbrera** («Lámpara es a mis pies tu palabra», Salmo 119:105), con su propio nombre, logo, colores, contraseña y datos.
+- **Serie «Vida de Jesús»** (RV1960) en 5 rondas: nacimiento, milagros, parábolas, muerte y resurrección, y Jesús y tu vida.
+- **Reflexión tras cada respuesta** (opcional en cada pregunta): versículo y comentario breve en pantalla y en el móvil.
+- **Mensaje final** junto al podio, con botones en el móvil **«Quiero saber más»** y **«Pedir oración»**. Piden consentimiento y llegan al panel en **📬 Contactos**, desde donde se pueden descargar o borrar.
+- Texto bíblico: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. Para un uso comercial amplio, confirma los límites de cita o pide permiso a las Sociedades Bíblicas.
+
+**Publicarla:** en Cloudflare, **Workers & Pages → Create → Import a repository**, elige este mismo repositorio y ponle de nombre `lumbrera`. En **Deploy command** escribe `npx wrangler deploy --env fe`. Quedará en `https://lumbrera.<tu-subdominio>.workers.dev`.
+
 ## Publicar en Cloudflare (gratis)
 
 ### Opción A: desde el panel de Cloudflare, con GitHub (sin instalar nada)

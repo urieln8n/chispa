@@ -1,0 +1,592 @@
+{
+ "app": "chispa",
+ "version": 1,
+ "creditos": "Texto bíblico: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988.",
+ "cuestionarios": [
+  {
+   "titulo": "Vida de Jesús 1 · Nacimiento e infancia",
+   "categoria": "Vida de Jesús",
+   "preguntas": [
+    {
+     "texto": "¿Qué ángel anunció a María que tendría un hijo? (Lucas 1:26-31)",
+     "opciones": [
+      "Rafael",
+      "Miguel",
+      "Uriel",
+      "Gabriel"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué ciudad vivía María cuando recibió el anuncio? (Lucas 1:26-27)",
+     "opciones": [
+      "Belén",
+      "Jerusalén",
+      "Caná",
+      "Nazaret"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "Según Mateo 1:21, ¿por qué se llamaría JESÚS?",
+     "opciones": [
+      "Porque nacería en Belén",
+      "Porque sería rey de Israel",
+      "Porque salvaría a su pueblo de sus pecados",
+      "Porque así se llamaba su abuelo"
+     ],
+     "correcta": 2,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Mateo 1:21 (RV1960)",
+      "texto": "«Y dará a luz un hijo, y llamarás su nombre JESÚS, porque él salvará a su pueblo de sus pecados.» Desde antes de nacer, su nombre ya anunciaba su misión."
+     }
+    },
+    {
+     "texto": "¿Por qué José y María viajaron a Belén? (Lucas 2:1-4)",
+     "opciones": [
+      "Huyendo del rey Herodes",
+      "Para visitar a Elisabet",
+      "Para celebrar la Pascua",
+      "Por un censo ordenado por César Augusto"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Dónde acostaron al niño Jesús al nacer? (Lucas 2:7)",
+     "opciones": [
+      "En casa de un familiar",
+      "En el templo",
+      "En un pesebre",
+      "En una cuna de madera"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿A quiénes anunciaron los ángeles el nacimiento aquella noche? (Lucas 2:8-11)",
+     "opciones": [
+      "A los magos de oriente",
+      "A los sacerdotes del templo",
+      "A unos pastores",
+      "Al rey Herodes"
+     ],
+     "correcta": 2,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Lucas 2:11 (RV1960)",
+      "texto": "«que os ha nacido hoy, en la ciudad de David, un Salvador, que es CRISTO el Señor.» La primera noticia fue para gente sencilla: el Salvador es para todos."
+     }
+    },
+    {
+     "texto": "¿Qué regalos trajeron los magos? (Mateo 2:11)",
+     "opciones": [
+      "Oro, incienso y mirra",
+      "Oro, plata y piedras preciosas",
+      "Plata, perfume y lino",
+      "Pan, vino y aceite"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿A qué país huyeron José, María y Jesús para escapar de Herodes? (Mateo 2:13-14)",
+     "opciones": [
+      "Babilonia",
+      "Grecia",
+      "Siria",
+      "Egipto"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "Con doce años, ¿dónde encontraron José y María a Jesús? (Lucas 2:46)",
+     "opciones": [
+      "En casa de Lázaro",
+      "Jugando en el mercado",
+      "En el templo, entre los doctores de la ley",
+      "Junto al río Jordán"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    }
+   ]
+  },
+  {
+   "titulo": "Vida de Jesús 2 · Ministerio y milagros",
+   "categoria": "Vida de Jesús",
+   "preguntas": [
+    {
+     "texto": "¿Quién bautizó a Jesús en el río Jordán? (Mateo 3:13)",
+     "opciones": [
+      "Juan el Bautista",
+      "Pedro",
+      "Elías",
+      "Andrés"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cuántos días ayunó Jesús en el desierto? (Mateo 4:2)",
+     "opciones": [
+      "30",
+      "40",
+      "7",
+      "3"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "Según Juan 2, ¿cuál fue el primer milagro de Jesús, en Caná?",
+     "opciones": [
+      "Convertir el agua en vino",
+      "Caminar sobre el agua",
+      "Sanar a un ciego",
+      "Multiplicar los panes"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué oficio tenían Pedro y Andrés cuando Jesús los llamó? (Mateo 4:18)",
+     "opciones": [
+      "Pescadores",
+      "Carpinteros",
+      "Pastores",
+      "Recaudadores de impuestos"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué calmó Jesús con su palabra en el mar? (Marcos 4:39)",
+     "opciones": [
+      "Un incendio",
+      "Una tempestad",
+      "Una plaga",
+      "Un terremoto"
+     ],
+     "correcta": 1,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Marcos 4:41 (RV1960)",
+      "texto": "«¿Quién es éste, que aun el viento y el mar le obedecen?» Los discípulos se hicieron la gran pregunta. ¿Quién es Jesús para ti?"
+     }
+    },
+    {
+     "texto": "¿Con qué alimentó Jesús a los cinco mil? (Juan 6:9-11)",
+     "opciones": [
+      "Siete panes y tres peces",
+      "Dos panes y cinco peces",
+      "Doce panes y un pez",
+      "Cinco panes y dos peces"
+     ],
+     "correcta": 3,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 6:35 (RV1960)",
+      "texto": "«Yo soy el pan de vida; el que a mí viene, nunca tendrá hambre; y el que en mí cree, no tendrá sed jamás.»"
+     }
+    },
+    {
+     "texto": "¿Sobre qué caminó Jesús ante sus discípulos? (Mateo 14:25)",
+     "opciones": [
+      "Sobre las nubes",
+      "Sobre las brasas",
+      "Sobre el fuego",
+      "Sobre el agua"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿A quién resucitó Jesús en Betania? (Juan 11)",
+     "opciones": [
+      "A Nicodemo",
+      "A Lázaro",
+      "A Jairo",
+      "A Zaqueo"
+     ],
+     "correcta": 1,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 11:25 (RV1960)",
+      "texto": "«Le dijo Jesús: Yo soy la resurrección y la vida; el que cree en mí, aunque esté muerto, vivirá.»"
+     }
+    },
+    {
+     "texto": "¿Qué jefe de recaudadores subió a un árbol para ver a Jesús? (Lucas 19:1-4)",
+     "opciones": [
+      "Nicodemo",
+      "Zaqueo",
+      "Bartimeo",
+      "Mateo"
+     ],
+     "correcta": 1,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Lucas 19:10 (RV1960)",
+      "texto": "«Porque el Hijo del Hombre vino a buscar y a salvar lo que se había perdido.» Jesús no esperó a que Zaqueo cambiara para acercarse a él."
+     }
+    }
+   ]
+  },
+  {
+   "titulo": "Vida de Jesús 3 · Parábolas y enseñanzas",
+   "categoria": "Vida de Jesús",
+   "preguntas": [
+    {
+     "texto": "¿Cuántas ovejas dejó el pastor para buscar la que se había perdido? (Lucas 15:4)",
+     "opciones": [
+      "100",
+      "49",
+      "9",
+      "99"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "En la parábola del hijo pródigo, ¿qué hizo el padre al verlo volver? (Lucas 15:20)",
+     "opciones": [
+      "Corrió, lo abrazó y lo besó",
+      "Le pidió que trabajara como siervo",
+      "Esperó a que pidiera perdón en público",
+      "Le cerró la puerta"
+     ],
+     "correcta": 0,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Lucas 15:7 (RV1960)",
+      "texto": "«Os digo que así habrá más gozo en el cielo por un pecador que se arrepiente, que por noventa y nueve justos que no necesitan de arrepentimiento.»"
+     }
+    },
+    {
+     "texto": "En la parábola de Lucas 10, ¿quién ayudó al hombre herido en el camino?",
+     "opciones": [
+      "Un fariseo",
+      "Un samaritano",
+      "Un sacerdote",
+      "Un levita"
+     ],
+     "correcta": 1,
+     "tiempo": 20
+    },
+    {
+     "texto": "En la parábola del sembrador, ¿qué representa la semilla? (Lucas 8:11)",
+     "opciones": [
+      "La palabra de Dios",
+      "El tiempo",
+      "El dinero",
+      "Las buenas obras"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué oración enseñó Jesús a sus discípulos? (Mateo 6:9)",
+     "opciones": [
+      "El Padre nuestro",
+      "El Magníficat",
+      "El Salmo 23",
+      "El Shemá"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "Según Jesús, ¿cuál es el primero y grande mandamiento? (Mateo 22:37-38)",
+     "opciones": [
+      "No matarás",
+      "Honrar a padre y madre",
+      "Guardar el día de reposo",
+      "Amar a Dios con todo tu corazón, alma y mente"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "«Yo soy el buen pastor…» ¿Qué da el buen pastor por las ovejas? (Juan 10:11)",
+     "opciones": [
+      "Su tiempo libre",
+      "Su comida",
+      "Su vida",
+      "Sus riquezas"
+     ],
+     "correcta": 2,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 10:11 (RV1960)",
+      "texto": "«Yo soy el buen pastor; el buen pastor su vida da por las ovejas.»"
+     }
+    },
+    {
+     "texto": "¿Qué promete Jesús a los que están «trabajados y cargados»? (Mateo 11:28)",
+     "opciones": [
+      "Que no tendrán problemas",
+      "Que les hará descansar",
+      "Que serán ricos",
+      "Que serán famosos"
+     ],
+     "correcta": 1,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Mateo 11:28 (RV1960)",
+      "texto": "«Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.» Es una invitación abierta: no hace falta venir con todo resuelto."
+     }
+    }
+   ]
+  },
+  {
+   "titulo": "Vida de Jesús 4 · Muerte y resurrección",
+   "categoria": "Vida de Jesús",
+   "preguntas": [
+    {
+     "texto": "¿Sobre qué animal entró Jesús en Jerusalén? (Juan 12:14)",
+     "opciones": [
+      "Un carro de guerra",
+      "Un caballo blanco",
+      "Un asnillo",
+      "Un camello"
+     ],
+     "correcta": 2,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Por cuántas piezas de plata entregó Judas a Jesús? (Mateo 26:15)",
+     "opciones": [
+      "100",
+      "40",
+      "10",
+      "30"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿En qué huerto oró Jesús antes de ser arrestado? (Mateo 26:36)",
+     "opciones": [
+      "Edén",
+      "Siloé",
+      "Betania",
+      "Getsemaní"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué gobernador romano entregó a Jesús para ser crucificado?",
+     "opciones": [
+      "Poncio Pilato",
+      "Caifás",
+      "Herodes",
+      "César Augusto"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Cómo se llamaba el lugar donde crucificaron a Jesús? (Juan 19:17)",
+     "opciones": [
+      "Gólgota (la Calavera)",
+      "El monte Sinaí",
+      "Betel",
+      "Getsemaní"
+     ],
+     "correcta": 0,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Romanos 5:8 (RV1960)",
+      "texto": "«Mas Dios muestra su amor para con nosotros, en que siendo aún pecadores, Cristo murió por nosotros.» La cruz no fue un accidente: fue amor."
+     }
+    },
+    {
+     "texto": "¿Quién pidió el cuerpo de Jesús para sepultarlo? (Mateo 27:57-58)",
+     "opciones": [
+      "José de Arimatea",
+      "Nicodemo",
+      "Juan",
+      "Pedro"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    },
+    {
+     "texto": "¿Qué dijo el ángel a las mujeres en el sepulcro vacío? (Mateo 28:6)",
+     "opciones": [
+      "«Volved mañana»",
+      "«Id a Galilea a enterrarlo»",
+      "«Se lo han llevado»",
+      "«No está aquí, pues ha resucitado»"
+     ],
+     "correcta": 3,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Mateo 28:6 (RV1960)",
+      "texto": "«No está aquí, pues ha resucitado, como dijo.» La tumba vacía es el centro de la esperanza cristiana."
+     }
+    },
+    {
+     "texto": "¿Qué discípulo dijo que no creería si no veía las marcas de los clavos? (Juan 20:25)",
+     "opciones": [
+      "Felipe",
+      "Tomás",
+      "Pedro",
+      "Santiago"
+     ],
+     "correcta": 1,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 20:31 (RV1960)",
+      "texto": "«Pero éstas se han escrito para que creáis que Jesús es el Cristo, el Hijo de Dios, y para que creyendo, tengáis vida en su nombre.»"
+     }
+    },
+    {
+     "texto": "¿Durante cuántos días se apareció Jesús resucitado antes de subir al cielo? (Hechos 1:3)",
+     "opciones": [
+      "40",
+      "50",
+      "7",
+      "3"
+     ],
+     "correcta": 0,
+     "tiempo": 20
+    }
+   ]
+  },
+  {
+   "titulo": "Vida de Jesús 5 · Jesús y tu vida",
+   "categoria": "Vida de Jesús",
+   "preguntas": [
+    {
+     "texto": "Completa Juan 3:16: «…para que todo aquel que en él cree, no se pierda, mas tenga…»",
+     "opciones": [
+      "una vida sin problemas",
+      "muchas riquezas",
+      "paz en la tierra",
+      "vida eterna"
+     ],
+     "correcta": 3,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 3:16 (RV1960)",
+      "texto": "«Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.»"
+     }
+    },
+    {
+     "texto": "Completa Juan 14:6: «Yo soy el camino, y la verdad, y…»",
+     "opciones": [
+      "la luz",
+      "la vida",
+      "el pan",
+      "la puerta"
+     ],
+     "correcta": 1,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 14:6 (RV1960)",
+      "texto": "«Jesús le dijo: Yo soy el camino, y la verdad, y la vida; nadie viene al Padre, sino por mí.»"
+     }
+    },
+    {
+     "texto": "Completa Juan 8:12: «Yo soy la luz del…»",
+     "opciones": [
+      "templo",
+      "cielo",
+      "mundo",
+      "día"
+     ],
+     "correcta": 2,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 8:12 (RV1960)",
+      "texto": "«Yo soy la luz del mundo; el que me sigue, no andará en tinieblas, sino que tendrá la luz de la vida.»"
+     }
+    },
+    {
+     "texto": "Según Romanos 5:8, ¿cuándo murió Cristo por nosotros?",
+     "opciones": [
+      "Cuando se lo pedimos",
+      "Cuando lo merecimos",
+      "Cuando fuimos buenos",
+      "Siendo aún pecadores"
+     ],
+     "correcta": 3,
+     "tiempo": 20
+    },
+    {
+     "texto": "Según Romanos 10:9, ¿qué dos cosas menciona para ser salvo?",
+     "opciones": [
+      "Ser bautizado y ayunar",
+      "Cumplir todos los mandamientos sin fallar",
+      "Ir al templo y dar ofrendas",
+      "Confesar que Jesús es el Señor y creer que Dios le levantó de los muertos"
+     ],
+     "correcta": 3,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Romanos 10:9 (RV1960)",
+      "texto": "«que si confesares con tu boca que Jesús es el Señor, y creyeres en tu corazón que Dios le levantó de los muertos, serás salvo.»"
+     }
+    },
+    {
+     "texto": "Según Juan 10:10, ¿para qué dice Jesús que ha venido?",
+     "opciones": [
+      "Para que tengan vida, y vida en abundancia",
+      "Para juzgar al mundo",
+      "Para cambiar las leyes de Roma",
+      "Para fundar un reino terrenal"
+     ],
+     "correcta": 0,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 10:10 (RV1960)",
+      "texto": "«yo he venido para que tengan vida, y para que la tengan en abundancia.»"
+     }
+    },
+    {
+     "texto": "Según Juan 6:37, ¿qué hace Jesús con quien viene a él?",
+     "opciones": [
+      "No le echa fuera",
+      "Le pone a prueba",
+      "Le manda volver más tarde",
+      "Le pide que espere"
+     ],
+     "correcta": 0,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Juan 6:37 (RV1960)",
+      "texto": "«Todo lo que el Padre me da, vendrá a mí; y al que a mí viene, no le echo fuera.»"
+     }
+    },
+    {
+     "texto": "¿Qué promete Jesús al final del evangelio de Mateo? (Mateo 28:20)",
+     "opciones": [
+      "Darnos una vida sin dificultades",
+      "Que nunca estaremos tristes",
+      "Volver al día siguiente",
+      "Estar con nosotros todos los días, hasta el fin del mundo"
+     ],
+     "correcta": 3,
+     "tiempo": 20,
+     "reflexion": {
+      "cita": "Mateo 28:20 (RV1960)",
+      "texto": "«y he aquí yo estoy con vosotros todos los días, hasta el fin del mundo.»"
+     }
+    }
+   ],
+   "cierre": {
+    "titulo": "Jesús te invita",
+    "texto": "Hoy hemos repasado la vida de Jesús: nació para salvar, sanó, enseñó, dio su vida en la cruz y resucitó. Él no es solo una historia: te conoce y te invita a seguirle. Si quieres saber más o que oremos por ti, déjanos tus datos en el móvil.",
+    "cita": "Juan 3:16",
+    "contacto": true
+   }
+  }
+ ]
+}
