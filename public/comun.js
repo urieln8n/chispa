@@ -12,13 +12,13 @@ const LOGOS = {
   chispa: '<svg class="chispa" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#FFB020"/><path d="M18 5 9 18h6l-2 9 10-13h-6z" fill="#0F1B2D"/></svg>',
   fe: '<svg class="chispa" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#F2C46B"/><path d="M16 6c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 12.5 13 10 16 6z" fill="#1B1640"/><path d="M9 22h14l-1.5 4h-11z" fill="#1B1640"/></svg>'
 };
-let MARCA = { id: 'chispa', nombre: 'Chispa', tema: 'chispa', lema: '' };
-try { const m = JSON.parse(localStorage.getItem('chispa-marca') || 'null'); if (m && m.id) MARCA = m; } catch {}
+let MARCA = { id: 'chispa', nombre: 'Pulsazo', tema: 'chispa', lema: '' };
+try { const m = JSON.parse(localStorage.getItem('chispa-marca') || 'null'); if (m && m.id && m.nombre !== 'Chispa') MARCA = m; } catch {}
 function marca() { return `<a class="marca" href="${BASE}"><span class="marca-logo">${LOGOS[MARCA.id] || LOGOS.chispa}</span><span class="marca-nombre">${esc(MARCA.nombre)}</span></a>`; }
 function aplicarMarca() {
   document.querySelectorAll('.marca-logo').forEach(e => e.innerHTML = LOGOS[MARCA.id] || LOGOS.chispa);
   document.querySelectorAll('.marca-nombre').forEach(e => e.textContent = MARCA.nombre);
-  document.title = document.title.replace(/^(Chispa|Lumbrera)/, MARCA.nombre);
+  document.title = document.title.replace(/^(Chispa|Pulsazo|Lumbrera)/, MARCA.nombre);
   document.documentElement.dataset.marca = MARCA.id;
   if (MARCA.tema === 'fe' && !document.body.classList.contains('tema-navidad')) document.body.classList.add('tema-fe');
   const cr = document.getElementById('creditos'); if (cr) cr.textContent = MARCA.creditos || '';

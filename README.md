@@ -1,4 +1,4 @@
-# ⚡ Chispa — quiz en vivo (Cloudflare)
+# ⚡ Pulsazo — trivial y bingo musical en vivo (Cloudflare)
 
 Quiz multijugador en tiempo real para clases, empresas y eventos. El presentador proyecta la partida con un **PIN y un QR**; los jugadores entran desde el móvil **sin instalar nada ni registrarse**.
 
@@ -16,6 +16,12 @@ Funciona en **Cloudflare Workers + Durable Objects**: gratis para empezar, siemp
   - **Informe final descargable** para Excel, por jugador y por pregunta.
   - Preguntas largas, y la pregunta también se ve en el móvil.
 - **IA opcional**: crea un cuestionario a partir de un tema o un texto pegado (API de Anthropic, con tope diario).
+
+## Web y SEO
+- La portada (`/`) es la web de presentación para bares y empresas: tiene una pregunta jugable, formatos, precios, preguntas frecuentes y un formulario de solicitud (las solicitudes llegan al panel, en 📬 Contactos).
+- Los jugadores entran en **`/jugar`**, a donde apuntan los QR. Los enlaces antiguos con `/?pin=` siguen funcionando.
+- `robots.txt`, `sitemap.xml`, la dirección canónica y la imagen para redes se generan con el dominio real, así que funcionan igual con `workers.dev` o con un dominio propio.
+- Completa los datos entre corchetes de **`/privacidad`** antes de usar el formulario con clientes.
 
 ## Biblioteca y noches
 - **Categorías, buscador y filtros** para organizar tus rondas.

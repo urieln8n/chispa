@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chispa · Mi biblioteca</title>
+<title>Pulsazo · Mi biblioteca</title>
 <link rel="stylesheet" href="styles.css">
 <style>
   .lista{display:grid;gap:10px;margin-top:1rem}
@@ -40,7 +40,7 @@
     <button id="b-login" class="btn">Entrar</button>
     <div id="e-login" class="error"></div>
   </div>
-  <p class="pie"><a href="./">¿Vienes a jugar? Mete el PIN aquí</a></p>
+  <p class="pie"><a href="jugar">¿Vienes a jugar? Mete el PIN aquí</a></p>
 </section>
 
 <section id="v-panel" class="oculto">
@@ -110,8 +110,8 @@
 
     <!-- Contactos -->
     <div id="caja-contactos" class="tarjeta caja oculto">
-      <h3>📬 Personas que quieren saber más o piden oración</h3>
-      <p class="info">Llegan desde el mensaje final de una partida. Trátalos con cuidado: solo para lo que la persona pidió, y bórralos cuando ya no los necesites.</p>
+      <h3>📬 Contactos y solicitudes</h3>
+      <p class="info">Llegan desde tu web (solicitudes de noches y eventos) y desde el mensaje final de una partida. Trátalos con cuidado: solo para lo que la persona pidió, y bórralos cuando ya no los necesites.</p>
       <div id="lista-contactos" style="display:grid;gap:.5rem"></div>
       <div class="acciones"><button class="btn sec" id="b-cont-csv">⬇ Descargar (Excel)</button><button class="btn sec" id="b-cont-borrar">Borrar todos</button></div>
     </div>
@@ -238,7 +238,7 @@ async function cargarContactos() {
   CONTACTOS = await api('contactos');
   $('#n-contactos').textContent = CONTACTOS.length ? `(${CONTACTOS.length})` : '';
   $('#lista-contactos').innerHTML = CONTACTOS.length ? CONTACTOS.map(c => `<div class="pack"><div>
-      <b>${c.tipo === 'oracion' ? '🙏 Petición de oración' : '💬 Quiere saber más'}</b> · <span class="info">${new Date(c.fecha).toLocaleString('es-ES')} · ${esc(c.actividad || '')}</span>
+      <b>${c.tipo === 'oracion' ? '🙏 Petición de oración' : c.tipo === 'solicitud' ? '📩 Solicitud desde la web' + (c.evento ? ' · ' + esc(c.evento) : '') : '💬 Quiere saber más'}</b> · <span class="info">${new Date(c.fecha).toLocaleString('es-ES')} · ${esc(c.actividad || '')}</span>
       <div>${esc(c.nombre || 'Sin nombre')}${c.contacto ? ' · <b>' + esc(c.contacto) + '</b>' : ''}</div>
       ${c.mensaje ? `<div class="info" style="white-space:pre-wrap">${esc(c.mensaje)}</div>` : ''}</div>
       <button class="btn sec peq" data-borrar="${c.id}">Borrar</button></div>`).join('') : '<p class="info">Todavía no ha llegado ninguno.</p>';
@@ -247,7 +247,7 @@ async function cargarContactos() {
 $('#b-contactos').onclick = () => { abrir('caja-contactos'); cargarContactos(); };
 $('#b-cont-csv').onclick = () => {
   const e = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
-  const csv = '\uFEFF' + [['Fecha', 'Tipo', 'Nombre', 'Contacto', 'Mensaje', 'Actividad'], ...CONTACTOS.map(c => [new Date(c.fecha).toLocaleString('es-ES'), c.tipo === 'oracion' ? 'Oración' : 'Saber más', c.nombre, c.contacto, c.mensaje, c.actividad])].map(f => f.map(e).join(';')).join('\r\n');
+  const csv = '\uFEFF' + [['Fecha', 'Tipo', 'Nombre', 'Contacto', 'Mensaje', 'Actividad'], ...CONTACTOS.map(c => [new Date(c.fecha).toLocaleString('es-ES'), c.tipo === 'oracion' ? 'Oración' : c.tipo === 'solicitud' ? 'Solicitud web' + (c.evento ? ' (' + c.evento + ')' : '') : 'Saber más', c.nombre, c.contacto, c.mensaje, c.actividad])].map(f => f.map(e).join(';')).join('\r\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'contactos.csv'; a.click();
 };
 $('#b-cont-borrar').onclick = async () => {

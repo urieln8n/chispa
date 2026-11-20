@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chispa · Bingo musical</title>
+<title>Pulsazo · Bingo musical</title>
 <link rel="stylesheet" href="styles.css">
 <style>
   body{overflow-x:hidden}
@@ -131,7 +131,7 @@ function sala() {
   const url = urlJugar();
   ES.innerHTML = `<div class="sala">
       <div class="pin-caja"><div class="qr"><img alt="Código QR para entrar" src="${BASE}api/qr?t=${encodeURIComponent(url)}"></div>
-        <div><div style="font-weight:800">Entra desde el móvil en</div><div style="font-weight:700;opacity:.75;word-break:break-all">${esc(new URL(BASE, location.href).host + BASE)}</div>
+        <div><div style="font-weight:800">Entra desde el móvil en</div><div style="font-weight:700;opacity:.75;word-break:break-all">${esc(new URL(BASE, location.href).host + BASE + 'jugar')}</div>
         <div style="font-weight:800;margin-top:.6rem">con el PIN</div><div class="pin-num">${PIN.slice(0, 3)} ${PIN.slice(3)}</div></div></div>
       <div><h1>🎵 Bingo musical</h1><h2 style="color:var(--ambar);margin-top:.3rem">${esc(S.titulo)}</h2>
         <p class="pie" style="font-size:1rem;opacity:.85">Escanea el QR, escribe tu nombre y recibirás tu cartón. Rondas: ${S.rondas.map(esc).join(' → ')}.</p></div></div>

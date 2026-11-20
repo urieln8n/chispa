@@ -66,7 +66,7 @@ export async function huella(texto) {
 }
 
 export const MARCAS = {
-  chispa: { id: 'chispa', nombre: 'Chispa', tema: 'chispa', lema: 'Quiz y bingo musical en vivo' },
+  chispa: { id: 'chispa', nombre: 'Pulsazo', tema: 'chispa', lema: 'Trivial y bingo musical en vivo para bares y eventos' },
   fe: { id: 'fe', nombre: 'Lumbrera', tema: 'fe', lema: 'Lámpara es a mis pies tu palabra (Salmo 119:105)',
     creditos: 'Texto bíblico: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988.' }
 };

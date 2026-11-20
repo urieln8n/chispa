@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#0F1B2D">
-<title>Chispa · Bingo musical</title>
+<title>Pulsazo · Bingo musical</title>
 <link rel="stylesheet" href="styles.css">
 <style>
   .cab{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;font-weight:800;gap:.6rem;position:relative;z-index:2}
@@ -126,10 +126,10 @@ $('#b-apodo').onclick = () => entrar($('#apodo').value);
 $('#apodo').onkeydown = e => { if (e.key === 'Enter') entrar($('#apodo').value); };
 
 (async () => {
-  if (PIN.length !== 6) { location.href = './'; return; }
+  if (PIN.length !== 6) { location.href = 'jugar'; return; }
   const r = await fetch(BASE + 'api/partidas/' + PIN).then(x => x.json()).catch(() => ({ error: 'Sin conexión' }));
-  if (r.error) return msg(`<h2>${esc(r.error)}</h2><p><a href="./">Volver</a></p>`);
-  if (r.tipo !== 'bingo') { location.href = './?pin=' + PIN; return; }
+  if (r.error) return msg(`<h2>${esc(r.error)}</h2><p><a href="jugar">Volver</a></p>`);
+  if (r.tipo !== 'bingo') { location.href = 'jugar?pin=' + PIN; return; }
   aplicarTema(r.tema); $('#tit-partida').textContent = '🎵 ' + r.titulo;
   yo = leer();
   socket = conectarJuego(PIN); escuchar();

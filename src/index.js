@@ -25,7 +25,27 @@ export default {
         return juego(env, pin).fetch(req);
       }
       if (ruta.startsWith('/api/')) return await api(req, env, url, ruta.slice(5));
-      return env.ASSETS.fetch(req);
+      if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+      if (ruta === '/sitemap.xml') {
+        const urls = env.MARCA === 'fe' ? ['/jugar'] : ['/', '/privacidad'];
+        return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u => `<url><loc>${url.origin}${u}</loc></url>`).join('')}</urlset>`, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
+      }
+      // Lumbrera aún no tiene web de presentación: su portada es la página para jugar
+      if (env.MARCA === 'fe' && (ruta === '/' || ruta === '/index.html')) {
+        const j = await env.ASSETS.fetch(new Request(new URL('/jugar' + url.search, url), req));
+        return new HTMLRewriter().on('title', { text(t) { if (t.text) t.replace(t.text.replace('Pulsazo', 'Lumbrera')); } }).transform(j);
+      }
+      const res = await env.ASSETS.fetch(req);
+      // En la portada, fija la dirección canónica y las imágenes de redes con el dominio real (sirve igual con workers.dev o con tu dominio)
+      if ((ruta === '/' || ruta === '/privacidad') && (res.headers.get('content-type') || '').includes('text/html')) {
+        return new HTMLRewriter()
+          .on('link[rel="canonical"]', { element(e) { e.setAttribute('href', url.origin + ruta); } })
+          .on('meta[property="og:url"]', { element(e) { e.setAttribute('content', url.origin + ruta); } })
+          .on('meta[property="og:image"]', { element(e) { e.setAttribute('content', url.origin + '/og.png'); } })
+          .on('script#jsonld', { text(t) { if (t.text) t.replace(t.text.replaceAll('{{ORIGEN}}', url.origin)); } })
+          .transform(res);
+      }
+      return res;
     } catch (e) {
       console.error(e);
       return json({ error: 'Error del servidor' }, 500);
@@ -66,6 +86,17 @@ async function api(req, env, url, ruta) {
     const ok = await st.guardarContacto({ tipo, pin, actividad: String(b.actividad || '').slice(0, 200),
       nombre: String(b.nombre || '').trim().slice(0, 80), contacto, mensaje: String(b.mensaje || '').trim().slice(0, 1000) });
     return ok ? json({ ok: true }) : json({ error: 'No se ha podido guardar ahora mismo' }, 503);
+  }
+
+  if (ruta === 'solicitud' && m === 'POST') {
+    const b = await cuerpo();
+    if (b.web) return json({ ok: true }); // campo trampa para bots
+    if (b.consentimiento !== true) return json({ error: 'Marca la casilla para darnos permiso para contactarte' }, 400);
+    const contacto = String(b.contacto || '').trim().slice(0, 120), nombre = String(b.nombre || '').trim().slice(0, 80);
+    if (!nombre || !contacto) return json({ error: 'Escribe tu nombre y un teléfono o email' }, 400);
+    const ok = await st.guardarContacto({ tipo: 'solicitud', nombre, contacto, negocio: String(b.negocio || '').trim().slice(0, 120),
+      evento: String(b.evento || '').trim().slice(0, 60), mensaje: String(b.mensaje || '').trim().slice(0, 1000), actividad: 'Web' + (b.negocio ? ' · ' + String(b.negocio).slice(0, 80) : '') });
+    return ok ? json({ ok: true }) : json({ error: 'No se ha podido enviar ahora mismo. Prueba en un rato.' }, 503);
   }
 
   // --- Jugadores (sin contraseña) ---

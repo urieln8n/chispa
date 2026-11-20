@@ -2,189 +2,358 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#0F1B2D">
-<title>Chispa · Entra a jugar</title>
-<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pulsazo · Trivial y bingo musical en vivo para bares y eventos en Barcelona</title>
+<meta name="description" content="Noches de trivial y bingo musical en tu bar, empresa o evento. Se juega con el móvil, sin descargar nada. L'Hospitalet de Llobregat, Barcelona y alrededores. Primera noche de prueba gratis.">
+<link rel="canonical" href="/">
+<meta name="theme-color" content="#101B33">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Pulsazo · Trivial y bingo musical en vivo">
+<meta property="og:description" content="Tus clientes juegan con el móvil en la pantalla del local. Nosotros llevamos las preguntas, la música y la presentación.">
+<meta property="og:url" content="/">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23FFB020'/%3E%3Cpath d='M18 5 9 18h6l-2 9 10-13h-6z' fill='%23101B33'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;700&display=swap">
+<script type="application/ld+json" id="jsonld">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"LocalBusiness","@id":"{{ORIGEN}}/#negocio","name":"Pulsazo","url":"{{ORIGEN}}/","image":"{{ORIGEN}}/og.png",
+  "description":"Noches de trivial y bingo musical en vivo para bares, restaurantes, empresas y eventos. Se juega con el móvil, sin descargar nada.",
+  "address":{"@type":"PostalAddress","addressLocality":"L'Hospitalet de Llobregat","addressRegion":"Barcelona","addressCountry":"ES"},
+  "areaServed":["L'Hospitalet de Llobregat","Barcelona","Cornellà de Llobregat","Esplugues de Llobregat","El Prat de Llobregat"],
+  "priceRange":"€€"},
+ {"@type":"FAQPage","mainEntity":[
+  {"@type":"Question","name":"¿Hay que descargar alguna app?","acceptedAnswer":{"@type":"Answer","text":"No. Cada jugador escanea el código QR de la pantalla o escribe un PIN en el navegador del móvil, y ya está jugando."}},
+  {"@type":"Question","name":"¿Cuánta gente puede jugar a la vez?","acceptedAnswer":{"@type":"Answer","text":"Hasta 500 móviles en la misma partida. Se puede jugar solo o por equipos."}},
+  {"@type":"Question","name":"¿Qué necesita el local?","acceptedAnswer":{"@type":"Answer","text":"Una tele o un proyector con entrada HDMI y conexión a internet (wifi o datos). Nosotros llevamos el resto."}},
+  {"@type":"Question","name":"¿Quién pone la música del bingo musical?","acceptedAnswer":{"@type":"Answer","text":"Suena con el equipo del local y con su licencia para música en público. Pulsazo reparte los cartones, marca lo que suena y comprueba quién gana."}},
+  {"@type":"Question","name":"¿En qué zona trabajáis?","acceptedAnswer":{"@type":"Answer","text":"En L'Hospitalet de Llobregat, Barcelona y alrededores. Para otras zonas, escríbenos."}}
+ ]}
+]}
+</script>
 <style>
-  .pantalla{min-height:100vh;display:flex;flex-direction:column}
-  .cab{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;font-weight:800}
-  .cab .pts{background:var(--noche3);padding:.3em .8em;border-radius:99px}
-  #pin{font-size:2rem;text-align:center;letter-spacing:.3em;font-weight:800}
-  #apodo{font-size:1.4rem;text-align:center;font-weight:700}
-  .entrar{max-width:360px;width:100%;display:flex;flex-direction:column;gap:.8rem}
-  .resp{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
-  .resp .opcion{flex-direction:column;justify-content:center;font-size:1rem;text-align:center}
-  .resp .opcion .forma{width:3.2rem;height:3.2rem}
-  .resp .opcion small{font-weight:700;opacity:.95;max-height:4.5em;overflow:hidden}
-  .resp.una .opcion{grid-column:span 2}
-  .grande{font-size:3.2rem}
-  .res-ok{background:linear-gradient(160deg,#16a34a,#0f7a37)}
-  .res-mal{background:linear-gradient(160deg,#dc2626,#8f1717)}
-  .res-nada{background:linear-gradient(160deg,#475569,#273448)}
-  .burbuja{background:rgba(0,0,0,.25);border-radius:99px;padding:.5em 1.2em;font-weight:800}
-  .cuenta{font-size:5rem;font-family:var(--tit);font-weight:800}
-  .preg-txt{padding:0 1rem;font-weight:700;font-size:1.05rem}
-  .tbar{height:8px;background:var(--noche3);margin:0 10px;border-radius:99px;overflow:hidden}
-  .tbar i{display:block;height:100%;background:var(--ambar);width:100%;transition:width linear}
+:root{
+  --noche:#101B33; --noche-2:#18264A; --linea:#2A3B66; --ambar:#FFB020; --ambar-osc:#C47F00;
+  --coral:#FF5A5F; --turquesa:#2EC4B6; --violeta:#8B5CF6; --papel:#FBFAF7; --tinta:#14213D; --gris:#5B6478; --suave:#A9B6D3;
+  --display:'Bricolage Grotesque',system-ui,sans-serif; --texto:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--texto);font-size:18px;line-height:1.6;color:var(--tinta);background:var(--papel)}
+img,svg{display:block}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ambar);outline-offset:3px;border-radius:6px}
+.envoltura{max-width:1160px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--display);line-height:1.04;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(2rem,4.2vw,3.2rem);font-weight:800;max-width:18ch}
+h3{font-size:1.35rem;font-weight:800}
+p{margin:0}
+.boton{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--texto);font-weight:700;font-size:1.05rem;border:0;border-radius:14px;padding:.95em 1.5em;text-decoration:none;cursor:pointer;background:var(--ambar);color:var(--noche);box-shadow:0 5px 0 var(--ambar-osc);transition:transform .08s,box-shadow .08s}
+.boton:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ambar-osc)}
+.boton.fantasma{background:transparent;color:#fff;box-shadow:inset 0 0 0 2px var(--linea)}
+.boton.fantasma:active{transform:none}
+.forma{width:1em;height:1em;fill:currentColor;flex:none}
+
+/* ---- Cabecera ---- */
+.cabecera{position:absolute;inset:0 0 auto;z-index:5}
+.cabecera .envoltura{display:flex;align-items:center;justify-content:space-between;height:84px}
+.logo{display:flex;align-items:center;gap:.55rem;font-family:var(--display);font-weight:800;font-size:1.6rem;color:#fff;text-decoration:none}
+.logo svg{width:38px;height:38px}
+.nav{display:flex;gap:1.6rem;align-items:center}
+.nav a{color:#D6DEF0;text-decoration:none;font-weight:500;font-size:1rem}
+.nav a:hover{color:#fff}
+.nav .boton{padding:.6em 1.1em;font-size:.95rem;color:var(--noche);white-space:nowrap}
+.corto{display:none}
+
+/* ---- Portada: una pregunta jugable ---- */
+.portada{background:var(--noche);color:#fff;padding:150px 0 110px;position:relative;overflow:hidden}
+.portada .envoltura{display:grid;grid-template-columns:1.02fr 1fr;gap:64px;align-items:center}
+.portada h1{font-size:clamp(2.6rem,5.6vw,4.9rem);font-weight:800;max-width:14ch}
+.portada .entrada{margin-top:1.5rem;font-size:1.22rem;color:#D6DEF0;max-width:34ch}
+.portada .acciones{display:flex;gap:1rem;flex-wrap:wrap;margin-top:2.2rem}
+.portada .pin{margin-top:2.4rem;font-size:.98rem;color:var(--suave)}
+.portada .pin a{color:#fff;font-weight:700}
+.tele{background:#0A1226;border-radius:28px;padding:14px;box-shadow:0 0 0 2px #24345E,0 40px 80px -30px rgba(0,0,0,.7)}
+.pantalla{background:var(--noche-2);border-radius:18px;padding:26px 24px 22px}
+.pantalla .meta{display:flex;justify-content:space-between;color:var(--suave);font-size:.92rem;font-weight:500}
+.pantalla .pregunta{font-family:var(--display);font-weight:800;font-size:clamp(1.35rem,2.3vw,1.85rem);line-height:1.15;margin:.7rem 0 1rem;color:#fff}
+.reloj{height:8px;background:#24345E;border-radius:99px;overflow:hidden;margin-bottom:18px}
+.reloj i{display:block;height:100%;width:100%;background:var(--ambar);transform-origin:left}
+.respuestas{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.resp{display:flex;align-items:center;gap:.6rem;border:0;border-radius:14px;padding:1rem .9rem;font-family:var(--texto);font-weight:700;font-size:1.02rem;text-align:left;color:#fff;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.28);transition:opacity .25s,transform .08s;min-height:68px}
+.resp .forma{width:1.5rem;height:1.5rem}
+.resp:active{transform:translateY(3px)}
+.r0{background:var(--coral)}.r1{background:var(--turquesa)}.r2{background:var(--violeta)}.r3{background:var(--ambar);color:var(--noche);box-shadow:0 4px 0 var(--ambar-osc)}
+.respondida .resp{opacity:.28}
+.respondida .resp.buena{opacity:1;outline:4px solid #fff;outline-offset:-4px}
+.veredicto{min-height:3.4em;margin-top:14px;color:#D6DEF0;font-size:1rem}
+.veredicto b{color:#fff}
+@media (prefers-reduced-motion:no-preference){.reloj i.corre{animation:reloj 20s linear forwards}}
+@keyframes reloj{to{transform:scaleX(0)}}
+
+/* ---- Secciones ---- */
+.seccion{padding:110px 0}
+.intro{display:flex;justify-content:space-between;align-items:end;gap:2rem;flex-wrap:wrap;margin-bottom:56px}
+.intro p{max-width:46ch;color:var(--gris);font-size:1.12rem}
+.pasos{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:48px;counter-reset:paso}
+.pasos li{counter-increment:paso;border-top:3px solid var(--tinta);padding-top:22px}
+.pasos li::before{content:counter(paso);font-family:var(--display);font-weight:800;font-size:3.4rem;line-height:1;display:block;margin-bottom:14px;color:var(--tinta)}
+.pasos p{color:var(--gris);margin-top:.5rem}
+
+.formatos{background:var(--noche);color:#fff}
+.formatos .intro p{color:#C9D3EA}
+.rejilla{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.formato{border-radius:22px;padding:30px 30px 32px;display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:start;box-shadow:0 6px 0 rgba(0,0,0,.3)}
+.formato .forma{width:2.6rem;height:2.6rem;grid-row:span 2;margin-top:2px}
+.formato h3{font-size:1.6rem}
+.formato p{opacity:.95}
+.formato.r3 p{opacity:1}
+
+.dos-col{display:grid;grid-template-columns:.9fr 1.1fr;gap:72px;align-items:start}
+.ventajas{list-style:none;margin:0;padding:0;display:grid;gap:26px}
+.ventajas li{display:grid;grid-template-columns:28px 1fr;gap:14px}
+.ventajas svg{width:22px;height:22px;margin-top:5px;stroke:var(--tinta);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.ventajas b{display:block;font-size:1.1rem}
+.ventajas span{color:var(--gris)}
+
+.precios{background:#F2EEE4}
+.tabla-precios{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--tinta);border-radius:22px;overflow:hidden;background:var(--papel)}
+.plan{padding:34px 30px;display:flex;flex-direction:column;gap:.6rem}
+.plan + .plan{border-left:2px solid var(--tinta)}
+.plan .cifra{font-family:var(--display);font-weight:800;font-size:2.8rem;line-height:1}
+.plan .cifra small{font-size:1rem;font-weight:600;font-family:var(--texto);color:var(--gris)}
+.plan p{color:var(--gris)}
+.plan.destacado{background:var(--noche);color:#fff}
+.plan.destacado p,.plan.destacado .cifra small{color:#C9D3EA}
+.nota-precios{margin-top:20px;color:var(--gris);font-size:.95rem}
+
+.preguntas{max-width:820px}
+details{border-bottom:2px solid #E3DED2;padding:22px 0}
+summary{cursor:pointer;font-family:var(--display);font-weight:800;font-size:1.3rem;list-style:none;display:flex;justify-content:space-between;gap:1rem}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';font-size:1.6rem;line-height:1;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin-top:.8rem;color:var(--gris);max-width:62ch}
+
+.contacto{background:var(--noche);color:#fff}
+.contacto .dos-col{align-items:center}
+.contacto h2{max-width:14ch}
+.contacto .lado p{color:#C9D3EA;margin-top:1.2rem;max-width:38ch;font-size:1.12rem}
+.formulario{background:var(--noche-2);border-radius:24px;padding:30px;display:grid;gap:14px}
+.formulario label{display:grid;gap:6px;font-weight:700;font-size:.95rem;color:#D6DEF0}
+.formulario input,.formulario select,.formulario textarea{font:inherit;font-size:1rem;color:#fff;background:#0E1730;border:2px solid var(--linea);border-radius:12px;padding:.8em .9em}
+.formulario input:focus,.formulario select:focus,.formulario textarea:focus{outline:none;border-color:var(--ambar)}
+.formulario .fila{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.formulario .permiso{display:flex;gap:.6rem;align-items:flex-start;font-weight:500;color:var(--suave);font-size:.9rem}
+.formulario .permiso input{margin-top:.25rem;width:1.1rem;height:1.1rem;accent-color:var(--ambar)}
+.formulario .trampa{position:absolute;left:-9999px}
+.estado{min-height:1.5em;font-weight:700}
+.estado.mal{color:#FFB4B4}.estado.bien{color:var(--turquesa)}
+
+.pie{background:#0A1226;color:var(--suave);padding:40px 0;font-size:.95rem}
+.pie .envoltura{display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.pie a{color:#D6DEF0}
+
+@media (max-width:900px){
+  body{font-size:17px}
+  .nav a:not(.boton){display:none}
+  .largo{display:none}.corto{display:inline}
+  .portada{padding:120px 0 80px}
+  .portada .envoltura,.dos-col{grid-template-columns:1fr;gap:48px}
+  .pasos,.rejilla,.tabla-precios{grid-template-columns:1fr}
+  .plan + .plan{border-left:0;border-top:2px solid var(--tinta)}
+  .seccion{padding:80px 0}
+  .formulario .fila{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-<!-- 1. PIN -->
-<section id="v-pin" class="centro">
-  <div id="marca1"></div>
-  <div class="tarjeta entrar">
-    <input id="pin" class="campo" inputmode="numeric" maxlength="6" placeholder="PIN" autocomplete="off">
-    <button id="b-pin" class="btn">Entrar</button>
-    <div id="e-pin" class="error"></div>
+<header class="cabecera">
+  <div class="envoltura">
+    <a class="logo" href="/" aria-label="Pulsazo, inicio"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#FFB020"/><path d="M18 5 9 18h6l-2 9 10-13h-6z" fill="#101B33"/></svg>Pulsazo</a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#formatos">Formatos</a>
+      <a href="#precios">Precios</a>
+      <a href="/jugar">Tengo un PIN</a>
+      <a class="boton" href="#contacto"><span class="largo">Pedir noche de prueba</span><span class="corto">Prueba gratis</span></a>
+    </nav>
   </div>
-  <p class="pie">¿Vas a presentar? <a href="panel">Crea tu partida</a></p>
-  <p id="creditos" class="pie" style="font-size:.75rem;max-width:520px;text-align:center;margin:1rem auto 0"></p>
-</section>
+</header>
 
-<!-- 2. Apodo -->
-<section id="v-apodo" class="centro oculto">
-  <div id="marca2"></div>
-  <p id="titulo-partida" class="pie"></p>
-  <div class="tarjeta entrar">
-    <input id="apodo" class="campo" maxlength="20" placeholder="Tu apodo" autocomplete="off">
-    <button id="b-apodo" class="btn">¡Listo, a jugar!</button>
-    <div id="e-apodo" class="error"></div>
+<main>
+<section class="portada">
+  <div class="envoltura">
+    <div>
+      <h1>Tu bar, lleno<br> un miércoles.</h1>
+      <p class="entrada">Noches de trivial y bingo musical en vivo. Tus clientes juegan con el móvil en la pantalla del local, sin descargar nada. Nosotros llevamos las preguntas, la música y la presentación.</p>
+      <div class="acciones">
+        <a class="boton" href="#contacto">Pedir noche de prueba gratis</a>
+        <a class="boton fantasma" href="#como-funciona">Ver cómo funciona</a>
+      </div>
+      <p class="pin">¿Estás en una partida? <a href="/jugar">Entra con tu PIN</a></p>
+    </div>
+
+    <div class="tele" aria-label="Pregunta de ejemplo: pruébala">
+      <div class="pantalla">
+        <div class="meta"><span>Pregunta 1 de 10</span><span id="segundos">20 s</span></div>
+        <p class="pregunta" id="pregunta">¿Cuántos móviles pueden jugar a la vez en una partida de Pulsazo?</p>
+        <div class="reloj"><i id="barra"></i></div>
+        <div class="respuestas" id="respuestas">
+          <button class="resp r0" data-ok="0"><svg class="forma" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7.1L12 17.3 5.8 21l1.6-7.1L2 9.2l7.1-.6z"/></svg>20</button>
+          <button class="resp r1" data-ok="0"><svg class="forma" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2L4 14h6.5L9 22l11-13h-6.8z"/></svg>50</button>
+          <button class="resp r2" data-ok="0"><svg class="forma" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 2.5A9.5 9.5 0 1 0 21.5 16 8 8 0 0 1 14.5 2.5z"/></svg>100</button>
+          <button class="resp r3" data-ok="1"><svg class="forma" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>500</button>
+        </div>
+        <p class="veredicto" id="veredicto" aria-live="polite">Tócala como si fueras un cliente.</p>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- 3. Juego -->
-<section id="v-juego" class="pantalla oculto">
-  <div class="cab"><span id="yo"></span><span class="pts" id="mis-pts">0</span></div>
-  <div id="area" class="centro" style="min-height:auto;flex:1"></div>
+<section class="seccion" id="como-funciona">
+  <div class="envoltura">
+    <div class="intro">
+      <h2>Una noche lista en tres pasos</h2>
+      <p>El local solo pone la pantalla. Del resto nos encargamos nosotros, de la primera pregunta al podio.</p>
+    </div>
+    <ol class="pasos">
+      <li><h3>Montamos la pantalla</h3><p>Conectamos el portátil a vuestra tele o proyector y aparece un código QR gigante con el PIN de la partida.</p></li>
+      <li><h3>Todos entran con el móvil</h3><p>Escanean el QR, eligen un nombre de equipo y ya están dentro. Sin apps, sin registros, sin esperar.</p></li>
+      <li><h3>Presentamos y se pican</h3><p>Preguntas o canciones, cuenta atrás, ranking en directo y podio final. Entre ronda y ronda, la gente pide otra.</p></li>
+    </ol>
+  </div>
 </section>
 
-<script src="comun.js"></script>
+<section class="seccion formatos" id="formatos">
+  <div class="envoltura">
+    <div class="intro">
+      <h2>Cuatro formas de jugar</h2>
+      <p>Cada noche se adapta al local y a la gente: temas, dificultad, número de rondas y premios.</p>
+    </div>
+    <div class="rejilla">
+      <article class="formato r0"><svg class="forma" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7.1L12 17.3 5.8 21l1.6-7.1L2 9.2l7.1-.6z"/></svg><h3>Noche de trivial</h3><p>Tres rondas de cultura general, cine, música, deportes o Barcelona. Puntos por acertar y por rapidez, y nunca se repiten preguntas en el mismo local.</p></article>
+      <article class="formato r1"><svg class="forma" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2L4 14h6.5L9 22l11-13h-6.8z"/></svg><h3>Bingo musical</h3><p>Suena una canción y cada jugador la marca en su cartón del móvil. Línea, dos líneas y cartón lleno, comprobado al instante: nada de trampas.</p></article>
+      <article class="formato r2"><svg class="forma" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 2.5A9.5 9.5 0 1 0 21.5 16 8 8 0 0 1 14.5 2.5z"/></svg><h3>Empresas y cenas</h3><p>Team building, cenas de equipo y formaciones, con preguntas sobre vuestro sector o vuestra propia empresa. Informe final descargable.</p></article>
+      <article class="formato r3"><svg class="forma" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg><h3>Especial Navidad</h3><p>Bingo musical navideño con villancicos y clásicos de Navidad, y pantalla con nieve. Para cenas de empresa, comidas de amigos y el bar en diciembre.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="envoltura dos-col">
+    <h2>Por qué los locales repiten</h2>
+    <ul class="ventajas">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><div><b>Sin apps ni registros</b><span>Funciona en cualquier móvil con el navegador. Si a alguien se le cae la conexión, vuelve con sus puntos.</span></div></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><div><b>Hasta 500 jugadores</b><span>Para un bar de barrio o para una sala llena. Se juega solo o por equipos.</span></div></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><div><b>Preguntas nuevas cada semana</b><span>Llevamos la cuenta de lo que ya ha salido en tu local, así los habituales nunca se saben las respuestas.</span></div></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><div><b>Más tiempo y más consumo</b><span>Dos horas con la gente sentada, en equipo y con ganas de revancha la semana siguiente.</span></div></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg><div><b>Lo anunciamos contigo</b><span>Cartel para el local y vídeos de cada noche para vuestras redes.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<section class="seccion precios" id="precios">
+  <div class="envoltura">
+    <div class="intro">
+      <h2>Precios claros</h2>
+      <p>La primera noche es de prueba y no cuesta nada. Si funciona, seguimos; si no, no has perdido nada.</p>
+    </div>
+    <div class="tabla-precios">
+      <div class="plan"><h3>Noche suelta</h3><div class="cifra">90 € <small>por noche</small></div><p>Unas dos horas, tres rondas de trivial o bingo musical, con presentador y pantalla.</p></div>
+      <div class="plan destacado"><h3>Noche fija semanal</h3><div class="cifra">320 € <small>al mes</small></div><p>Un día fijo a la semana (cuatro noches), preguntas siempre nuevas, cartel y vídeos para redes.</p></div>
+      <div class="plan"><h3>Evento privado</h3><div class="cifra">180 € <small>desde</small></div><p>Cenas de empresa, team building, cumpleaños y despedidas. Preguntas a medida.</p></div>
+    </div>
+    <p class="nota-precios">Precios orientativos sin IVA para L'Hospitalet y Barcelona. Los premios para los ganadores los pone el local.</p>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="envoltura preguntas">
+    <h2 style="margin-bottom:24px">Dudas habituales</h2>
+    <details><summary>¿Hay que descargar alguna app?</summary><p>No. Cada jugador escanea el código QR de la pantalla o escribe un PIN en el navegador del móvil, y ya está jugando.</p></details>
+    <details><summary>¿Cuánta gente puede jugar a la vez?</summary><p>Hasta 500 móviles en la misma partida. Se puede jugar solo o por equipos.</p></details>
+    <details><summary>¿Qué necesita el local?</summary><p>Una tele o un proyector con entrada HDMI y conexión a internet (wifi o datos). Nosotros llevamos el resto.</p></details>
+    <details><summary>¿Quién pone la música del bingo musical?</summary><p>Suena con el equipo del local y con su licencia para música en público. Pulsazo reparte los cartones, marca lo que suena y comprueba quién gana.</p></details>
+    <details><summary>¿En qué zona trabajáis?</summary><p>En L'Hospitalet de Llobregat, Barcelona y alrededores. Para otras zonas, escríbenos.</p></details>
+  </div>
+</section>
+
+<section class="seccion contacto" id="contacto">
+  <div class="envoltura dos-col">
+    <div class="lado">
+      <h2>Pide tu noche de prueba</h2>
+      <p>Cuéntanos qué local o evento tienes y te llamamos para elegir día. La primera noche corre de nuestra cuenta.</p>
+    </div>
+    <form class="formulario" id="formulario" novalidate>
+      <div class="fila">
+        <label>Tu nombre<input name="nombre" autocomplete="name" required maxlength="80"></label>
+        <label>Teléfono o email<input name="contacto" autocomplete="tel" required maxlength="120"></label>
+      </div>
+      <div class="fila">
+        <label>Local o empresa<input name="negocio" autocomplete="organization" maxlength="120"></label>
+        <label>Qué te interesa
+          <select name="evento">
+            <option>Noche de trivial</option><option>Bingo musical</option><option>Cena de Navidad</option><option>Evento de empresa</option><option>Cumpleaños o despedida</option><option>Otra cosa</option>
+          </select></label>
+      </div>
+      <label>Algo más que debamos saber <textarea name="mensaje" rows="3" maxlength="1000" placeholder="Día que te va bien, cuánta gente, si tenéis tele…"></textarea></label>
+      <label class="trampa" aria-hidden="true">Web<input name="web" tabindex="-1" autocomplete="off"></label>
+      <label class="permiso"><input type="checkbox" name="consentimiento"> Acepto que Pulsazo guarde estos datos solo para contactarme sobre mi solicitud. <a href="/privacidad">Política de privacidad</a></label>
+      <button class="boton" type="submit">Enviar solicitud</button>
+      <p class="estado" id="estado" role="status"></p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer class="pie">
+  <div class="envoltura">
+    <span>Pulsazo · Trivial y bingo musical en vivo · L'Hospitalet de Llobregat</span>
+    <span><a href="/jugar">Entrar a una partida</a> · <a href="/privacidad">Privacidad</a> · <a href="/panel">Zona del presentador</a></span>
+  </div>
+</footer>
+
 <script>
-$('#marca1').innerHTML = marca(); $('#marca2').innerHTML = marca();
-let socket = null;
-let PIN = '', yo = null, tick = null;
-const qs = new URLSearchParams(location.search);
+// Los enlaces antiguos con ?pin= llevan a la página de juego
+const pin = new URLSearchParams(location.search).get('pin');
+if (pin) location.replace('/jugar?pin=' + encodeURIComponent(pin));
 
-function ver(id) { ['v-pin', 'v-apodo', 'v-juego'].forEach(v => $('#' + v).classList.toggle('oculto', v !== id)); }
-function guardar() { try { localStorage.setItem('chispa-j-' + PIN, JSON.stringify(yo)); } catch {} }
-function leer(pin) { try { return JSON.parse(localStorage.getItem('chispa-j-' + pin) || 'null'); } catch { return null; } }
-function olvidar() { try { localStorage.removeItem('chispa-j-' + PIN); } catch {} }
-function area(html, cls = '') { const a = $('#area'); a.className = 'centro ' + cls; a.style.cssText = 'min-height:auto;flex:1'; a.innerHTML = html; }
+// Pregunta de la portada: se juega de verdad
+(function () {
+  const caja = document.getElementById('respuestas'), barra = document.getElementById('barra'), seg = document.getElementById('segundos'), ver = document.getElementById('veredicto');
+  let t = 20, fin = false;
+  barra.classList.add('corre');
+  const reloj = setInterval(() => { if (fin) return; t--; seg.textContent = t + ' s'; if (t <= 0) responder(null); }, 1000);
+  function responder(boton) {
+    if (fin) return; fin = true; clearInterval(reloj);
+    barra.style.animationPlayState = 'paused';
+    caja.classList.add('respondida');
+    caja.querySelector('[data-ok="1"]').classList.add('buena');
+    const ok = boton && boton.dataset.ok === '1';
+    const puntos = ok ? Math.round(1000 * (1 - (20 - t) / 40)) : 0;
+    ver.innerHTML = ok ? `<b>¡Correcto! +${puntos} puntos.</b> Hasta 500 móviles a la vez. Así de rápido lo entienden tus clientes.`
+      : boton ? '<b>¡Casi!</b> Son hasta 500 móviles a la vez. Así se ve en la pantalla del local.' : '<b>¡Se acabó el tiempo!</b> Eran 500 móviles a la vez.';
+  }
+  caja.querySelectorAll('.resp').forEach(b => b.addEventListener('click', () => responder(b)));
+})();
 
-async function comprobarPin(pin) {
-  if (socket) { socket.close(); socket = null; }
-  PIN = String(pin).replace(/\D/g, '');
-  $('#e-pin').textContent = '';
-  if (PIN.length !== 6) { ver('v-pin'); $('#e-pin').textContent = 'El PIN tiene 6 números'; return; }
-  const r = await fetch(BASE + 'api/partidas/' + PIN).then(x => x.json()).catch(() => ({ error: 'Sin conexión, prueba otra vez' }));
-  if (r.error) { ver('v-pin'); $('#e-pin').textContent = r.error; return; }
-  if (r.tipo === 'bingo') { location.href = 'bingo-jugar?pin=' + PIN; return; }
-  $('#titulo-partida').textContent = r.titulo;
-  yo = leer(PIN);
-  socket = conectarJuego(PIN);
-  escuchar();
-  if (!yo) { ver('v-apodo'); $('#apodo').focus(); }
-}
-function entrar(apodo, token) {
-  socket.emit('jugador:entrar', { apodo, token }, r => {
-    if (r.error) {
-      if (token) { olvidar(); yo = null; ver('v-apodo'); return; }
-      $('#e-apodo').textContent = r.error; return;
-    }
-    yo = { id: r.id, token: r.token, apodo: r.apodo }; guardar();
-    $('#yo').textContent = r.apodo; $('#mis-pts').textContent = r.puntos;
-    ver('v-juego');
-    if (r.pregunta) mostrarPregunta(r.pregunta);
-    else if (r.resultado) mostrarResultado(r.resultado);
-    else if (r.final) mostrarFinal(r.final);
-    else esperar();
-  });
-}
-function esperar() {
-  area(`<div class="pop"><div class="grande">🎉</div><h2>¡Estás dentro!</h2><p>¿Ves tu apodo en la pantalla? En cuanto empiece, aquí salen las respuestas.</p></div>`);
-}
-function mostrarPregunta(p) {
-  clearInterval(tick);
-  const arrancar = () => {
-    if (p.yaRespondio) return enviado();
-    const una = p.opciones.length === 2 ? '' : '';
-    $('#area').className = ''; $('#area').style.cssText = 'flex:1;display:flex;flex-direction:column';
-    $('#area').innerHTML = `<div class="preg-txt">${p.indice + 1}/${p.total} · ${esc(p.texto)}</div>
-      <div class="tbar" style="margin-top:.6rem"><i id="tb"></i></div>
-      <div class="resp ${una}">${p.opciones.map((o, i) => o ? `<button class="opcion op-${i}" data-i="${i}" aria-label="${NOMBRES_FORMA[i]}">${FORMAS[i]}<small>${esc(o)}</small></button>` : '').join('')}</div>`;
-    const total = (p.restante ?? p.tiempo * 1000);
-    const tb = $('#tb'); tb.style.width = (100 * total / (p.tiempo * 1000)) + '%';
-    requestAnimationFrame(() => { tb.style.transitionDuration = total + 'ms'; tb.style.width = '0%'; });
-    document.querySelectorAll('.resp .opcion').forEach(b => b.onclick = () => {
-      if (navigator.vibrate) navigator.vibrate(30);
-      document.querySelectorAll('.resp .opcion').forEach(x => x.disabled = true);
-      socket.emit('jugador:responder', { opcion: +b.dataset.i }, r => { if (r.error) aviso(r.error); enviado(); });
-    });
-  };
-  if (p.empiezaEn > 300) {
-    let n = Math.ceil(p.empiezaEn / 1000);
-    area(`<p class="burbuja">Pregunta ${p.indice + 1} de ${p.total}</p><div class="cuenta pop" id="cd">${n}</div><p>¡Prepárate!</p>`);
-    tick = setInterval(() => { n--; if (n <= 0) { clearInterval(tick); arrancar(); } else $('#cd').textContent = n; }, 1000);
-  } else arrancar();
-}
-function enviado() {
-  area(`<div class="pop"><div class="grande">⏳</div><h2>¡Respuesta enviada!</h2><p>¿Habrás sido el más rápido?</p></div>`);
-}
-function mostrarResultado(r) {
-  $('#mis-pts').textContent = r.puntos;
-  const cls = !r.respondio ? 'res-nada' : r.acierto ? 'res-ok' : 'res-mal';
-  const tit = !r.respondio ? 'Se acabó el tiempo' : r.acierto ? (MARCA.id === 'fe' ? '¡Correcto!' : '¡Chispazo!') : '¡Casi!';
-  const ico = !r.respondio ? '⌛' : r.acierto ? '✔' : '✖';
-  const racha = r.racha >= 2 ? `<p class="burbuja">🔥 Racha de ${r.racha}</p>` : '';
-  const delante = r.puesto === 1 ? '<p>¡Vas primero! 👑</p>' : r.delante ? `<p>A ${r.delante.diferencia} puntos de <b>${esc(r.delante.apodo)}</b></p>` : '';
-  area(`<div class="pop" style="display:flex;flex-direction:column;align-items:center;gap:.6rem"><div class="grande">${ico}</div><h2>${tit}</h2>
-    ${r.acierto ? `<p class="burbuja">+${r.ganados}</p>` : ''}${racha}<p>Vas <b>${r.puesto}.º</b></p>${delante}
-    ${r.reflexion ? `<div class="reflexion" style="max-width:360px;margin-top:.4rem">${r.reflexion.cita ? `<div class="cita">${esc(r.reflexion.cita)}</div>` : ''}<p style="font-size:1rem">${esc(r.reflexion.texto)}</p></div>` : ''}</div>`, cls);
-  document.body.style.background = ''; if (navigator.vibrate) navigator.vibrate(r.acierto ? [40, 40, 40] : 200);
-}
-function mostrarFinal(f) {
-  $('#mis-pts').textContent = f.puntos;
-  const med = ['🥇', '🥈', '🥉'][f.puesto - 1] || '⭐';
-  area(`<div class="pop" style="display:flex;flex-direction:column;align-items:center;gap:.7rem;max-width:420px"><div class="grande">${med}</div><h2>Has quedado ${f.puesto}.º de ${f.total}</h2><p class="burbuja" style="display:inline-block">${f.puntos} puntos</p>
-    ${f.cierre ? `<div class="reflexion"><div class="cita">${esc(f.cierre.titulo || 'Para terminar')}</div><p style="font-size:1rem">${esc(f.cierre.texto)}</p>${f.cierre.cita ? `<p style="color:var(--ambar);font-weight:800;font-size:.95rem">${esc(f.cierre.cita)}</p>` : ''}</div>
-      ${f.cierre.contacto ? `<div style="display:grid;gap:.5rem;width:100%"><button class="btn" id="b-saber">Quiero saber más</button><button class="btn sec" id="b-orar">Pedir oración</button></div><div id="form-contacto" style="width:100%"></div>` : ''}` : '<p>¡Gracias por jugar!</p>'}</div>`);
-  if (f.cierre && f.cierre.contacto) { $('#b-saber').onclick = () => formulario('saber-mas'); $('#b-orar').onclick = () => formulario('oracion'); }
-}
-function formulario(tipo) {
-  const saber = tipo === 'saber-mas';
-  $('#form-contacto').innerHTML = `<div class="tarjeta" style="display:grid;gap:.6rem;text-align:left">
-    <b>${saber ? 'Te contactamos para hablar con calma' : '¿Por qué podemos orar por ti?'}</b>
-    <input class="campo" id="c-nombre" maxlength="80" placeholder="Tu nombre${saber ? '' : ' (opcional)'}" value="${esc(yo ? yo.apodo : '')}">
-    <input class="campo" id="c-contacto" maxlength="120" placeholder="Teléfono o email${saber ? '' : ' (opcional, si quieres que te escriban)'}">
-    <textarea class="campo" id="c-mensaje" maxlength="1000" rows="3" placeholder="${saber ? 'Algo que quieras contarnos (opcional)' : 'Tu petición'}"></textarea>
-    <label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.85rem;color:var(--suave)"><input type="checkbox" id="c-ok" style="margin-top:.2rem"> Acepto que la persona que organiza esta actividad guarde estos datos solo para contactarme o para orar por mí. Puedo pedir que los borre en cualquier momento.</label>
-    <button class="btn" id="c-enviar">Enviar</button><div id="c-msg" class="error"></div></div>`;
-  $('#c-enviar').onclick = async () => {
-    if (!$('#c-ok').checked) { $('#c-msg').textContent = 'Marca la casilla para darnos permiso'; return; }
-    const r = await fetch(BASE + 'api/contactos', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
-      pin: PIN, tipo, nombre: $('#c-nombre').value, contacto: $('#c-contacto').value, mensaje: $('#c-mensaje').value, consentimiento: true, actividad: $('#titulo-partida').textContent }) }).then(x => x.json()).catch(() => ({ error: 'Sin conexión' }));
-    if (r.error) { $('#c-msg').textContent = r.error; return; }
-    $('#form-contacto').innerHTML = `<div class="reflexion"><p>${saber ? '¡Gracias! Te contactaremos pronto.' : '¡Gracias! Vamos a orar por ti.'}</p></div>`;
-  };
-}
-
-function escuchar() {
-socket.on('jugador:pregunta', mostrarPregunta);
-socket.on('jugador:resultado', mostrarResultado);
-socket.on('jugador:final', mostrarFinal);
-socket.on('jugador:expulsado', () => { olvidar(); yo = null; socket.close(); ver('v-juego'); area('<h2>El presentador te ha sacado de la partida</h2>'); });
-socket.on('jugador:cerrada', () => { socket.close(); area('<h2>La partida ha terminado</h2><p><a href="./">Volver</a></p>'); });
-// Reconexión automática: al volver la conexión, recupera tu sitio y tus puntos
-socket.on('connect', () => { if (yo) entrar(null, yo.token); });
-socket.on('disconnect', () => aviso('Conexión perdida… reconectando'));
-}
-
-$('#b-pin').onclick = () => comprobarPin($('#pin').value);
-$('#pin').onkeydown = e => { if (e.key === 'Enter') comprobarPin($('#pin').value); };
-$('#b-apodo').onclick = () => entrar($('#apodo').value);
-$('#apodo').onkeydown = e => { if (e.key === 'Enter') entrar($('#apodo').value); };
-if (qs.get('pin')) { $('#pin').value = qs.get('pin'); comprobarPin(qs.get('pin')); }
+// Formulario de solicitud
+document.getElementById('formulario').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, estado = document.getElementById('estado'), d = Object.fromEntries(new FormData(f));
+  estado.className = 'estado';
+  if (!d.nombre.trim() || !d.contacto.trim()) { estado.textContent = 'Escribe tu nombre y un teléfono o email.'; estado.classList.add('mal'); return; }
+  if (!f.consentimiento.checked) { estado.textContent = 'Marca la casilla para darnos permiso para contactarte.'; estado.classList.add('mal'); return; }
+  const boton = f.querySelector('button'); boton.disabled = true; boton.textContent = 'Enviando…';
+  const r = await fetch('/api/solicitud', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...d, consentimiento: true }) }).then(x => x.json()).catch(() => ({ error: 'No hay conexión. Prueba otra vez.' }));
+  boton.disabled = false; boton.textContent = 'Enviar solicitud';
+  if (r.error) { estado.textContent = r.error; estado.classList.add('mal'); return; }
+  f.reset(); estado.textContent = 'Solicitud enviada. Te contactamos en menos de 24 horas.'; estado.classList.add('bien');
+});
 </script>
 </body>
 </html>
