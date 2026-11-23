@@ -1,6 +1,7 @@
 import json, os, random, re, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from genesis import GENESIS
+from exodo import EXODO
 SALIDA = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public', 'biblia'); os.makedirs(SALIDA, exist_ok=True)
 CAT = [  # (id, nombre, testamento, capítulos)
  ("genesis","Génesis","AT",50),("exodo","Éxodo","AT",40),("levitico","Levítico","AT",27),("numeros","Números","AT",36),("deuteronomio","Deuteronomio","AT",34),
@@ -19,7 +20,7 @@ CAT = [  # (id, nombre, testamento, capítulos)
  ("3juan","3 Juan","NT",1),("judas","Judas","NT",1),("apocalipsis","Apocalipsis","NT",22),
 ]
 assert len(CAT) == 66
-LIBROS = {"genesis": GENESIS}  # Lumbrera publica solo Génesis
+LIBROS = {"genesis": GENESIS, "exodo": EXODO}  # libros publicados en Lumbrera
 errores = []
 for lid, L in LIBROS.items():
     vistos = set(); citas = 0
@@ -31,7 +32,7 @@ for lid, L in LIBROS.items():
                 clave = q["q"].lower()
                 if clave in vistos: errores.append(f"duplicada: {q['q']}")
                 vistos.add(clave)
-                if not re.search(r"(Juan|Génesis) \d", q["ref"]): errores.append(f"ref rara: {q['ref']}")
+                if not re.search(r"(Juan|Génesis|Éxodo) \d", q["ref"]): errores.append(f"ref rara: {q['ref']}")
                 if q["t"] == "completar": citas += 1
                 if q["t"] in ("opcion", "completar") and len({q['ok'], *q['malas']}) != 4: errores.append(f"opciones repetidas: {q['q']}")
                 if q["t"] == "emparejar":

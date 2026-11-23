@@ -55,5 +55,14 @@
   "marcas": [
    "fe"
   ]
+ },
+ {
+  "archivo": "libro-exodo.json",
+  "titulo": "📖 Éxodo: 15 rondas para jugar en grupo",
+  "descripcion": "Las preguntas de la sección Aprender de Éxodo, en rondas de 8–10 para partidas en vivo.",
+  "n": 15,
+  "marcas": [
+   "fe"
+  ]
  }
 ]

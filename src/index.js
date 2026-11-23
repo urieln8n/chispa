@@ -3,30 +3,37 @@ import QRCode from 'qrcode';
 import { json, iguales, limpiarCuestionario, normalizarLugar, huella, marcaDe } from './comun.js';
 import { semanaLiga, diaLiga, jugadorDe, apodoValido, grupoValido, LIGA_MAX_ENVIO } from './liga.js';
 import { endpointValido, horaValida, zonaValida } from './push.js';
-const CONTACTO_PUSH = 'mailto:fa.andres18@hotmail.com';
+const CONTACTO_PUSH = 'https://genesis.andresrendon.com/privacidad'; // contacto VAPID (la página de privacidad tiene el email)
 export { Juego } from './juego.js';
 export { Almacen } from './almacen.js';
 
 // Resumen para asistentes de IA (ChatGPT, Perplexity, Claude…) de la web de Lumbrera
-const LLMS_LUMBRERA = `# Lumbrera · Aprende Génesis
+const LLMS_LUMBRERA = `# Lumbrera · Aprende Génesis y Éxodo
 
-> App gratuita para aprender el libro de Génesis con lecciones cortas, repaso de fallos y partidas en grupo con PIN. Sin registro. Se puede instalar como app y funciona sin conexión.
+> App gratuita para aprender la Biblia (Génesis y Éxodo, 150 preguntas de cada libro) con lecciones cortas, repaso de fallos, racha, liga semanal y partidas en grupo con PIN. Sin registro. Se puede instalar como app y funciona sin conexión.
 
 ## Qué incluye
-- 150 preguntas sobre los 50 capítulos de Génesis, en 5 unidades y 15 lecciones de 10 preguntas.
+- 150 preguntas de Génesis (50 capítulos) y 150 de Éxodo (40 capítulos), cada libro en 5 unidades y 15 lecciones de 10 preguntas.
 - Tipos de pregunta: elegir respuesta, verdadero o falso, completar versículos, ordenar hechos y emparejar personajes.
 - Cada respuesta muestra la cita bíblica y una explicación breve. Citas de la Reina-Valera 1960.
 - Puntos, racha diaria, meta diaria, logros y repaso de las preguntas falladas. El progreso se guarda en el propio dispositivo.
 
-## Unidades
+## Unidades de Génesis
 1. La creación y la caída (Génesis 1–5)
 2. Noé y la torre de Babel (Génesis 6–11)
 3. Abraham, el amigo de Dios (Génesis 12–24)
 4. Isaac, Esaú y Jacob (Génesis 25–36)
 5. José en Egipto (Génesis 37–50)
 
+## Unidades de Éxodo
+1. Esclavitud y el llamado de Moisés (Éxodo 1–6)
+2. Las plagas y la Pascua (Éxodo 7–13)
+3. El mar Rojo y el desierto (Éxodo 14–18)
+4. El Sinaí y los Diez Mandamientos (Éxodo 19–24)
+5. El tabernáculo y el becerro de oro (Éxodo 25–40)
+
 ## Jugar en grupo
-Se eligen de 10 a 150 preguntas y de 10 a 60 segundos por pregunta. La pantalla muestra un PIN y cada persona juega desde su móvil en {{ORIGEN}}/jugar, sin contraseña.
+Se elige el libro, de 10 a 150 preguntas y de 10 a 60 segundos por pregunta. La pantalla muestra un PIN y cada persona juega desde su móvil en {{ORIGEN}}/jugar, sin contraseña.
 
 ## Enlaces
 - Aprender: {{ORIGEN}}/
@@ -117,13 +124,15 @@ async function api(req, env, url, ruta) {
 
   // --- Públicas ---
   if (ruta === 'marca' && m === 'GET') return json(marcaDe(env), 200, { 'cache-control': 'public, max-age=300' });
-  // Lumbrera: cualquiera puede montar una partida en grupo de Génesis eligiendo cuántas preguntas (sin contraseña)
+  // Lumbrera: cualquiera puede montar una partida en grupo de un libro (Génesis, Éxodo…) eligiendo cuántas preguntas (sin contraseña)
   if (ruta === 'libro/partida' && m === 'POST') {
     if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
     const b = await cuerpo();
     const n = Math.max(5, Math.min(150, parseInt(b.n, 10) || 10));
     const tiempo = Math.max(5, Math.min(120, parseInt(b.tiempo, 10) || 0)) || null; // segundos por pregunta que elige el grupo
-    const L = await env.ASSETS.fetch(new Request(new URL('/biblia/genesis.json', url))).then(r => r.json());
+    const cat = await env.ASSETS.fetch(new Request(new URL('/biblia/libros.json', url))).then(r => r.json());
+    const lid = cat.libros.some(x => x.id === b.libro && x.preguntas) ? b.libro : 'genesis';
+    const L = await env.ASSETS.fetch(new Request(new URL(`/biblia/${lid}.json`, url))).then(r => r.json());
     const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => todas.push(q))));
     const quiz = limpiarCuestionario({ titulo: `${L.nombre} · ${n} preguntas`, preguntas: barajar(todas).slice(0, n).map(preguntaEnVivo).map(p => tiempo ? { ...p, tiempo } : p) });
     for (let i = 0; i < 8; i++) {

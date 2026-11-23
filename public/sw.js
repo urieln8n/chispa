@@ -1,7 +1,7 @@
 // Lumbrera: permite instalarla como app y aprender sin conexión.
 // Solo lo registra la web de Lumbrera (aprender.html). Nunca guarda la API ni las partidas en vivo.
-const VERSION = 'lumbrera-v3';
-const BASICO = ['/', '/aprender', '/jugar', '/styles.css', '/comun.js', '/biblia/libros.json', '/biblia/genesis.json',
+const VERSION = 'lumbrera-v4';
+const BASICO = ['/', '/aprender', '/jugar', '/styles.css', '/comun.js', '/biblia/libros.json', '/biblia/genesis.json', '/biblia/exodo.json',
   '/app/manifest.webmanifest', '/app/icono-192.png', '/app/icono-512.png'];
 
 self.addEventListener('install', e => {
