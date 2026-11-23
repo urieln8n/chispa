@@ -717,10 +717,72 @@ function terminar() {
     <button class="btn grande" id="b-fin">Continuar</button>
     <button class="btn sec grande" id="b-compartir-fin">📤 Compartir</button></div>`;
   E.talentos = (E.talentos || 0) + talentosLec; guardarE();
-  document.getElementById('b-compartir-fin').onclick = () => compartir(textoCompartir, URL_APP);
+  const datosTarjeta = { racha: rachaViva(), subioRacha, perfecta, precision, puntos: total, estrellas, libre: LEC.libre, repaso: LEC.modo === 'repaso', nombre: AJ.nombre || '' };
+  document.getElementById('b-compartir-fin').onclick = () => compartirTarjeta(textoCompartir, datosTarjeta);
   avisarLogros(nuevosLogros);
   setTimeout(revisarMisiones, 800);
   document.getElementById('b-fin').onclick = () => LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
+}
+// ===================== Imagen para compartir (formato Story 1080×1920) =====================
+async function tarjetaPNG(d) {
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'), TIT = "'Baloo 2', Nunito, system-ui, sans-serif", TXT = "Nunito, system-ui, sans-serif";
+  try { await Promise.all([document.fonts.load("800 120px 'Baloo 2'"), document.fonts.load('800 40px Nunito')]); } catch {}
+  // Fondo: noche de Lumbrera con un resplandor ámbar
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#1B1640'); g.addColorStop(1, '#2A2163'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const r = x.createRadialGradient(W / 2, 760, 40, W / 2, 760, 700); r.addColorStop(0, 'rgba(242,196,107,.35)'); r.addColorStop(1, 'rgba(242,196,107,0)'); x.fillStyle = r; x.fillRect(0, 0, W, H);
+  x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+  // Marca: lámpara + nombre
+  x.font = `800 104px ${TIT}`; const anchoN = x.measureText('Lumbrera').width, logo = 109, inicioM = (W - (logo + 28 + anchoN)) / 2;
+  x.save(); x.translate(inicioM, 150); x.scale(3.4, 3.4);
+  x.fillStyle = '#F2C46B'; x.beginPath(); x.arc(16, 16, 15, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#1B1640'; x.fill(new Path2D('M16 6c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 12.5 13 10 16 6z')); x.fill(new Path2D('M9 22h14l-1.5 4h-11z'));
+  x.restore();
+  x.fillStyle = '#F4F1EA'; x.textAlign = 'left'; x.fillText('Lumbrera', inicioM + logo + 28, 238); x.textAlign = 'center';
+  // Mensaje principal
+  const enRacha = d.subioRacha && d.racha > 1;
+  const icono = enRacha ? '🔥' : d.perfecta ? '🏆' : '⭐';
+  const titulo = enRacha ? `${d.racha} días seguidos` : d.libre ? '¡Partida completada!' : d.repaso ? '¡Repaso completado!' : d.perfecta ? '¡Lección perfecta!' : '¡Lección completada!';
+  const sub = 'aprendiendo Génesis';
+  x.font = `260px ${TXT}`; x.fillText(icono, W / 2, 800);
+  if (d.nombre) { x.fillStyle = '#B9B2D9'; x.font = `800 54px ${TXT}`; x.fillText(d.nombre.slice(0, 24), W / 2, 930); }
+  x.fillStyle = '#F2C46B'; let tam = 128; x.font = `800 ${tam}px ${TIT}`;
+  while (x.measureText(titulo).width > W - 120 && tam > 70) { tam -= 6; x.font = `800 ${tam}px ${TIT}`; }
+  x.fillText(titulo, W / 2, 1060);
+  x.fillStyle = '#F4F1EA'; x.font = `800 60px ${TXT}`; x.fillText(sub, W / 2, 1150);
+  if (d.estrellas) { x.fillStyle = '#F2C46B'; x.font = `800 90px ${TXT}`; x.fillText('★'.repeat(d.estrellas) + '☆'.repeat(3 - d.estrellas), W / 2, 1270); }
+  // Tres cajas: puntos, aciertos, racha
+  const cajas = [[`+${d.puntos}`, 'puntos'], [`${d.precision}%`, 'aciertos'], [`${d.racha}`, d.racha === 1 ? 'día de racha' : 'días de racha']];
+  const cw = 290, gap = 30, x0 = (W - (cw * 3 + gap * 2)) / 2, y0 = 1350;
+  cajas.forEach(([v, t], i) => {
+    const cx = x0 + i * (cw + gap);
+    x.fillStyle = 'rgba(19,15,51,.7)'; x.strokeStyle = '#433A86'; x.lineWidth = 3;
+    x.beginPath(); x.roundRect(cx, y0, cw, 210, 36); x.fill(); x.stroke();
+    x.fillStyle = '#F4F1EA'; x.font = `800 84px ${TIT}`; x.fillText(v, cx + cw / 2, y0 + 112);
+    x.fillStyle = '#B9B2D9'; x.font = `800 36px ${TXT}`; x.fillText(t, cx + cw / 2, y0 + 168);
+  });
+  // Llamada a la acción
+  x.fillStyle = '#F2C46B'; x.beginPath(); x.roundRect(140, 1650, W - 280, 130, 65); x.fill();
+  const cta = '¿Te atreves? Gratis y sin registro'; let tc = 50; x.font = `800 ${tc}px ${TXT}`;
+  while (x.measureText(cta).width > W - 360 && tc > 30) { tc -= 2; x.font = `800 ${tc}px ${TXT}`; }
+  x.fillStyle = '#1B1640'; x.fillText(cta, W / 2, 1715 + tc * .35);
+  x.fillStyle = '#F4F1EA'; x.font = `800 46px ${TXT}`; x.fillText(location.host || 'genesis.andresrendon.com', W / 2, 1860);
+  return new Promise(ok => c.toBlob(ok, 'image/png'));
+}
+async function compartirTarjeta(texto, d) {
+  const b = document.getElementById('b-compartir-fin'); if (b) b.disabled = true;
+  try {
+    const blob = await tarjetaPNG(d);
+    const f = blob && new File([blob], 'lumbrera.png', { type: 'image/png' });
+    if (f && navigator.canShare && navigator.canShare({ files: [f] })) {
+      try { await navigator.share({ files: [f], text: texto + '\n' + URL_APP }); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    // Sin compartir archivos (ordenador, algunos navegadores): descarga la imagen y abre WhatsApp con el texto
+    if (blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lumbrera.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); aviso('Imagen descargada ✓ Súbela a tus historias'); }
+    compartir(texto, URL_APP);
+  } catch { compartir(texto, URL_APP); }
+  finally { if (b) b.disabled = false; }
 }
 function salir() {
   if (!LEC || (LEC.bien === 0 && LEC.errores === 0)) return volver();
