@@ -57,7 +57,7 @@ En Lumbrera, la portada es **Aprender**: el libro de **Génesis**, en un camino 
 
 **Publicarla:** en Cloudflare, **Workers & Pages → Create → Import a repository**, elige este mismo repositorio y ponle de nombre `lumbrera`. En **Deploy command** escribe `npx wrangler deploy --env fe`. Quedará en `https://lumbrera.<tu-subdominio>.workers.dev`.
 
-**Publicación automática:** el flujo `.github/workflows/publicar-lumbrera.yml` publica Lumbrera cada vez que se sube algo a `main`. Solo necesita el secreto `CLOUDFLARE_API_TOKEN` en GitHub (Settings → Secrets and variables → Actions), creado en Cloudflare con la plantilla «Edit Cloudflare Workers». También se puede lanzar a mano desde la pestaña Actions.
+**Publicación automática:** Lumbrera está conectada con Workers Builds de Cloudflare (repositorio `urieln8n/chispa`, rama `main`, comando `npx wrangler deploy --env fe`): cada subida a `main` se publica sola en uno o dos minutos. El historial está en Cloudflare → Workers y Pages → lumbrera → Implementaciones.
 
 ## Publicar en Cloudflare (gratis)
 

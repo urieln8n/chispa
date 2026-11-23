@@ -13,7 +13,7 @@
   "migrations": [ { "tag": "v1", "new_sqlite_classes": ["Juego", "Almacen"] } ],
   "vars": { "MAX_PLAYERS": "500", "AI_DAILY_LIMIT": "50", "ANTHROPIC_MODEL": "claude-sonnet-5-5" },
   "observability": { "enabled": true },
-  // Segunda marca con el mismo motor: «Lumbrera» (Biblia y evangelismo). Se publica sola al subir a main (GitHub Actions) o a mano con: npx wrangler deploy --env fe
+  // Segunda marca con el mismo motor: «Lumbrera» (Biblia y evangelismo). Se publica sola al subir a main (Workers Builds de Cloudflare) o a mano con: npx wrangler deploy --env fe
   "env": {
     "fe": {
       "name": "lumbrera",
