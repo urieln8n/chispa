@@ -21,6 +21,8 @@
   .anillo span{width:44px;height:44px;border-radius:50%;background:var(--noche2);display:grid;place-items:center;font-weight:800;font-size:.85rem}
   .grupo-t{font-family:var(--tit);font-size:1.2rem;margin:1.4rem 0 .6rem;color:var(--suave)}
   .libros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .libros.solo{grid-template-columns:1fr;margin-top:1.4rem}
+  .libros.solo .libro{padding:1.1rem;font-size:1.15rem}
   .libro{border:0;border-radius:16px;padding:.8rem .5rem;background:#241E52;color:#7E76AE;font-weight:800;font-size:.88rem;text-align:center;cursor:default;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem}
   .libro small{font-weight:600;font-size:.7rem;opacity:.9}
   .libro.on{background:var(--ambar);color:var(--noche);cursor:pointer;box-shadow:0 4px 0 #a9802f}
@@ -134,13 +136,12 @@ async function inicio() {
   };
   const totalFallos = Object.keys(E.fallos).length;
   APP.innerHTML = cabecera() + `
-    <h1 class="t">Aprende la Biblia</h1>
-    <p class="sub">Libro a libro, en lecciones de 10 preguntas. Unos minutos al día bastan.</p>
+    <h1 class="t">Aprende Génesis</h1>
+    <p class="sub">El libro de los comienzos, en lecciones de 10 preguntas. Unos minutos al día bastan.</p>
     <div class="meta"><div class="anillo" style="--p:${pct}"><span>${pct}%</span></div>
       <div><b>Meta de hoy: ${E.meta} puntos</b><div class="pie" style="opacity:1">${xpHoy() >= E.meta ? '¡Cumplida! Vuelve mañana para mantener la racha.' : `Llevas ${xpHoy()}. Una lección son unos 100.`}</div></div></div>
     ${totalFallos ? `<div class="repaso"><div><b>Repasa tus fallos</b><div class="pie" style="opacity:1">${totalFallos} pregunta${totalFallos === 1 ? '' : 's'} para afianzar</div></div><button class="btn peq" id="b-rep">Repasar</button></div>` : ''}
-    <h2 class="grupo-t">Antiguo Testamento</h2><div class="libros">${cat.libros.filter(b => b.testamento === 'AT').map(tarjeta).join('')}</div>
-    <h2 class="grupo-t">Nuevo Testamento</h2><div class="libros">${cat.libros.filter(b => b.testamento === 'NT').map(tarjeta).join('')}</div>
+    <div class="libros solo">${cat.libros.map(tarjeta).join('')}</div>
     <p class="pie" style="text-align:center;margin-top:1.6rem"><a href="jugar">¿Vas a jugar en grupo? Entra con el PIN</a></p>
     <p class="creditos">${esc(cat.creditos)}</p>`;
   APP.querySelectorAll('[data-l]').forEach(b => b.onclick = () => verLibro(b.dataset.l));
@@ -170,7 +171,7 @@ async function verLibro(id) {
         ${hecho ? '✓' : desbloq ? '★' : '🔒'}${hecho ? `<span class="est">${'★'.repeat(hecho.estrellas)}${'☆'.repeat(3 - hecho.estrellas)}</span>` : ''}</button>`;
     }).join('')}</div>`).join('');
   const nf = fallosDe(id).length;
-  APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver a los libros">←</button>`) + `
+  APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver al inicio">←</button>`) + `
     <h1 class="t">${esc(L.nombre)}</h1><p class="sub">${p.hechas} de ${p.total} lecciones · ${L.total} preguntas · ${L.capitulos} capítulos</p>
     ${nf ? `<div class="repaso"><div><b>Repasa tus fallos de ${esc(L.nombre)}</b><div class="pie" style="opacity:1">${nf} pregunta${nf === 1 ? '' : 's'}</div></div><button class="btn peq" id="b-rep">Repasar</button></div>` : ''}
     ${html}

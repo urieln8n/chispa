@@ -1,6 +1,5 @@
 import json, os, random, re, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from juan import JUAN
 from genesis import GENESIS
 SALIDA = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public', 'biblia'); os.makedirs(SALIDA, exist_ok=True)
 CAT = [  # (id, nombre, testamento, capítulos)
@@ -20,7 +19,7 @@ CAT = [  # (id, nombre, testamento, capítulos)
  ("3juan","3 Juan","NT",1),("judas","Judas","NT",1),("apocalipsis","Apocalipsis","NT",22),
 ]
 assert len(CAT) == 66
-LIBROS = {"juan": JUAN, "genesis": GENESIS}
+LIBROS = {"genesis": GENESIS}  # Lumbrera publica solo Génesis
 errores = []
 for lid, L in LIBROS.items():
     vistos = set(); citas = 0
@@ -45,7 +44,7 @@ for lid, L in LIBROS.items():
     print(f"{L['nombre']}: {L['total']} preguntas · {len(L['unidades'])} unidades · 15 lecciones · tipos {tipos} · completar (citas literales): {citas}")
     json.dump(L, open(f"{SALIDA}/{lid}.json", "w"), ensure_ascii=False, separators=(',', ':'))
 print('errores:', errores or 'ninguno')
-cat = [{"id": i, "nombre": n, "testamento": t, "capitulos": c, "preguntas": LIBROS[i]["total"] if i in LIBROS else 0} for i, n, t, c in CAT]
+cat = [{"id": i, "nombre": n, "testamento": t, "capitulos": c, "preguntas": LIBROS[i]["total"]} for i, n, t, c in CAT if i in LIBROS]
 json.dump({"libros": cat, "creditos": "Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988."},
           open(f"{SALIDA}/libros.json", "w"), ensure_ascii=False, indent=0)
 
