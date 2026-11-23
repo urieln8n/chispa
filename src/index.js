@@ -77,6 +77,20 @@ async function api(req, env, url, ruta) {
 
   // --- Públicas ---
   if (ruta === 'marca' && m === 'GET') return json(marcaDe(env), 200, { 'cache-control': 'public, max-age=300' });
+  // Lumbrera: cualquiera puede montar una partida en grupo de Génesis eligiendo cuántas preguntas (sin contraseña)
+  if (ruta === 'libro/partida' && m === 'POST') {
+    if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
+    const n = Math.max(5, Math.min(150, parseInt((await cuerpo()).n, 10) || 10));
+    const L = await env.ASSETS.fetch(new Request(new URL('/biblia/genesis.json', url))).then(r => r.json());
+    const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => todas.push(q))));
+    const quiz = limpiarCuestionario({ titulo: `${L.nombre} · ${n} preguntas`, preguntas: barajar(todas).slice(0, n).map(preguntaEnVivo) });
+    for (let i = 0; i < 8; i++) {
+      const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
+      const res = await juego(env, pin).crear(pin, { titulo: quiz.titulo, preguntas: quiz.preguntas, cierre: null });
+      if (!res.ocupado) return json({ ...res, n: quiz.preguntas.length });
+    }
+    return json({ error: 'No se ha podido crear la partida, prueba otra vez' }, 503);
+  }
   if (ruta === 'contactos' && m === 'POST') {
     const b = await cuerpo();
     const pin = String(b.pin || '');
@@ -226,6 +240,20 @@ async function api(req, env, url, ruta) {
   if (ruta === 'ia/generar' && m === 'POST') return generarIA(env, st, await cuerpo());
   if (ruta === 'ia/canciones' && m === 'POST') return generarCanciones(env, st, await cuerpo());
   return json({ error: 'No encontrado' }, 404);
+}
+
+// Convierte una pregunta de «Aprender» al formato del juego en vivo (4 opciones o verdadero/falso)
+function preguntaEnVivo(q) {
+  const ref = q.ref ? ` (${q.ref})` : '';
+  const reflexion = q.exp ? { cita: q.ref || '', texto: q.exp } : null;
+  const conOpciones = (texto, buena, malas, tiempo) => { const ops = barajar([buena, ...malas]); return { texto, opciones: ops, correcta: ops.indexOf(buena), tiempo, reflexion }; };
+  if (q.t === 'vf') return { texto: `Verdadero o falso: ${q.q}${ref}`, opciones: ['Verdadero', 'Falso'], correcta: q.v ? 0 : 1, tiempo: 15, reflexion };
+  if (q.t === 'ordenar') return conOpciones(`¿Qué ocurrió primero?${ref}`, q.orden[0], q.orden.slice(1), 25);
+  if (q.t === 'emparejar') {
+    const [a, b] = q.pares[Math.floor(Math.random() * q.pares.length)];
+    return conOpciones(`¿Qué corresponde a «${a}»?${ref}`, b, q.pares.filter(p => p[1] !== b).map(p => p[1]), 20);
+  }
+  return conOpciones(`${String(q.q).replace('___', '_____')}${ref}`, q.ok, q.malas, 20);
 }
 
 function barajar(a) {

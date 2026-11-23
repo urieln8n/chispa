@@ -154,7 +154,7 @@ function podio(d) {
   ES.innerHTML = `<h1 style="text-align:center">🏆 Podio</h1>
     <div class="podio">${esc2(b, 'p2', 2)}${esc2(a, 'p1', 1)}${esc2(c, 'p3', 3)}</div>
     ${d.cierre ? `<div class="reflexion" style="max-width:900px;margin:0 auto;width:100%;animation:sube .8s 2.2s both"><div class="cita">${esc(d.cierre.titulo || 'Para terminar')}</div><p style="font-size:1.35rem">${esc(d.cierre.texto)}</p>${d.cierre.cita ? `<p style="color:var(--ambar);font-weight:800">${esc(d.cierre.cita)}</p>` : ''}${d.cierre.contacto ? '<p class="pie" style="opacity:1">📱 En tu móvil tienes un botón para saber más o pedir oración.</p>' : ''}</div>` : ''}
-    <div class="control" id="ctrl-final"><span class="pie" id="inf-txt" style="align-self:center">Preparando el informe…</span><a class="btn sec" href="panel">Volver a mis cuestionarios</a></div>`;
+    <div class="control" id="ctrl-final"><span class="pie" id="inf-txt" style="align-self:center">Preparando el informe…</span><a class="btn sec" href="${VOLVER}">${VOLVER === 'panel' ? 'Volver a mis cuestionarios' : 'Volver'}</a></div>`;
   setTimeout(confeti, 1500);
   if (S.informe) informe(S.informe);
 }
@@ -179,7 +179,7 @@ function restaurar(estado) {
   S = estado; jugadores = estado.jugadores; guardarSesion();
   $('#info').textContent = `PIN ${S.pin}`;
   if (S.estado === 'sala') sala();
-  else if (S.estado === 'podio') ES.innerHTML = '<div class="centro"><h2>Partida terminada</h2><a class="btn" href="panel">Volver</a></div>';
+  else if (S.estado === 'podio') ES.innerHTML = `<div class="centro"><h2>Partida terminada</h2><a class="btn" href="${VOLVER}">Volver</a></div>`;
   else ES.innerHTML = `<div class="centro"><h2>Partida recuperada</h2><button class="btn" id="b-c">Continuar ▶</button></div>`, $('#b-c').onclick = siguiente;
 }
 
@@ -195,27 +195,30 @@ function escuchar() {
   // Al conectar (y al reconectar tras un corte) retoma la misma partida
   let primera = true;
   socket.on('connect', () => socket.emit('host:reanudar', { claveHost: CLAVE_HOST }, r => {
-    if (r.error) { ES.innerHTML = `<div class="centro"><h2>${esc(r.error)}</h2><a class="btn" href="panel">Volver</a></div>`; return; }
+    if (r.error) { ES.innerHTML = `<div class="centro"><h2>${esc(r.error)}</h2><a class="btn" href="${VOLVER}">Volver</a></div>`; return; }
     if (primera) { primera = false; restaurar(r.estado); }
     else { jugadores = r.estado.jugadores; pintarJugadores(); }
   }));
   socket.on('disconnect', () => aviso('Conexión perdida… reconectando'));
 }
+// Partidas creadas desde «Aprender» (sin contraseña) vuelven allí, no al panel
+let VOLVER = (() => { try { return JSON.parse(sessionStorage.getItem('chispa-host') || '{}').volver || 'panel'; } catch { return 'panel'; } })();
 function arrancar(pin, claveHost) {
   CLAVE_HOST = claveHost;
-  try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin, claveHost })); } catch {}
+  try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin, claveHost, volver: VOLVER })); } catch {}
   socket = conectarJuego(pin); escuchar();
 }
 (async () => {
   let prev = null; try { prev = JSON.parse(sessionStorage.getItem('chispa-host') || 'null'); } catch {}
   if (prev && qs.get('pin') === prev.pin) return arrancar(prev.pin, prev.claveHost);
-  if (!qs.get('id')) { location.href = 'panel'; return; }
+  if (!qs.get('id')) { location.href = VOLVER; return; }
+  VOLVER = 'panel';
   try {
     let lugar = ''; try { lugar = localStorage.getItem('chispa-lugar') || ''; } catch {}
     const r = await api('partidas', { method: 'POST', body: { cuestionarioId: qs.get('id'), lugar } });
     history.replaceState(null, '', `presentar?id=${qs.get('id')}&pin=${r.pin}`);
     arrancar(r.pin, r.claveHost);
-  } catch (e) { if (e.message !== 'login') ES.innerHTML = `<div class="centro"><h2>${esc(e.message)}</h2><a class="btn" href="panel">Volver</a></div>`; }
+  } catch (e) { if (e.message !== 'login') ES.innerHTML = `<div class="centro"><h2>${esc(e.message)}</h2><a class="btn" href="${VOLVER}">Volver</a></div>`; }
 })();
 </script>
 </body>

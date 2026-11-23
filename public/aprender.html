@@ -75,6 +75,13 @@
   .cajas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
   .caja-f{background:var(--noche2);border:2px solid #433a86;border-radius:16px;padding:.8rem .4rem}
   .caja-f b{display:block;font-family:var(--tit);font-size:1.6rem;color:var(--ambar)}
+  .partida{margin-top:1.4rem;background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1.1rem}
+  .partida h2{font-size:1.25rem;margin-bottom:.2rem}
+  .cantidades{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:.9rem 0}
+  .cant{border:2px solid #433a86;background:transparent;color:var(--texto);border-radius:12px;padding:.6em 0;font-weight:800;font-size:1rem;cursor:pointer}
+  .cant.sel{background:var(--ambar);border-color:var(--ambar);color:var(--noche)}
+  .dos-btn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:380px){.cantidades{grid-template-columns:repeat(3,1fr)}.dos-btn{grid-template-columns:1fr}}
   .repaso{display:flex;justify-content:space-between;align-items:center;gap:1rem;background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1.2rem}
   .creditos{color:#7E76AE;font-size:.72rem;text-align:center;margin-top:2rem}
 </style>
@@ -142,10 +149,20 @@ async function inicio() {
       <div><b>Meta de hoy: ${E.meta} puntos</b><div class="pie" style="opacity:1">${xpHoy() >= E.meta ? '¡Cumplida! Vuelve mañana para mantener la racha.' : `Llevas ${xpHoy()}. Una lección son unos 100.`}</div></div></div>
     ${totalFallos ? `<div class="repaso"><div><b>Repasa tus fallos</b><div class="pie" style="opacity:1">${totalFallos} pregunta${totalFallos === 1 ? '' : 's'} para afianzar</div></div><button class="btn peq" id="b-rep">Repasar</button></div>` : ''}
     <div class="libros solo">${cat.libros.map(tarjeta).join('')}</div>
-    <p class="pie" style="text-align:center;margin-top:1.6rem"><a href="jugar">¿Vas a jugar en grupo? Entra con el PIN</a></p>
+    <div class="partida">
+      <h2>Partida a tu medida</h2>
+      <p class="pie" style="opacity:1">Elige cuántas preguntas de ${esc(cat.libros[0].nombre)} quieres jugar, al azar entre las ${cat.libros[0].preguntas}.</p>
+      <div class="cantidades" role="radiogroup" aria-label="Número de preguntas">${[10, 20, 30, 50, 100, 150].map(n => `<button class="cant${n === CANT ? ' sel' : ''}" role="radio" aria-checked="${n === CANT}" data-n="${n}">${n}</button>`).join('')}</div>
+      <div class="dos-btn"><button class="btn" id="b-solo">Jugar yo solo</button><button class="btn sec" id="b-grupo">Jugar en grupo</button></div>
+      <p class="pie" id="grupo-msg" style="opacity:1;min-height:1.2em"></p>
+    </div>
+    <p class="pie" style="text-align:center;margin-top:1.2rem"><a href="jugar">¿Ya tienes un PIN? Entra en la partida</a></p>
     <p class="creditos">${esc(cat.creditos)}</p>`;
   APP.querySelectorAll('[data-l]').forEach(b => b.onclick = () => verLibro(b.dataset.l));
   const br = document.getElementById('b-rep'); if (br) br.onclick = () => repasar(null);
+  APP.querySelectorAll('.cant').forEach(b => b.onclick = () => { CANT = +b.dataset.n; APP.querySelectorAll('.cant').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); });
+  document.getElementById('b-solo').onclick = async () => practicaLibre(await libro(cat.libros[0].id), CANT);
+  document.getElementById('b-grupo').onclick = () => crearGrupo(CANT);
   // carga en segundo plano los libros disponibles para mostrar su progreso
   for (const b of cat.libros.filter(x => x.preguntas && !LIBROS[x.id])) { await libro(b.id); }
   if (!APP.dataset.vista) inicioRefresco();
@@ -205,6 +222,25 @@ function repasoLibro(L) {
   const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => todas.push({ ...q, libro: L.id }))));
   LEC = { L, cola: barajar(todas).slice(0, 15), total: 15, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'repaso', vuelta: L.id };
   pintarPregunta();
+}
+let CANT = 20;
+// Partida individual con el número de preguntas que elija la persona (al azar entre todo el libro)
+function practicaLibre(L, n) {
+  const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => todas.push({ ...q, libro: L.id }))));
+  const cola = barajar(todas).slice(0, n);
+  LEC = { L, cola, total: cola.length, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'repaso', libre: true };
+  pintarPregunta();
+}
+// Partida en grupo: se crea en el servidor y esta pantalla pasa a ser la del presentador (proyector o tele)
+async function crearGrupo(n) {
+  const b = document.getElementById('b-grupo'), msg = document.getElementById('grupo-msg');
+  b.disabled = true; msg.textContent = 'Preparando la partida…';
+  try {
+    const r = await fetch(BASE + 'api/libro/partida', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ n }) }).then(x => x.json());
+    if (!r.pin) throw new Error(r.error || 'No se ha podido crear la partida');
+    try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin: r.pin, claveHost: r.claveHost, volver: 'aprender' })); } catch {}
+    location.href = BASE + 'presentar?pin=' + r.pin;
+  } catch (e) { msg.textContent = e.message; b.disabled = false; }
 }
 function buscar(id) { const L = LIBROS[id.split('-')[0]]; if (!L) return null; for (const u of L.unidades) for (const l of u.lecciones) for (const q of l.preguntas) if (q.id === id) return { ...q, libro: L.id }; return null; }
 
@@ -317,13 +353,13 @@ function terminar() {
   const subioRacha = rachaViva() > rachaAntes;
   APP.innerHTML = `<div class="fin">
     <div class="big">${perfecta ? '🏆' : '🎉'}</div>
-    <h1 class="t">${LEC.modo === 'repaso' ? '¡Repaso completado!' : perfecta ? '¡Lección perfecta!' : '¡Lección completada!'}</h1>
+    <h1 class="t">${LEC.libre ? '¡Partida completada!' : LEC.modo === 'repaso' ? '¡Repaso completado!' : perfecta ? '¡Lección perfecta!' : '¡Lección completada!'}</h1>
     ${estrellas ? `<div style="font-size:2rem;color:var(--ambar);letter-spacing:4px">${'★'.repeat(estrellas)}${'☆'.repeat(3 - estrellas)}</div>` : ''}
     <div class="cajas"><div class="caja-f"><b>+${total}</b>puntos</div><div class="caja-f"><b>${precision}%</b>aciertos</div><div class="caja-f"><b>🔥 ${rachaViva()}</b>${rachaViva() === 1 ? 'día' : 'días'}</div></div>
     ${subioRacha ? `<p style="margin:0;font-weight:800;color:#FF9A4D">${rachaViva() === 1 ? '¡Empiezas tu racha! Vuelve mañana para seguir.' : '¡Tu racha sigue viva!'}</p>` : ''}
     ${LEC.errores ? `<p class="pie" style="opacity:1;margin:0">Las preguntas que fallaste quedan guardadas para repasarlas.</p>` : ''}
     <button class="btn grande" id="b-fin">Continuar</button></div>`;
-  document.getElementById('b-fin').onclick = () => LEC.modo === 'repaso' && !LEC.vuelta ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
+  document.getElementById('b-fin').onclick = () => LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
 }
 function salir() {
   if (!LEC || (LEC.bien === 0 && LEC.errores === 0)) return volver();
