@@ -55,7 +55,7 @@ export default {
       if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
       if (ruta === '/llms.txt' && env.MARCA === 'fe') return new Response(LLMS_LUMBRERA.replaceAll('{{ORIGEN}}', url.origin), { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
       if (ruta === '/sitemap.xml') {
-        const urls = env.MARCA === 'fe' ? ['/', '/jugar'] : ['/', '/privacidad'];
+        const urls = env.MARCA === 'fe' ? ['/', '/grupos', '/jugar'] : ['/', '/privacidad'];
         return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u => `<url><loc>${url.origin}${u}</loc></url>`).join('')}</urlset>`, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
       }
       // Lumbrera aún no tiene web de presentación: su portada es la página para jugar
@@ -64,7 +64,7 @@ export default {
         if (url.searchParams.get('pin')) return Response.redirect(url.origin + '/jugar' + url.search, 302);
         return env.ASSETS.fetch(new Request(new URL('/aprender', url), req));
       }
-      if (env.MARCA !== 'fe' && (ruta === '/aprender' || ruta === '/aprender.html')) return Response.redirect(url.origin + '/', 302);
+      if (env.MARCA !== 'fe' && (ruta === '/aprender' || ruta === '/aprender.html' || ruta === '/grupos' || ruta === '/grupos.html')) return Response.redirect(url.origin + '/', 302);
       const res = await env.ASSETS.fetch(req);
       // En la portada, fija la dirección canónica y las imágenes de redes con el dominio real (sirve igual con workers.dev o con tu dominio)
       if ((ruta === '/' || ruta === '/privacidad') && (res.headers.get('content-type') || '').includes('text/html')) {

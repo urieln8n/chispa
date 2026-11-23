@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1B1640">
+<title>Lumbrera para grupos · Repasa Génesis jugando con tu grupo</title>
+<meta name="description" content="Partidas de preguntas sobre Génesis para grupos de jóvenes, células y escuela dominical. La pantalla muestra un PIN y cada persona juega desde su móvil, sin instalar nada ni registrarse. Gratis.">
+<link rel="canonical" href="https://genesis.andresrendon.com/grupos">
+<link rel="icon" href="/app/icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/app/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lumbrera">
+<meta property="og:url" content="https://genesis.andresrendon.com/grupos">
+<meta property="og:title" content="Repasa Génesis jugando con tu grupo · Lumbrera">
+<meta property="og:description" content="Pon la pantalla, comparte el PIN y cada uno juega desde su móvil. 150 preguntas de Génesis, gratis y sin registro.">
+<meta property="og:image" content="https://genesis.andresrendon.com/app/icono-512.png">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"¿Cuánto cuesta usar Lumbrera con mi grupo?","acceptedAnswer":{"@type":"Answer","text":"Ahora mismo es gratis, sin límite de partidas."}},{"@type":"Question","name":"¿Los participantes tienen que instalar algo?","acceptedAnswer":{"@type":"Answer","text":"No. Escanean el QR o escriben el PIN en el navegador del móvil. No hace falta cuenta ni contraseña."}},{"@type":"Question","name":"¿Qué necesito para jugar en grupo?","acceptedAnswer":{"@type":"Answer","text":"Una pantalla que vea todo el grupo (proyector, tele u ordenador) y que cada persona tenga un móvil con internet."}},{"@type":"Question","name":"¿Qué traducción de la Biblia usa?","acceptedAnswer":{"@type":"Answer","text":"Las citas son de la Reina-Valera 1960."}}]}</script>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{min-height:100vh;line-height:1.55}
+  .envoltura{max-width:1040px;margin:0 auto;padding:0 20px}
+  header.sup{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:18px 0}
+  header.sup nav{display:flex;gap:1.2rem;align-items:center;font-weight:700}
+  header.sup nav a{color:var(--suave);text-decoration:none}
+  header.sup nav a.btn{color:var(--noche)}
+  @media (max-width:640px){header.sup nav a.ocultable{display:none}}
+
+  .heroe{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:48px 0 72px}
+  @media (max-width:860px){.heroe{grid-template-columns:1fr;gap:36px;padding:24px 0 56px}}
+  .etiqueta{display:inline-block;background:var(--noche3);color:var(--ambar);font-weight:800;font-size:.85rem;letter-spacing:.4px;padding:.35em .9em;border-radius:99px;margin-bottom:1rem}
+  .heroe h1{font-size:clamp(2.1rem,5vw,3.3rem);line-height:1.08;margin-bottom:1rem}
+  .heroe h1 em{font-style:normal;color:var(--ambar)}
+  .heroe p.lead{font-size:1.15rem;color:var(--suave);margin:0 0 1.6rem;max-width:34em}
+  .acciones{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .acciones .btn{font-size:1.05rem}
+  .nota{color:var(--suave);font-size:.9rem;margin-top:1rem}
+
+  /* Maqueta: pantalla del grupo + móvil */
+  .maqueta{position:relative;padding:0 0 120px}
+  .pantalla{background:#130F33;border:1px solid #433a86;border-radius:20px;padding:20px;box-shadow:0 30px 60px rgba(0,0,0,.4)}
+  .pantalla .fila{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;color:var(--suave);font-weight:700;font-size:.85rem}
+  .pantalla .pin{background:var(--ambar);color:var(--noche);border-radius:10px;padding:.2em .7em;font-weight:800;letter-spacing:2px}
+  .pantalla .preg{font-family:var(--tit);font-size:1.25rem;font-weight:800;margin:0 0 14px;line-height:1.25}
+  .pantalla .ops{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .pantalla .op{background:var(--c);color:#fff;border-radius:12px;padding:.7em .8em;font-weight:800;font-size:.92rem;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+  .pantalla .op.o3{color:var(--noche)}
+  .pantalla .barra-t{height:6px;border-radius:9px;background:#332B6E;margin-top:14px;overflow:hidden}
+  .pantalla .barra-t i{display:block;height:100%;width:62%;background:var(--ambar)}
+  .movil{position:absolute;right:-24px;bottom:0;width:132px;background:#0d0a26;border:3px solid #433a86;border-radius:24px;padding:14px 10px;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+  .movil .m-t{text-align:center;font-size:.7rem;color:var(--suave);font-weight:700;margin-bottom:8px}
+  .movil .m-ops{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .movil .m-ops span{aspect-ratio:1;border-radius:10px;background:var(--c)}
+  .movil .m-ok{margin-top:8px;text-align:center;font-weight:800;font-size:.75rem;color:#22C55E}
+  @media (max-width:640px){.maqueta{padding:0}.movil{position:relative;right:auto;bottom:auto;width:150px;margin:-18px 12px 0 auto}}
+  .o0{--c:#FF5A5F}.o1{--c:#2EC4B6}.o2{--c:#8B5CF6}.o3{--c:#F2C46B}
+
+  section.bloque{padding:64px 0;border-top:1px solid rgba(67,58,134,.5)}
+  section.bloque h2{font-size:clamp(1.6rem,3.5vw,2.2rem);margin-bottom:.4rem}
+  section.bloque .intro{color:var(--suave);margin:0 0 2rem;max-width:40em;font-size:1.05rem}
+
+  .pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:paso}
+  @media (max-width:760px){.pasos{grid-template-columns:1fr}}
+  .paso{background:rgba(36,30,82,.85);border:1px solid #433a86;border-radius:20px;padding:1.4rem}
+  .paso::before{counter-increment:paso;content:counter(paso);display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--ambar);color:var(--noche);font-family:var(--tit);font-weight:800;font-size:1.2rem;margin-bottom:.8rem;box-shadow:0 3px 0 #a9802f}
+  .paso h3{font-size:1.15rem;margin-bottom:.3rem}
+  .paso p{margin:0;color:var(--suave)}
+
+  .rejilla{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:860px){.rejilla{grid-template-columns:1fr 1fr}}
+  @media (max-width:520px){.rejilla{grid-template-columns:1fr}}
+  .item{padding:1.1rem 1.2rem;border-radius:16px;background:rgba(36,30,82,.55);border:1px solid #362e74}
+  .item b{display:block;font-size:1.02rem;margin-bottom:.2rem}
+  .item span{color:var(--suave);font-size:.95rem}
+  .item .ico{font-size:1.4rem;display:block;margin-bottom:.4rem}
+
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{background:var(--noche3);border-radius:99px;padding:.55em 1.1em;font-weight:700}
+
+  .unidades{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:1.6rem}
+  @media (max-width:860px){.unidades{grid-template-columns:1fr 1fr}}
+  .unidad{border-radius:16px;padding:1rem;color:#fff;background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.25)}
+  .unidad b{display:block;font-family:var(--tit);font-size:1.02rem;line-height:1.2}
+  .unidad small{opacity:.9;font-weight:700}
+  .unidad.o3{color:var(--noche)}
+  .unidad.o4{--c:#3B82F6}
+
+  .iglesias{background:linear-gradient(135deg,#2a2163,#1f1850);border:1px solid #5a4fb0;border-radius:24px;padding:2rem;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center}
+  @media (max-width:760px){.iglesias{grid-template-columns:1fr}}
+  .iglesias h2{margin-bottom:.6rem}
+  .iglesias p{color:var(--suave);margin:0 0 1rem}
+  .iglesias ul{margin:0;padding-left:1.2rem;color:var(--texto)}
+  .iglesias li{margin:.3rem 0}
+  .iglesias .caja-cta{background:rgba(19,15,51,.6);border-radius:18px;padding:1.4rem;text-align:center}
+  .iglesias .caja-cta .btn{width:100%;margin-top:.6rem}
+
+  details{background:rgba(36,30,82,.55);border:1px solid #362e74;border-radius:14px;padding:.9rem 1.1rem;margin-bottom:10px}
+  summary{cursor:pointer;font-weight:800}
+  details p{color:var(--suave);margin:.6rem 0 0}
+
+  .final{text-align:center;padding:72px 0 40px}
+  .final h2{font-size:clamp(1.7rem,4vw,2.4rem);margin-bottom:.6rem}
+  .final p{color:var(--suave);margin:0 0 1.4rem}
+  footer{padding:24px 0 48px;color:var(--suave);font-size:.85rem;text-align:center;border-top:1px solid rgba(67,58,134,.5)}
+</style>
+</head>
+<body class="tema-fe">
+<div class="envoltura">
+  <header class="sup">
+    <a class="marca" href="/"><svg class="chispa" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#F2C46B"/><path d="M16 6c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 12.5 13 10 16 6z" fill="#1B1640"/><path d="M9 22h14l-1.5 4h-11z" fill="#1B1640"/></svg>Lumbrera</a>
+    <nav>
+      <a class="ocultable" href="#como">Cómo funciona</a>
+      <a class="ocultable" href="#iglesias">Para iglesias</a>
+      <a class="btn peq" href="/#grupo">Crear partida</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="heroe">
+      <div>
+        <span class="etiqueta">Para líderes de jóvenes, células y escuela dominical</span>
+        <h1>Repasa Génesis <em>jugando</em> con tu grupo</h1>
+        <p class="lead">Pon Lumbrera en la pantalla, comparte el PIN y cada persona responde desde su móvil. Preguntas, versículos y un marcador en directo que engancha a todos, en 10 minutos.</p>
+        <div class="acciones">
+          <a class="btn" href="/#grupo">Crear una partida gratis</a>
+          <a class="btn sec" href="#como">Ver cómo funciona</a>
+        </div>
+        <p class="nota">Gratis · Sin instalar nada · Sin cuentas ni contraseñas</p>
+      </div>
+      <div class="maqueta" aria-hidden="true">
+        <div class="pantalla">
+          <div class="fila"><span>Pregunta 4 de 20</span><span class="pin">482 913</span></div>
+          <p class="preg">¿Qué puso Dios en las nubes como señal de su pacto con Noé?</p>
+          <div class="ops">
+            <div class="op o0">Una estrella</div>
+            <div class="op o1">El arco iris</div>
+            <div class="op o2">Una paloma</div>
+            <div class="op o3">Un relámpago</div>
+          </div>
+          <div class="barra-t"><i></i></div>
+        </div>
+        <div class="movil">
+          <div class="m-t">Tu respuesta</div>
+          <div class="m-ops"><span class="o0"></span><span class="o1"></span><span class="o2"></span><span class="o3"></span></div>
+          <div class="m-ok">✓ ¡Correcto! +850</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque" id="como">
+      <h2>Listo en un minuto</h2>
+      <p class="intro">No hay que preparar nada: las preguntas ya están hechas y revisadas con la Biblia.</p>
+      <div class="pasos">
+        <div class="paso"><h3>Abre Lumbrera en la pantalla</h3><p>En el proyector, la tele o el ordenador. Elige cuántas preguntas (de 10 a 150) y cuántos segundos por pregunta.</p></div>
+        <div class="paso"><h3>Tu grupo entra con el PIN</h3><p>Escanean el QR o escriben el PIN desde el móvil. Ponen un apodo y listo. Sin descargar nada.</p></div>
+        <div class="paso"><h3>Jugad y comentad</h3><p>Tras cada pregunta sale la cita bíblica y una breve explicación. El marcador en directo anima a todos y te da pie para comentar lo que más fallan.</p></div>
+      </div>
+    </section>
+
+    <section class="bloque">
+      <h2>Qué incluye</h2>
+      <p class="intro">Todo el libro de Génesis convertido en preguntas cortas, con su versículo.</p>
+      <div class="rejilla">
+        <div class="item"><span class="ico">📖</span><b>150 preguntas de Génesis</b><span>Los 50 capítulos, de la creación a José en Egipto.</span></div>
+        <div class="item"><span class="ico">🧩</span><b>Cinco tipos de ejercicio</b><span>Elegir respuesta, verdadero o falso, completar versículos, ordenar hechos y emparejar personajes.</span></div>
+        <div class="item"><span class="ico">📱</span><b>Funciona en cualquier móvil</b><span>Android, iPhone u ordenador, desde el navegador.</span></div>
+        <div class="item"><span class="ico">🏆</span><b>Marcador en directo</b><span>Puntos por acertar y por rapidez, ranking entre preguntas y podio al final.</span></div>
+        <div class="item"><span class="ico">🔥</span><b>Para seguir en casa</b><span>Cada uno puede continuar solo con lecciones diarias, racha y repaso de fallos.</span></div>
+        <div class="item"><span class="ico">✝️</span><b>Reina-Valera 1960</b><span>Todas las citas son de la RV1960.</span></div>
+      </div>
+      <div class="unidades">
+        <div class="unidad o0"><b>La creación y la caída</b><small>Génesis 1–5</small></div>
+        <div class="unidad o1"><b>Noé y la torre de Babel</b><small>Génesis 6–11</small></div>
+        <div class="unidad o2"><b>Abraham, el amigo de Dios</b><small>Génesis 12–24</small></div>
+        <div class="unidad o3"><b>Isaac, Esaú y Jacob</b><small>Génesis 25–36</small></div>
+        <div class="unidad o4"><b>José en Egipto</b><small>Génesis 37–50</small></div>
+      </div>
+    </section>
+
+    <section class="bloque">
+      <h2>Ideal para</h2>
+      <p class="intro">Cualquier momento en el que quieras que el grupo repase la Palabra participando, no solo escuchando.</p>
+      <div class="chips">
+        <span class="chip">Grupos de jóvenes</span><span class="chip">Células y grupos de casa</span><span class="chip">Escuela dominical</span><span class="chip">Campamentos y retiros</span><span class="chip">Noches de juegos en familia</span><span class="chip">Repaso tras una serie de Génesis</span>
+      </div>
+    </section>
+
+    <section class="bloque" id="iglesias">
+      <div class="iglesias">
+        <div>
+          <h2>¿Lideras un grupo o una iglesia?</h2>
+          <p>Estoy buscando los primeros grupos que usen Lumbrera cada semana. Te ayudo a preparar la primera partida y, a cambio, me cuentas qué os funciona y qué echáis en falta.</p>
+          <ul>
+            <li>Acompañamiento para la primera partida</li>
+            <li>Tus ideas deciden los próximos libros y funciones</li>
+            <li>Gratis mientras dure la prueba</li>
+          </ul>
+        </div>
+        <div class="caja-cta">
+          <b style="font-size:1.1rem">Escríbeme y lo probamos</b>
+          <p style="margin:.4rem 0 0;font-size:.95rem">Respondo personalmente por Instagram.</p>
+          <a class="btn" href="https://ig.me/m/andresrendon.ai" target="_blank" rel="noopener">Escribir a @andresrendon.ai</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque">
+      <h2>Preguntas frecuentes</h2>
+      <details><summary>¿Cuánto cuesta usar Lumbrera con mi grupo?</summary><p>Ahora mismo es gratis, sin límite de partidas.</p></details>
+      <details><summary>¿Los participantes tienen que instalar algo?</summary><p>No. Escanean el QR o escriben el PIN en el navegador del móvil. No hace falta cuenta ni contraseña.</p></details>
+      <details><summary>¿Qué necesito para jugar en grupo?</summary><p>Una pantalla que vea todo el grupo (proyector, tele u ordenador) y que cada persona tenga un móvil con internet.</p></details>
+      <details><summary>¿Cuánto dura una partida?</summary><p>Tú decides: con 10 preguntas y 20 segundos por pregunta son unos 5 minutos; con 30 preguntas, una buena dinámica de 15 minutos.</p></details>
+      <details><summary>¿Qué traducción de la Biblia usa?</summary><p>Las citas son de la Reina-Valera 1960.</p></details>
+    </section>
+
+    <section class="final">
+      <h2>Pruébalo en tu próxima reunión</h2>
+      <p>Abre Lumbrera en la pantalla y en un minuto estáis jugando.</p>
+      <a class="btn" href="/#grupo">Crear una partida gratis</a>
+    </section>
+  </main>
+
+  <footer>
+    Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988.<br>
+    Hecho por Andrés Rendón · <a href="https://www.andresrendon.com/" target="_blank" rel="noopener">Visita mi web</a> · <a href="https://www.instagram.com/andresrendon.ai/" target="_blank" rel="noopener">Sígueme en Instagram</a> · <a href="/privacidad">Privacidad</a>
+  </footer>
+</div>
+</body>
+</html>

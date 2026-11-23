@@ -197,7 +197,7 @@
   <h3>Cómo se usa</h3>
   <ul>
     <li><b>Solo:</b> sigue el camino de lecciones, gana puntos y mantén tu racha diaria. Las preguntas que fallas quedan guardadas para repasarlas.</li>
-    <li><b>En grupo:</b> elige de 10 a 150 preguntas y de 10 a 60 segundos por pregunta. La pantalla muestra un PIN y cada persona juega desde su móvil, sin contraseña. Ideal para grupos de jóvenes, células y escuela dominical.</li>
+    <li><b>En grupo:</b> elige de 10 a 150 preguntas y de 10 a 60 segundos por pregunta. La pantalla muestra un PIN y cada persona juega desde su móvil, sin contraseña. Ideal para grupos de jóvenes, células y escuela dominical. <a href="/grupos">Guía para líderes de grupo</a>.</li>
     <li><b>Como app:</b> instálala en el móvil o el ordenador y aprende también sin conexión.</li>
   </ul>
   <h3>Preguntas frecuentes</h3>
@@ -416,7 +416,7 @@ async function inicio() {
     <div class="libros solo">${cat.libros.map(tarjeta).join('')}</div>
     <div id="misiones"></div>
     <div id="extra"></div>
-    <div class="partida">
+    <div class="partida" id="grupo">
       <h2>Partida a tu medida</h2>
       <p class="pie" style="opacity:1">Elige cuántas preguntas de ${esc(cat.libros[0].nombre)} quieres jugar, al azar entre las ${cat.libros[0].preguntas}.</p>
       <div class="cantidades" role="radiogroup" aria-label="Número de preguntas">${[10, 20, 30, 50, 100, 150].map(n => `<button class="cant${n === CANT ? ' sel' : ''}" role="radio" aria-checked="${n === CANT}" data-n="${n}">${n}</button>`).join('')}</div>
@@ -436,6 +436,8 @@ async function inicio() {
   // carga en segundo plano los libros disponibles para mostrar su progreso
   for (const b of cat.libros.filter(x => x.preguntas && !LIBROS[x.id])) { await libro(b.id); }
   if (!APP.dataset.vista) { inicioRefresco(); pintarMisiones(); pintarExtra(); }
+  // Desde la página para líderes (/grupos) se llega con #grupo: baja directo a la partida en grupo
+  if (IR_GRUPO) { IR_GRUPO = false; const ir = () => setTimeout(() => { const g = document.getElementById('grupo'); if (g) g.scrollIntoView({ block: 'center' }); }, 50); document.readyState === 'complete' ? ir() : addEventListener('load', ir, { once: true }); }
 }
 function pintarMisiones() {
   const h = document.getElementById('misiones'); if (!h) return;
@@ -737,6 +739,7 @@ const salvados = aplicarProtectores();
 if (salvados) setTimeout(() => avisar(`🛡️ Tu protector salvó tu racha (${salvados} día${salvados === 1 ? '' : 's'})`), 1200);
 E.mejorRacha = Math.max(E.mejorRacha || 0, rachaViva());
 libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
+var IR_GRUPO = location.hash === '#grupo'; // se lee antes de que inicio() limpie la dirección
 const lib = new URLSearchParams(location.search).get('libro');
 lib ? verLibro(lib).catch(inicio) : inicio();
 </script>
