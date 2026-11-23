@@ -3,7 +3,7 @@
   "name": "chispa",
   "main": "src/index.js",
   "compatibility_date": "2026-06-01",
-  "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "none", "run_worker_first": ["/", "/index.html", "/privacidad", "/privacidad.html", "/aprender", "/aprender.html", "/grupos", "/grupos.html"] },
+  "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "none", "run_worker_first": ["/", "/index.html", "/privacidad", "/privacidad.html", "/aprender", "/aprender.html", "/grupos", "/grupos.html", "/privacidad-lumbrera", "/privacidad-lumbrera.html"] },
   "durable_objects": {
     "bindings": [
       { "name": "JUEGO", "class_name": "Juego" },
@@ -13,7 +13,7 @@
   "migrations": [ { "tag": "v1", "new_sqlite_classes": ["Juego", "Almacen"] } ],
   "vars": { "MAX_PLAYERS": "500", "AI_DAILY_LIMIT": "50", "ANTHROPIC_MODEL": "claude-sonnet-5-5" },
   "observability": { "enabled": true },
-  // Segunda marca con el mismo motor: «Lumbrera» (Biblia y evangelismo). Se publica con: npx wrangler deploy --env fe
+  // Segunda marca con el mismo motor: «Lumbrera» (Biblia y evangelismo). Se publica sola al subir a main (GitHub Actions) o a mano con: npx wrangler deploy --env fe
   "env": {
     "fe": {
       "name": "lumbrera",

@@ -56,7 +56,7 @@ export default {
       if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
       if (ruta === '/llms.txt' && env.MARCA === 'fe') return new Response(LLMS_LUMBRERA.replaceAll('{{ORIGEN}}', url.origin), { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
       if (ruta === '/sitemap.xml') {
-        const urls = env.MARCA === 'fe' ? ['/', '/grupos', '/jugar'] : ['/', '/privacidad'];
+        const urls = env.MARCA === 'fe' ? ['/', '/grupos', '/jugar', '/privacidad'] : ['/', '/privacidad'];
         return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u => `<url><loc>${url.origin}${u}</loc></url>`).join('')}</urlset>`, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
       }
       // Lumbrera aún no tiene web de presentación: su portada es la página para jugar
@@ -66,7 +66,11 @@ export default {
         return env.ASSETS.fetch(new Request(new URL('/aprender', url), req));
       }
       if (env.MARCA !== 'fe' && (ruta === '/aprender' || ruta === '/aprender.html' || ruta === '/grupos' || ruta === '/grupos.html')) return Response.redirect(url.origin + '/', 302);
-      const res = await env.ASSETS.fetch(req);
+      if (env.MARCA !== 'fe' && (ruta === '/privacidad-lumbrera' || ruta === '/privacidad-lumbrera.html')) return Response.redirect(url.origin + '/privacidad', 302);
+      // Lumbrera tiene su propia política de privacidad en la misma dirección /privacidad
+      const res = env.MARCA === 'fe' && (ruta === '/privacidad' || ruta === '/privacidad.html')
+        ? await env.ASSETS.fetch(new Request(new URL('/privacidad-lumbrera', url), req))
+        : await env.ASSETS.fetch(req);
       // En la portada, fija la dirección canónica y las imágenes de redes con el dominio real (sirve igual con workers.dev o con tu dominio)
       if ((ruta === '/' || ruta === '/privacidad') && (res.headers.get('content-type') || '').includes('text/html')) {
         return new HTMLRewriter()
@@ -135,6 +139,13 @@ async function api(req, env, url, ruta) {
     const caducado = !!(b.semana && b.semana !== semana); // puntos de una semana ya cerrada: no cuentan, pero el perfil sí se guarda
     const r = await st.ligaSumar({ semana, dia: diaLiga(), jugador, apodo: a.apodo, grupo: g.grupo, xp: caducado ? 0 : xp });
     return json({ semana, apodo: a.apodo, grupo: g.grupo, caducado, ...r });
+  }
+  if (ruta === 'liga/salir' && m === 'POST') {
+    if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
+    const jugador = await jugadorDe((await cuerpo()).token);
+    if (!jugador) return json({ error: 'Falta tu clave de la liga' }, 400);
+    await st.ligaBorrar(jugador);
+    return json({ ok: true });
   }
   if (ruta === 'liga' && m === 'GET') {
     if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);

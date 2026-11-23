@@ -217,7 +217,7 @@
   </ul>
   <h3>Preguntas frecuentes</h3>
   <details><summary>¿Lumbrera es gratis?</summary><p>Sí. Lumbrera es gratuita, no pide registro y guarda tu progreso en tu propio dispositivo.</p></details><details><summary>¿Cuántas preguntas tiene Génesis en Lumbrera?</summary><p>150 preguntas sobre los 50 capítulos de Génesis, repartidas en 5 unidades y 15 lecciones de 10 preguntas.</p></details><details><summary>¿Se puede jugar en grupo?</summary><p>Sí. Eliges cuántas preguntas (de 10 a 150) y cuántos segundos por pregunta (de 10 a 60); la pantalla muestra un PIN y cada persona entra desde su móvil, sin contraseña.</p></details><details><summary>¿Puedo instalar Lumbrera como app?</summary><p>Sí. En Android y en ordenador aparece el botón «Descargar la app»; en iPhone, toca Compartir y «Añadir a pantalla de inicio». Una vez instalada, las lecciones funcionan sin conexión.</p></details><details><summary>¿Qué traducción de la Biblia usa?</summary><p>Las citas son de la Reina-Valera 1960.</p></details>
-  <p class="creditos">Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. · Hecho por Andrés Rendón · <a href="https://www.andresrendon.com/" target="_blank" rel="noopener">Visita mi web</a> · <a href="https://www.instagram.com/andresrendon.ai/" target="_blank" rel="noopener">Sígueme en Instagram</a></p>
+  <p class="creditos">Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. · Hecho por Andrés Rendón · <a href="https://www.andresrendon.com/" target="_blank" rel="noopener">Visita mi web</a> · <a href="https://www.instagram.com/andresrendon.ai/" target="_blank" rel="noopener">Sígueme en Instagram</a> · <a href="/privacidad">Privacidad</a></p>
 </section>
 <script src="comun.js"></script>
 <script>
@@ -829,7 +829,7 @@ function formLiga({ grupo, invitado, volver, foco }) {
     <h1 class="t">🏆 ${L.token ? 'Tu apodo y tu grupo' : 'Únete a la liga semanal'}</h1>
     <p class="sub">${invitado ? `Te han invitado al grupo <b>${esc(grupoIni)}</b>. ` : ''}Cada lección suma puntos. Cada lunes empieza una semana nueva.</p>
     <div class="ajuste"><h3>Tu apodo</h3><input class="campo" id="i-apodo" maxlength="16" placeholder="Por ejemplo: Ana G." value="${esc(apodoIni)}" autocomplete="off">
-      <p class="pie" style="opacity:1;margin:.5rem 0 0">Se verá en la clasificación junto a tus puntos. No pongas tu nombre completo.</p></div>
+      <p class="pie" style="opacity:1;margin:.5rem 0 0">Se verá en la clasificación junto a tus puntos. No pongas tu nombre completo. Si tienes menos de 14 años, pide permiso a tu madre, padre o tutor. <a href="/privacidad" target="_blank">Privacidad</a></p></div>
     <div class="ajuste"><h3>Código de grupo <small style="font-weight:600;opacity:.8">(opcional)</small></h3><input class="campo" id="i-grupo" maxlength="20" placeholder="Por ejemplo: jovenes-sants" value="${esc(grupoIni)}" autocomplete="off" autocapitalize="none">
       <p class="pie" style="opacity:1;margin:.5rem 0 0">Escribe el código que te ha dado tu líder, o inventa uno y compártelo con tu grupo.</p></div>
     <p class="error" id="liga-err"></p>
@@ -852,7 +852,13 @@ function formLiga({ grupo, invitado, volver, foco }) {
     verLiga(E.liga.grupo ? 'grupo' : 'global');
   };
   const bs = document.getElementById('b-salir-liga');
-  if (bs) bs.onclick = () => { if (!confirm('¿Salir de la liga? Dejarás de sumar puntos en la clasificación.')) return; delete E.liga; guardarE(); delete APP.dataset.vista; inicio(); };
+  if (bs) bs.onclick = async () => {
+    if (!confirm('¿Salir de la liga? Se borrarán tu apodo y tus puntos de la clasificación.')) return;
+    bs.disabled = true;
+    const ok = await fetch(BASE + 'api/liga/salir', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: L.token }) }).then(x => x.ok).catch(() => false);
+    if (!ok) { bs.disabled = false; document.getElementById('liga-err').textContent = 'No se ha podido conectar. Prueba otra vez con internet.'; return; }
+    delete E.liga; guardarE(); avisar('Has salido de la liga'); delete APP.dataset.vista; inicio();
+  };
 }
 
 // ===================== Imagen para compartir (formato Story 1080×1920) =====================

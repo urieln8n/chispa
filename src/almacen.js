@@ -120,6 +120,8 @@ export class Almacen extends DurableObject {
     if (Math.random() < 0.02) sql.exec('DELETE FROM liga WHERE semana < ?', semanaAntigua(semana));
     return { sumados: suma };
   }
+  // «Salir de la liga»: borra todas las filas de ese jugador
+  async ligaBorrar(jugador) { this.ligaTabla().exec('DELETE FROM liga WHERE jugador = ?', jugador); }
   // Clasificación de la semana: top 50 (global o de un grupo) y tu puesto
   async ligaClasificacion({ semana, jugador, grupo }) {
     const sql = this.ligaTabla();
