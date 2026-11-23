@@ -38,7 +38,11 @@
   .nodo.bloq{background:#332B6E;color:#7E76AE;cursor:not-allowed;box-shadow:0 6px 0 #1a1540}
   .nodo.hecho{background:var(--ambar);color:var(--noche)}
   .nodo .est{position:absolute;bottom:-18px;font-size:.78rem;letter-spacing:1px;color:var(--ambar);white-space:nowrap}
-  .nodo.actual::after{content:'Empieza aquí';position:absolute;top:-30px;background:#fff;color:var(--noche);font-size:.75rem;font-weight:800;padding:.25em .6em;border-radius:8px;white-space:nowrap}
+  .nodo.actual{margin-top:30px}
+  .nodo.actual::after{content:'Empieza aquí';position:absolute;top:-50px;background:#fff;color:var(--noche);font-size:1.05rem;font-weight:800;padding:.45em 1em;border-radius:12px;white-space:nowrap;box-shadow:0 4px 0 rgba(0,0,0,.25);animation:salta 1.6s ease-in-out infinite}
+  .nodo.actual::before{content:'';position:absolute;top:-14px;border:9px solid transparent;border-top-color:#fff;animation:salta 1.6s ease-in-out infinite}
+  @keyframes salta{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  @media(prefers-reduced-motion:reduce){.nodo.actual::after,.nodo.actual::before{animation:none}}
   .u0{--c:#E2557A}.u1{--c:#2EA7C4}.u2{--c:#7B5CE6}.u3{--c:#2EAF7D}.u4{--c:#D9772B}
   /* Lección */
   .lec-top{display:flex;align-items:center;gap:.8rem;padding:14px 0}
@@ -79,7 +83,9 @@
   .partida h2{font-size:1.25rem;margin-bottom:.2rem}
   .cantidades{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:.9rem 0}
   .cant{border:2px solid #433a86;background:transparent;color:var(--texto);border-radius:12px;padding:.6em 0;font-weight:800;font-size:1rem;cursor:pointer}
-  .cant.sel{background:var(--ambar);border-color:var(--ambar);color:var(--noche)}
+  .cant.sel,.tiem.sel{background:var(--ambar);border-color:var(--ambar);color:var(--noche)}
+  .tiem{border:2px solid #433a86;background:transparent;color:var(--texto);border-radius:12px;padding:.5em 0;font-weight:800;font-size:.92rem;cursor:pointer}
+  .etiq-tiempo{margin-top:.2rem;font-weight:700}
   .dos-btn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   @media(max-width:380px){.cantidades{grid-template-columns:repeat(3,1fr)}.dos-btn{grid-template-columns:1fr}}
   .repaso{display:flex;justify-content:space-between;align-items:center;gap:1rem;background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1.2rem}
@@ -153,6 +159,8 @@ async function inicio() {
       <h2>Partida a tu medida</h2>
       <p class="pie" style="opacity:1">Elige cuántas preguntas de ${esc(cat.libros[0].nombre)} quieres jugar, al azar entre las ${cat.libros[0].preguntas}.</p>
       <div class="cantidades" role="radiogroup" aria-label="Número de preguntas">${[10, 20, 30, 50, 100, 150].map(n => `<button class="cant${n === CANT ? ' sel' : ''}" role="radio" aria-checked="${n === CANT}" data-n="${n}">${n}</button>`).join('')}</div>
+      <p class="pie etiq-tiempo" style="opacity:1">Tiempo por pregunta al jugar en grupo</p>
+      <div class="cantidades tiempos" role="radiogroup" aria-label="Segundos por pregunta en grupo">${[10, 15, 20, 30, 45, 60].map(t => `<button class="tiem${t === TIEMPO ? ' sel' : ''}" role="radio" aria-checked="${t === TIEMPO}" data-t="${t}">${t} s</button>`).join('')}</div>
       <div class="dos-btn"><button class="btn" id="b-solo">Jugar yo solo</button><button class="btn sec" id="b-grupo">Jugar en grupo</button></div>
       <p class="pie" id="grupo-msg" style="opacity:1;min-height:1.2em"></p>
     </div>
@@ -162,7 +170,8 @@ async function inicio() {
   const br = document.getElementById('b-rep'); if (br) br.onclick = () => repasar(null);
   APP.querySelectorAll('.cant').forEach(b => b.onclick = () => { CANT = +b.dataset.n; APP.querySelectorAll('.cant').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); });
   document.getElementById('b-solo').onclick = async () => practicaLibre(await libro(cat.libros[0].id), CANT);
-  document.getElementById('b-grupo').onclick = () => crearGrupo(CANT);
+  APP.querySelectorAll('.tiem').forEach(b => b.onclick = () => { TIEMPO = +b.dataset.t; APP.querySelectorAll('.tiem').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); });
+  document.getElementById('b-grupo').onclick = () => crearGrupo(CANT, TIEMPO);
   // carga en segundo plano los libros disponibles para mostrar su progreso
   for (const b of cat.libros.filter(x => x.preguntas && !LIBROS[x.id])) { await libro(b.id); }
   if (!APP.dataset.vista) inicioRefresco();
@@ -223,7 +232,7 @@ function repasoLibro(L) {
   LEC = { L, cola: barajar(todas).slice(0, 15), total: 15, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'repaso', vuelta: L.id };
   pintarPregunta();
 }
-let CANT = 20;
+let CANT = 20, TIEMPO = 20;
 // Partida individual con el número de preguntas que elija la persona (al azar entre todo el libro)
 function practicaLibre(L, n) {
   const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => todas.push({ ...q, libro: L.id }))));
@@ -232,11 +241,11 @@ function practicaLibre(L, n) {
   pintarPregunta();
 }
 // Partida en grupo: se crea en el servidor y esta pantalla pasa a ser la del presentador (proyector o tele)
-async function crearGrupo(n) {
+async function crearGrupo(n, tiempo) {
   const b = document.getElementById('b-grupo'), msg = document.getElementById('grupo-msg');
   b.disabled = true; msg.textContent = 'Preparando la partida…';
   try {
-    const r = await fetch(BASE + 'api/libro/partida', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ n }) }).then(x => x.json());
+    const r = await fetch(BASE + 'api/libro/partida', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ n, tiempo }) }).then(x => x.json());
     if (!r.pin) throw new Error(r.error || 'No se ha podido crear la partida');
     try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin: r.pin, claveHost: r.claveHost, volver: 'aprender' })); } catch {}
     location.href = BASE + 'presentar?pin=' + r.pin;

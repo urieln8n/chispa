@@ -80,10 +80,12 @@ async function api(req, env, url, ruta) {
   // Lumbrera: cualquiera puede montar una partida en grupo de Génesis eligiendo cuántas preguntas (sin contraseña)
   if (ruta === 'libro/partida' && m === 'POST') {
     if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
-    const n = Math.max(5, Math.min(150, parseInt((await cuerpo()).n, 10) || 10));
+    const b = await cuerpo();
+    const n = Math.max(5, Math.min(150, parseInt(b.n, 10) || 10));
+    const tiempo = Math.max(5, Math.min(120, parseInt(b.tiempo, 10) || 0)) || null; // segundos por pregunta que elige el grupo
     const L = await env.ASSETS.fetch(new Request(new URL('/biblia/genesis.json', url))).then(r => r.json());
     const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => todas.push(q))));
-    const quiz = limpiarCuestionario({ titulo: `${L.nombre} · ${n} preguntas`, preguntas: barajar(todas).slice(0, n).map(preguntaEnVivo) });
+    const quiz = limpiarCuestionario({ titulo: `${L.nombre} · ${n} preguntas`, preguntas: barajar(todas).slice(0, n).map(preguntaEnVivo).map(p => tiempo ? { ...p, tiempo } : p) });
     for (let i = 0; i < 8; i++) {
       const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
       const res = await juego(env, pin).crear(pin, { titulo: quiz.titulo, preguntas: quiz.preguntas, cierre: null });
