@@ -1,6 +1,6 @@
 // Lumbrera: permite instalarla como app y aprender sin conexión.
 // Solo lo registra la web de Lumbrera (aprender.html). Nunca guarda la API ni las partidas en vivo.
-const VERSION = 'lumbrera-v1';
+const VERSION = 'lumbrera-v2';
 const BASICO = ['/', '/aprender', '/jugar', '/styles.css', '/comun.js', '/biblia/libros.json', '/biblia/genesis.json',
   '/app/manifest.webmanifest', '/app/icono-192.png', '/app/icono-512.png'];
 
@@ -27,12 +27,14 @@ self.addEventListener('fetch', e => {
     }).catch(async () => (await caches.match(req, { ignoreSearch: true })) || caches.match('/aprender')));
     return;
   }
-  // Resto (estilos, datos, iconos, fuentes): respuesta inmediata desde la copia y actualización en segundo plano
-  e.respondWith(caches.match(req).then(guardada => {
-    const red = fetch(req).then(res => {
-      if (res.ok || res.type === 'opaque') { const copia = res.clone(); caches.open(VERSION).then(c => c.put(req, copia)); }
-      return res;
-    }).catch(() => guardada);
-    return guardada || red;
-  }));
+  // Fuentes de Google: de la copia (no cambian)
+  if (fuentes) {
+    e.respondWith(caches.match(req).then(g => g || fetch(req).then(res => { const c = res.clone(); caches.open(VERSION).then(x => x.put(req, c)); return res; })));
+    return;
+  }
+  // Código y datos de la web: primero la red (nunca se mezcla una versión vieja con una nueva); sin conexión, la copia
+  e.respondWith(fetch(req).then(res => {
+    if (res.ok) { const c = res.clone(); caches.open(VERSION).then(x => x.put(req, c)); }
+    return res;
+  }).catch(() => caches.match(req)));
 });

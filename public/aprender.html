@@ -131,6 +131,25 @@
   .boton-ajustes{background:var(--noche2);border:1px solid #433a86;color:var(--texto);border-radius:99px;width:38px;height:38px;font-size:1.05rem;cursor:pointer;flex:none}
   .aviso-logro{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:40;background:var(--ambar);color:#1B1640;font-weight:800;padding:.7em 1.1em;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.35);animation:entra .4s ease}
   @keyframes entra{from{opacity:0;transform:translate(-50%,-12px)}}
+  /* Duolingo: semana, misiones, tienda, combos */
+  .semana{display:flex;justify-content:space-between;gap:4px;margin-top:.8rem}
+  .dia-s{flex:1;text-align:center;font-size:.72rem;font-weight:800;color:var(--suave)}
+  .dia-s i{display:grid;place-items:center;font-style:normal;width:32px;height:32px;margin:.25rem auto 0;border-radius:50%;background:var(--noche3);font-size:1rem}
+  .dia-s.si i{background:#FF9A4D}.dia-s.prot i{background:#4FA3E0}.dia-s.hoy{color:var(--texto)}.dia-s.hoy i{outline:2px solid var(--ambar);outline-offset:2px}
+  .stat.tal b{color:#FFD15C}
+  .misiones{background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1rem}
+  .misiones .cab-m{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}.misiones .cab-m b{flex:1}
+  .mision{display:grid;grid-template-columns:1fr auto;gap:.2rem .8rem;align-items:center;padding:.55rem 0;border-top:1px solid rgba(255,255,255,.06)}
+  .mision:first-of-type{border-top:0}.mision .barra-m{grid-column:1/-1;height:10px;border-radius:9px;background:var(--noche3);overflow:hidden}
+  .mision .barra-m i{display:block;height:100%;background:var(--ambar);border-radius:9px;transition:width .4s}
+  .mision.hecha .txt-m{text-decoration:line-through;opacity:.7}.mision .prem{font-weight:800;color:#FFD15C;font-size:.9rem}
+  .cofre{margin-top:.6rem;font-weight:800;text-align:center;color:var(--suave);font-size:.9rem}
+  .tienda{display:flex;align-items:center;gap:.9rem;background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1rem}
+  .tienda .ico{font-size:1.8rem}.tienda .txt{flex:1}.tienda .txt b{display:block}
+  .combo{display:inline-block;background:#FF9A4D;color:#1B1640;font-weight:800;border-radius:99px;padding:.2em .8em;font-size:.95rem;animation:aparece .3s ease;margin-left:.3rem;vertical-align:middle}
+  @keyframes aparece{from{opacity:0;transform:scale(.7)}}
+  @media(max-width:420px){.stats{gap:.3rem}.stat{padding:.25em .5em;font-size:.85rem}.boton-ajustes{width:34px;height:34px;font-size:.95rem}.top .marca-nombre{display:none}}
+  .tema-claro .misiones,.tema-claro .tienda{border-color:#E3D6BC}.tema-claro .mision{border-color:rgba(0,0,0,.06)}
   /* Personalizar */
   .ajuste{background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:.9rem}
   .ajuste h3{font-size:1.05rem;margin-bottom:.6rem}
@@ -190,7 +209,7 @@
 // ===================== Estado (se guarda en este dispositivo) =====================
 const CLAVE_E = 'lumbrera-aprender';
 const hoyISO = () => new Date().toLocaleDateString('sv-SE');
-let E = { xp: 0, racha: 0, ultimoDia: '', meta: 30, hoy: { fecha: '', xp: 0 }, lecciones: {}, fallos: {} };
+let E = { xp: 0, racha: 0, ultimoDia: '', meta: 30, hoy: { fecha: '', xp: 0 }, lecciones: {}, fallos: {}, talentos: 0, protectores: 0, dias: {}, protegidos: {}, misiones: null };
 try { Object.assign(E, JSON.parse(localStorage.getItem(CLAVE_E) || '{}')); } catch {}
 function guardarE() { try { localStorage.setItem(CLAVE_E, JSON.stringify(E)); } catch {} }
 // ===================== Personalización (también en este dispositivo) =====================
@@ -212,11 +231,18 @@ const _sonido = sonido; sonido = t => { if (AJ.sonido) _sonido(t); };
 const vibrar = ms => { if (AJ.vibracion && navigator.vibrate) navigator.vibrate(ms); };
 
 function xpHoy() { return E.hoy.fecha === hoyISO() ? E.hoy.xp : 0; }
+// Contadores del día para las misiones (lecciones, perfectas, mejor combo, repasadas…)
+function hoyC() { const h = hoyISO(); if (E.hoy.fecha !== h) E.hoy = { fecha: h, xp: 0 }; return E.hoy; }
+function contar(k, n = 1) { const c = hoyC(); c[k] = (c[k] || 0) + n; guardarE(); }
+function maximo(k, v) { const c = hoyC(); c[k] = Math.max(c[k] || 0, v); guardarE(); }
 function rachaViva() { if (!E.ultimoDia) return 0; const d = (new Date(hoyISO()) - new Date(E.ultimoDia)) / 864e5; return d <= 1 ? E.racha : 0; }
 function sumarXP(n) {
   const hoy = hoyISO();
   if (E.hoy.fecha !== hoy) E.hoy = { fecha: hoy, xp: 0 };
   E.xp += n; E.hoy.xp += n;
+  E.dias[hoy] = (E.dias[hoy] || 0) + n;
+  const limite = new Date(Date.now() - 70 * 864e5).toLocaleDateString('sv-SE');
+  Object.keys(E.dias).forEach(d => { if (d < limite) delete E.dias[d]; });
   if (E.ultimoDia !== hoy) {
     const ayer = new Date(Date.now() - 864e5).toLocaleDateString('sv-SE');
     E.racha = E.ultimoDia === ayer ? E.racha + 1 : 1; E.ultimoDia = hoy;
@@ -260,13 +286,70 @@ function revisarLogros() {
   if (nuevos.length) guardarE();
   return nuevos;
 }
-function avisarLogros(lista) {
-  lista.forEach((l, k) => setTimeout(() => {
-    const a = document.createElement('div'); a.className = 'aviso-logro'; a.setAttribute('role', 'status');
-    a.textContent = `${l.i} Logro conseguido: ${l.t}`; document.body.appendChild(a); sonido('tic');
-    setTimeout(() => a.remove(), 3200);
-  }, 900 + k * 3400));
+function avisarLogros(lista) { lista.forEach(l => avisar(`${l.i} Logro conseguido: ${l.t}`)); }
+
+// ===================== Talentos, protector de racha y misiones (como en Duolingo) =====================
+const PRECIO_PROTECTOR = 30, MAX_PROTECTORES = 2;
+function ganarTalentos(n, motivo) { E.talentos = (E.talentos || 0) + n; guardarE(); avisar(`🪙 +${n} talentos · ${motivo}`); }
+let colaAvisos = Promise.resolve();
+function avisar(texto) {
+  colaAvisos = colaAvisos.then(() => new Promise(fin => {
+    const a = document.createElement('div'); a.className = 'aviso-logro'; a.setAttribute('role', 'status'); a.textContent = texto;
+    document.body.appendChild(a); sonido('tic'); setTimeout(() => { a.remove(); fin(); }, 2600);
+  }));
 }
+// Si faltaste días y tienes protectores, la racha se salva sola (como el «protector de racha» de Duolingo)
+function aplicarProtectores() {
+  if (!E.ultimoDia || !E.racha) return 0;
+  const faltados = Math.round((new Date(hoyISO()) - new Date(E.ultimoDia)) / 864e5) - 1;
+  if (faltados < 1 || faltados > (E.protectores || 0)) return 0;
+  for (let k = 1; k <= faltados; k++) E.protegidos[new Date(new Date(E.ultimoDia).getTime() + k * 864e5).toLocaleDateString('sv-SE')] = true;
+  E.protectores -= faltados;
+  E.ultimoDia = new Date(Date.now() - 864e5).toLocaleDateString('sv-SE');
+  guardarE();
+  return faltados;
+}
+function comprarProtector() {
+  if ((E.protectores || 0) >= MAX_PROTECTORES) return aviso('Ya tienes el máximo de protectores');
+  if ((E.talentos || 0) < PRECIO_PROTECTOR) return aviso(`Te faltan ${PRECIO_PROTECTOR - (E.talentos || 0)} talentos`);
+  E.talentos -= PRECIO_PROTECTOR; E.protectores = (E.protectores || 0) + 1; guardarE(); sonido('ok');
+  avisar('🛡️ Protector de racha activado');
+  if (!APP.dataset.vista) inicio();
+}
+// Tres misiones al día, iguales para todos ese día
+const PLANTILLAS = [
+  { id: 'xp', t: c => `Gana ${c} puntos`, meta: () => Math.max(40, E.meta), valor: h => h.xp || 0 },
+  { id: 'lec', t: c => `Completa ${c} lecciones o partidas`, meta: () => 2, valor: h => h.lecciones || 0 },
+  { id: 'perf', t: () => 'Haz una lección sin fallos', meta: () => 1, valor: h => h.perfectas || 0 },
+  { id: 'combo', t: c => `Acierta ${c} seguidas`, meta: () => 5, valor: h => h.combo || 0 },
+  { id: 'dia', t: () => 'Mira la pregunta del día', meta: () => 1, valor: h => h.dia || 0 },
+  { id: 'aciertos', t: c => `Acierta ${c} preguntas`, meta: () => 15, valor: h => h.aciertos || 0 },
+];
+function misionesHoy() {
+  const h = hoyISO();
+  if (!E.misiones || E.misiones.fecha !== h) {
+    const n = Math.floor(new Date(h).getTime() / 864e5);
+    const orden = PLANTILLAS.map((p, i) => ({ p, k: (i * 37 + n * 11) % 97 })).sort((a, b) => a.k - b.k).slice(0, 3);
+    E.misiones = { fecha: h, cobradas: [], cofre: false, ids: orden.map(o => o.p.id) };
+    guardarE();
+  }
+  return E.misiones.ids.map(id => { const p = PLANTILLAS.find(x => x.id === id); const meta = p.meta(); const v = Math.min(meta, p.valor(hoyC())); return { id, texto: p.t(meta), meta, v, hecha: v >= meta }; });
+}
+// Paga las misiones recién cumplidas y el cofre si están las tres
+function revisarMisiones() {
+  const lista = misionesHoy();
+  lista.forEach(m => { if (m.hecha && !E.misiones.cobradas.includes(m.id)) { E.misiones.cobradas.push(m.id); guardarE(); ganarTalentos(10, `Misión: ${m.texto}`); } });
+  if (lista.every(m => m.hecha) && !E.misiones.cofre) { E.misiones.cofre = true; guardarE(); ganarTalentos(20, '🎁 Cofre de las 3 misiones'); }
+}
+function semanaHTML() {
+  const hoy = new Date(hoyISO()); const lunes = new Date(hoy.getTime() - ((hoy.getDay() + 6) % 7) * 864e5);
+  return `<div class="semana" aria-label="Tu semana">${['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((l, k) => {
+    const d = new Date(lunes.getTime() + k * 864e5).toLocaleDateString('sv-SE');
+    const si = E.dias[d] > 0, prot = E.protegidos[d], esHoy = d === hoyISO();
+    return `<div class="dia-s${si ? ' si' : prot ? ' prot' : ''}${esHoy ? ' hoy' : ''}" title="${d}">${l}<i>${si ? '🔥' : prot ? '🛡️' : ''}</i></div>`;
+  }).join('')}</div>`;
+}
+const URL_APP = location.origin + '/';
 
 // ===================== Pregunta del día (la misma para todos cada día) =====================
 function preguntaDelDia(L) {
@@ -305,6 +388,7 @@ function cabecera(extra = '') {
   return `<div class="top">${extra || marca()}<div class="stats">
     <span class="stat racha" title="Días seguidos aprendiendo">🔥 <b>${rachaViva()}</b></span>
     <span class="stat xp" title="Puntos de experiencia">⭐ <b>${E.xp}</b></span>
+    <span class="stat tal" title="Talentos: gánalos con las misiones y úsalos en la tienda">🪙 <b>${E.talentos || 0}</b></span>
     <button class="boton-ajustes" id="b-aj" aria-label="Personalizar" title="Personalizar">⚙️</button></div></div>`;
 }
 
@@ -326,9 +410,11 @@ async function inicio() {
     <p class="sub">El libro de los comienzos, en lecciones de 10 preguntas. Unos minutos al día bastan.</p>
     <div class="meta"><div class="anillo" style="--p:${pct}"><span>${pct}%</span></div>
       <div><b>Meta de hoy: ${E.meta} puntos</b><div class="pie" style="opacity:1">${xpHoy() >= E.meta ? '¡Cumplida! Vuelve mañana para mantener la racha.' : `Llevas ${xpHoy()}. Una lección son unos 100.`}</div></div></div>
+    <div class="meta" style="display:block;margin-top:-.6rem"><b>🔥 Racha: ${rachaViva()} ${rachaViva() === 1 ? 'día' : 'días'}</b>${(E.protectores || 0) ? ` · 🛡️ ${E.protectores} protector${E.protectores === 1 ? '' : 'es'}` : ''}${semanaHTML()}</div>
     <div id="hueco-inst">${bloqueInstalar(false)}</div>
     ${totalFallos ? `<div class="repaso"><div><b>Repasa tus fallos</b><div class="pie" style="opacity:1">${totalFallos} pregunta${totalFallos === 1 ? '' : 's'} para afianzar</div></div><button class="btn peq" id="b-rep">Repasar</button></div>` : ''}
     <div class="libros solo">${cat.libros.map(tarjeta).join('')}</div>
+    <div id="misiones"></div>
     <div id="extra"></div>
     <div class="partida">
       <h2>Partida a tu medida</h2>
@@ -349,7 +435,22 @@ async function inicio() {
   document.getElementById('b-grupo').onclick = () => crearGrupo(CANT, TIEMPO);
   // carga en segundo plano los libros disponibles para mostrar su progreso
   for (const b of cat.libros.filter(x => x.preguntas && !LIBROS[x.id])) { await libro(b.id); }
-  if (!APP.dataset.vista) { inicioRefresco(); pintarExtra(); }
+  if (!APP.dataset.vista) { inicioRefresco(); pintarMisiones(); pintarExtra(); }
+}
+function pintarMisiones() {
+  const h = document.getElementById('misiones'); if (!h) return;
+  const lista = misionesHoy(), hechas = lista.filter(m => m.hecha).length;
+  h.innerHTML = `<div class="misiones">
+      <div class="cab-m"><span style="font-size:1.6rem">🎯</span><b>Misiones de hoy</b><span class="pie" style="opacity:1">${hechas}/3</span></div>
+      ${lista.map(m => `<div class="mision${m.hecha ? ' hecha' : ''}"><span class="txt-m">${m.hecha ? '✅ ' : ''}${esc(m.texto)}</span><span class="prem">🪙 10</span>
+        <div class="barra-m"><i style="width:${100 * m.v / m.meta}%"></i></div></div>`).join('')}
+      <div class="cofre">${E.misiones.cofre ? '🎁 Cofre abierto. ¡Vuelve mañana a por más!' : '🎁 Completa las 3 y abre el cofre: +20 talentos'}</div></div>
+    <div class="tienda"><span class="ico">🛡️</span><div class="txt"><b>Protector de racha</b><span class="pie" style="opacity:1">Si un día no puedes, tu racha no se pierde. Tienes ${E.protectores || 0} de ${MAX_PROTECTORES}.</span></div>
+      <button class="btn peq" id="b-prot" ${(E.protectores || 0) >= MAX_PROTECTORES ? 'disabled' : ''}>🪙 ${PRECIO_PROTECTOR}</button></div>
+    <div class="tarjeta-x"><span class="ico">🤝</span><div class="txt"><b>Aprende con tus amigos</b><span class="pie" style="opacity:1">Invítalos y competid por la racha más larga.</span></div>
+      <button class="btn peq sec" id="b-invitar">Invitar</button></div>`;
+  document.getElementById('b-prot').onclick = comprarProtector;
+  document.getElementById('b-invitar').onclick = () => compartir('📖 Estoy aprendiendo Génesis con Lumbrera: lecciones cortas, rachas y partidas en grupo. Gratis y sin registro. ¿Te apuntas?', URL_APP);
 }
 function pintarExtra() {
   const h = document.getElementById('extra'), L = LIBROS.genesis; if (!h || !L) return;
@@ -363,7 +464,21 @@ function pintarExtra() {
       <button class="btn peq sec" id="b-dia" style="margin-top:.6rem">Ver respuesta</button></div></div>
     <h2 class="grupo-t">Logros · ${conseguidos} de ${LOGROS.length}</h2>
     <div class="logros">${LOGROS.map(l => `<div class="logro${(E.logros || {})[l.id] ? ' si' : ''}" title="${esc(l.t)}"><i>${l.i}</i>${esc(l.t)}</div>`).join('')}</div>`;
-  document.getElementById('b-dia').onclick = e => { document.getElementById('resp-dia').hidden = false; e.target.remove(); };
+  document.getElementById('b-dia').onclick = e => { document.getElementById('resp-dia').hidden = false; e.target.remove(); if (!hoyC().dia) { contar('dia'); revisarMisiones(); pintarMisiones(); } };
+}
+
+// Recordatorio: evento diario en el calendario del móvil (iPhone y Android), sin notificaciones push
+function descargarRecordatorio(hora) {
+  const [hh, mm] = hora.split(':');
+  const man = new Date(Date.now() + 864e5); const f = man.toLocaleDateString('sv-SE').replaceAll('-', '');
+  const sello = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lumbrera//ES', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+    'UID:recordatorio-' + Date.now() + '@genesis.andresrendon.com', 'DTSTAMP:' + sello, `DTSTART:${f}T${hh}${mm}00`, 'DURATION:PT10M', 'RRULE:FREQ=DAILY',
+    'SUMMARY:🔥 Lumbrera: tu lección de hoy', 'DESCRIPTION:Unos minutos con Génesis para mantener tu racha. ' + URL_APP, 'URL:' + URL_APP,
+    'BEGIN:VALARM', 'TRIGGER:PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:Lumbrera: tu lección de hoy', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'recordatorio-lumbrera.ics';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  aviso('Abre el archivo para añadirlo a tu calendario');
 }
 
 // ===================== Personalizar =====================
@@ -379,12 +494,17 @@ function ajustes() {
     <div class="ajuste"><h3>Tema</h3><div class="eliges">${op('tema', 'noche', '🌙 Noche')}${op('tema', 'claro', '📜 Pergamino')}${op('tema', 'auto', '⚙️ Auto', 'Como tu móvil')}</div></div>
     <div class="ajuste"><h3>Tamaño de letra</h3><div class="eliges">${op('letra', 'normal', 'Normal')}${op('letra', 'grande', 'Grande')}${op('letra', 'muy-grande', 'Muy grande')}</div></div>
     <div class="ajuste"><h3>Sonido y vibración</h3>${inter('sonido', 'Sonidos')}${inter('vibracion', 'Vibración')}</div>
+    <div class="ajuste"><h3>Recordatorio diario</h3><p class="pie" style="opacity:1;margin:0 0 .6rem">Lo añadimos a tu calendario para que te avise cada día.</p>
+      <div class="eliges">${['08:00', '14:00', '20:00', '22:00'].map(hh => `<button class="elige${(AJ.hora || '20:00') === hh ? ' sel' : ''}" data-hora="${hh}">${hh}</button>`).join('')}</div>
+      <button class="btn sec" id="b-recordatorio" style="margin-top:.7rem;width:100%">📅 Añadir a mi calendario</button></div>
     <div class="ajuste"><h3>Instalar la app</h3><div id="hueco-inst-aj">${bloqueInstalar(true)}</div></div>
     <button class="btn grande" id="b-listo" style="margin-top:1.2rem">Listo</button>`;
   const salirAj = () => { AJ.nombre = document.getElementById('i-nombre').value.trim().slice(0, 30); guardarAJ(); delete APP.dataset.vista; inicio(); };
   document.getElementById('b-atras').onclick = salirAj; document.getElementById('b-listo').onclick = salirAj;
   APP.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { AJ[b.dataset.g] = b.dataset.v; guardarAJ(); APP.querySelectorAll(`[data-g="${b.dataset.g}"]`).forEach(x => x.classList.toggle('sel', x === b)); });
   APP.querySelectorAll('[data-meta]').forEach(b => b.onclick = () => { E.meta = +b.dataset.meta; guardarE(); APP.querySelectorAll('[data-meta]').forEach(x => x.classList.toggle('sel', x === b)); });
+  APP.querySelectorAll('[data-hora]').forEach(b => b.onclick = () => { AJ.hora = b.dataset.hora; guardarAJ(); APP.querySelectorAll('[data-hora]').forEach(x => x.classList.toggle('sel', x === b)); });
+  document.getElementById('b-recordatorio').onclick = () => descargarRecordatorio(AJ.hora || '20:00');
   APP.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { AJ[b.dataset.k] = !AJ[b.dataset.k]; guardarAJ(); b.setAttribute('aria-checked', AJ[b.dataset.k]); if (b.dataset.k === 'sonido' && AJ.sonido) sonido('ok'); if (b.dataset.k === 'vibracion') vibrar(40); });
 }
 function inicioRefresco() { APP.querySelectorAll('[data-l]').forEach(b => { const L = LIBROS[b.dataset.l]; if (!L || b.querySelector('.barra')) return; const p = progresoLibro(L); b.insertAdjacentHTML('beforeend', `<span class="barra"><i style="width:${100 * p.hechas / p.total}%"></i></span>`); }); }
@@ -425,7 +545,7 @@ function claveLecAnterior(L, ui, li) { if (li > 0) return claveLec(L.id, ui, li 
 let LEC = null;
 function empezar(L, ui, li) {
   const preguntas = L.unidades[ui].lecciones[li].preguntas.map(q => ({ ...q, libro: L.id }));
-  LEC = { L, ui, li, cola: [...preguntas], total: preguntas.length, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'leccion' };
+  LEC = { L, ui, li, cola: [...preguntas], total: preguntas.length, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'leccion', combo: 0, mejorCombo: 0 };
   pintarPregunta();
 }
 function repasar(lid) {
@@ -531,6 +651,12 @@ function corregir(ok, correcta, fallosPar = 0) {
   const q = LEC.cola.shift();
   const primera = !LEC.fallidas.has(q.id);
   const emparejadoConFallos = q.t === 'emparejar' && fallosPar > 0;
+  LEC.combo = LEC.combo || 0; LEC.mejorCombo = LEC.mejorCombo || 0;
+  let textoCombo = '';
+  if (ok && !emparejadoConFallos) {
+    LEC.combo++; LEC.mejorCombo = Math.max(LEC.mejorCombo, LEC.combo); contar('aciertos');
+    if ([3, 5, 10, 15, 20].includes(LEC.combo)) { const extra = LEC.combo >= 10 ? 10 : 5; LEC.xp += extra; textoCombo = `<span class="combo">🔥 ¡${LEC.combo} seguidas! +${extra}</span>`; }
+  } else LEC.combo = 0;
   if (ok || q.t === 'emparejar') {
     LEC.bien++; const g = ok && primera ? 10 : 5; LEC.xp += g;
     if (LEC.modo === 'repaso' && ok && primera) delete E.fallos[q.id]; // sale de la lista al acertarla en un repaso
@@ -547,7 +673,7 @@ function corregir(ok, correcta, fallosPar = 0) {
   pie.className = 'pie-lec ' + (bien ? 'bien' : 'mal');
   const frases = ['¡Bien hecho!', '¡Correcto!', '¡Muy bien!', '¡Exacto!', '¡Eso es!'];
   pie.querySelector('.dentro').innerHTML = `
-    <h3>${bien ? (emparejadoConFallos ? '¡Completado!' : frases[Math.floor(Math.random() * frases.length)]) : 'Respuesta correcta:'}</h3>
+    <h3>${bien ? (emparejadoConFallos ? '¡Completado!' : frases[Math.floor(Math.random() * frases.length)]) : 'Respuesta correcta:'} ${textoCombo}</h3>
     ${!bien ? `<p><b>${esc(correcta)}</b></p>` : ''}
     ${q.exp ? `<p>${esc(q.exp)}</p>` : ''}
     <p class="ref">📖 ${esc(q.ref)}</p>
@@ -572,6 +698,11 @@ function terminar() {
   confeti(perfecta ? 140 : 80); sonido('fin');
   const subioRacha = rachaViva() > rachaAntes;
   const nuevosLogros = revisarLogros();
+  contar('lecciones'); if (perfecta && LEC.modo === 'leccion') contar('perfectas'); maximo('combo', LEC.mejorCombo || 0);
+  const talentosLec = LEC.modo === 'leccion' ? (perfecta ? 10 : 5) : 3;
+  const textoCompartir = subioRacha && rachaViva() > 1
+    ? `🔥 Llevo ${rachaViva()} días seguidos aprendiendo Génesis en Lumbrera. ¿Te animas a seguirme el ritmo?`
+    : `${perfecta ? '🏆' : '⭐'} Acabo de ${LEC.libre ? 'jugar una partida' : 'completar una lección'} de Génesis en Lumbrera con un ${precision}% de aciertos. ¿Te atreves?`;
   const tu = AJ.nombre ? `, ${esc(AJ.nombre)}` : '';
   APP.innerHTML = `<div class="fin">
     <div class="big">${perfecta ? '🏆' : '🎉'}</div>
@@ -580,8 +711,13 @@ function terminar() {
     <div class="cajas"><div class="caja-f"><b>+${total}</b>puntos</div><div class="caja-f"><b>${precision}%</b>aciertos</div><div class="caja-f"><b>🔥 ${rachaViva()}</b>${rachaViva() === 1 ? 'día' : 'días'}</div></div>
     ${subioRacha ? `<p style="margin:0;font-weight:800;color:#FF9A4D">${rachaViva() === 1 ? '¡Empiezas tu racha! Vuelve mañana para seguir.' : '¡Tu racha sigue viva!'}</p>` : ''}
     ${LEC.errores ? `<p class="pie" style="opacity:1;margin:0">Las preguntas que fallaste quedan guardadas para repasarlas.</p>` : ''}
-    <button class="btn grande" id="b-fin">Continuar</button></div>`;
+    <p style="margin:0;font-weight:800;color:#FFD15C">🪙 +${talentosLec} talentos${LEC.mejorCombo >= 3 ? ` · 🔥 mejor combo: ${LEC.mejorCombo}` : ''}</p>
+    <button class="btn grande" id="b-fin">Continuar</button>
+    <button class="btn sec grande" id="b-compartir-fin">📤 Compartir</button></div>`;
+  E.talentos = (E.talentos || 0) + talentosLec; guardarE();
+  document.getElementById('b-compartir-fin').onclick = () => compartir(textoCompartir, URL_APP);
   avisarLogros(nuevosLogros);
+  setTimeout(revisarMisiones, 800);
   document.getElementById('b-fin').onclick = () => LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
 }
 function salir() {
@@ -597,6 +733,8 @@ function salir() {
 function volver() { const id = LEC && (LEC.L ? LEC.L.id : LEC.vuelta); LEC = null; id ? verLibro(id) : inicio(); }
 
 // ===================== Arranque =====================
+const salvados = aplicarProtectores();
+if (salvados) setTimeout(() => avisar(`🛡️ Tu protector salvó tu racha (${salvados} día${salvados === 1 ? '' : 's'})`), 1200);
 E.mejorRacha = Math.max(E.mejorRacha || 0, rachaViva());
 libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
 const lib = new URLSearchParams(location.search).get('libro');

@@ -102,7 +102,10 @@ function entrar(apodo, token) {
   });
 }
 function esperar() {
-  area(`<div class="pop"><div class="grande">🎉</div><h2>¡Estás dentro!</h2><p>¿Ves tu apodo en la pantalla? En cuanto empiece, aquí salen las respuestas.</p></div>`);
+  const enlace = new URL(BASE + 'jugar?pin=' + PIN, location.href).href;
+  area(`<div class="pop" style="display:grid;gap:.8rem;justify-items:center;max-width:420px"><div class="grande">🎉</div><h2>¡Estás dentro!</h2><p style="margin:0">¿Ves tu apodo en la pantalla? En cuanto empiece, aquí salen las respuestas.</p>
+    <p class="pie" style="opacity:1;font-weight:800;margin:.6rem 0 0">¿Quieres que juegue alguien más?</p>
+    ${barraCompartir(`🎮 ¡Únete a la partida de ${MARCA.nombre}! PIN ${PIN}:`, enlace, 'Invitar')}</div>`);
 }
 function mostrarPregunta(p) {
   clearInterval(tick);
@@ -147,6 +150,7 @@ function mostrarFinal(f) {
   $('#mis-pts').textContent = f.puntos;
   const med = ['🥇', '🥈', '🥉'][f.puesto - 1] || '⭐';
   area(`<div class="pop" style="display:flex;flex-direction:column;align-items:center;gap:.7rem;max-width:420px"><div class="grande">${med}</div><h2>Has quedado ${f.puesto}.º de ${f.total}</h2><p class="burbuja" style="display:inline-block">${f.puntos} puntos</p>
+    ${barraCompartir(`${med} He quedado ${f.puesto}.º de ${f.total} con ${f.puntos} puntos en «${$('#titulo-partida').textContent}» (${MARCA.nombre}). ¿Te atreves?`, new URL(BASE, location.href).href, 'Compartir mi resultado')}
     ${f.cierre ? `<div class="reflexion"><div class="cita">${esc(f.cierre.titulo || 'Para terminar')}</div><p style="font-size:1rem">${esc(f.cierre.texto)}</p>${f.cierre.cita ? `<p style="color:var(--ambar);font-weight:800;font-size:.95rem">${esc(f.cierre.cita)}</p>` : ''}</div>
       ${f.cierre.contacto ? `<div style="display:grid;gap:.5rem;width:100%"><button class="btn" id="b-saber">Quiero saber más</button><button class="btn sec" id="b-orar">Pedir oración</button></div><div id="form-contacto" style="width:100%"></div>` : ''}` : '<p>¡Gracias por jugar!</p>'}</div>`);
   if (f.cierre && f.cierre.contacto) { $('#b-saber').onclick = () => formulario('saber-mas'); $('#b-orar').onclick = () => formulario('oracion'); }

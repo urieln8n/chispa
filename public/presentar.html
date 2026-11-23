@@ -92,7 +92,9 @@ function sala() {
           <div class="pie" style="opacity:1;font-weight:800;margin-top:.6rem">con el PIN</div>
           <div class="pin-num">${S.pin.slice(0, 3)} ${S.pin.slice(3)}</div></div>
       </div>
-      <div><h1>${esc(S.titulo)}</h1><p class="pie" style="font-size:1rem">Escanea el QR o escribe el PIN. Sin instalar nada y sin registrarse.</p></div>
+      <div><h1>${esc(S.titulo)}</h1><p class="pie" style="font-size:1rem">Escanea el QR o escribe el PIN. Sin instalar nada y sin registrarse.</p>
+        <p class="pie" style="opacity:1;font-weight:800;margin:1rem 0 .5rem">¿Falta alguien? Mándale el enlace:</p>
+        ${barraCompartir(`🎮 ¡Juega conmigo a «${S.titulo}» en ${MARCA.nombre}! Entra desde el móvil con el PIN ${S.pin}:`, url, 'Invitar')}</div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center"><div class="contador"><span id="njug">0</span> jugadores</div>
       <div class="control"><button class="btn" id="b-empezar" disabled>¡Empezar!</button></div></div>
@@ -154,6 +156,7 @@ function podio(d) {
   ES.innerHTML = `<h1 style="text-align:center">🏆 Podio</h1>
     <div class="podio">${esc2(b, 'p2', 2)}${esc2(a, 'p1', 1)}${esc2(c, 'p3', 3)}</div>
     ${d.cierre ? `<div class="reflexion" style="max-width:900px;margin:0 auto;width:100%;animation:sube .8s 2.2s both"><div class="cita">${esc(d.cierre.titulo || 'Para terminar')}</div><p style="font-size:1.35rem">${esc(d.cierre.texto)}</p>${d.cierre.cita ? `<p style="color:var(--ambar);font-weight:800">${esc(d.cierre.cita)}</p>` : ''}${d.cierre.contacto ? '<p class="pie" style="opacity:1">📱 En tu móvil tienes un botón para saber más o pedir oración.</p>' : ''}</div>` : ''}
+    <div style="max-width:720px;margin:0 auto;width:100%">${barraCompartir(`🏆 Podio de «${S.titulo}» en ${MARCA.nombre}:\n${d.podio.filter(Boolean).map((j, i) => `${['🥇', '🥈', '🥉'][i]} ${j.apodo} · ${j.puntos} pts`).join('\n')}\n¿Jugamos otra?`, new URL(BASE, location.href).href, 'Compartir resultados')}</div>
     <div class="control" id="ctrl-final"><span class="pie" id="inf-txt" style="align-self:center">Preparando el informe…</span><a class="btn sec" href="${VOLVER}">${VOLVER === 'panel' ? 'Volver a mis cuestionarios' : 'Volver'}</a></div>`;
   setTimeout(confeti, 1500);
   if (S.informe) informe(S.informe);

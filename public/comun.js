@@ -113,3 +113,34 @@ function confeti(n = 120) {
   }
 }
 (function () { const st = document.createElement('style'); st.textContent = '@keyframes caer{to{transform:translateY(110vh) rotate(720deg)}}'; document.head.appendChild(st); })();
+
+// ===== Compartir (partidas, resultados, invitaciones) =====
+// Usa el menú nativo del móvil (WhatsApp, Telegram, Instagram…); si no existe, abre WhatsApp.
+async function compartir(texto, url) {
+  if (navigator.share) {
+    try { await navigator.share({ title: MARCA.nombre, text: texto, url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  abrirWhatsApp(texto, url);
+}
+function abrirWhatsApp(texto, url) { window.open('https://wa.me/?text=' + encodeURIComponent(texto + (url ? '\n' + url : '')), '_blank', 'noopener'); }
+async function copiarTexto(t) {
+  try { await navigator.clipboard.writeText(t); aviso('Enlace copiado ✓'); }
+  catch { aviso('Copia este enlace: ' + t, 6000); }
+}
+// Tres botones: menú del móvil, WhatsApp directo y copiar enlace
+function barraCompartir(texto, url, etiqueta = 'Compartir') {
+  const d = esc(JSON.stringify({ texto, url }));
+  return `<div class="compartir">
+    <button type="button" class="btn" data-compartir="${d}">📤 ${esc(etiqueta)}</button>
+    <button type="button" class="btn wa" data-compartir="${d}" data-modo="wa">WhatsApp</button>
+    <button type="button" class="btn sec" data-compartir="${d}" data-modo="copiar">🔗 Copiar enlace</button></div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-compartir]'); if (!b) return;
+  e.preventDefault();
+  let d; try { d = JSON.parse(b.dataset.compartir); } catch { return; }
+  if (b.dataset.modo === 'wa') abrirWhatsApp(d.texto, d.url);
+  else if (b.dataset.modo === 'copiar') copiarTexto(d.url || d.texto);
+  else compartir(d.texto, d.url);
+});
