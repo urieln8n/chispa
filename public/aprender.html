@@ -154,6 +154,15 @@
   .tabla-liga li:nth-child(1) .pos,.tabla-liga li:nth-child(2) .pos,.tabla-liga li:nth-child(3) .pos{font-size:1.3rem}
   .tabla-liga .nom{flex:1;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .tabla-liga .pts{font-weight:800;color:var(--ambar)}
+  .divs{display:flex;justify-content:space-between;gap:2px;margin:.4rem 0 .2rem;font-size:1.25rem}
+  .divs span{flex:1;text-align:center;opacity:.35;filter:grayscale(.6)}.divs span.ya{opacity:.7;filter:none}.divs span.aqui{opacity:1;filter:none;transform:scale(1.35)}
+  .zona-l{display:flex;align-items:center;gap:.5rem;font-weight:800;font-size:.8rem;letter-spacing:.3px;margin:.5rem 0 .3rem;color:var(--suave)}
+  .zona-l::before,.zona-l::after{content:'';flex:1;border-top:2px dashed currentColor;opacity:.5}
+  .zona-l.sube{color:#4ADE80}.zona-l.baja{color:#F87171}
+  .tabla-liga li.sube{border-left:4px solid #4ADE80}.tabla-liga li.baja{border-left:4px solid #F87171}
+  .res-liga{border-radius:16px;padding:.9rem 1rem;margin:.6rem 0 1rem;font-weight:800;background:#3a2d84;border:1px solid #5a4fb0}
+  .res-liga.sube{background:linear-gradient(135deg,#14532d,#3a2d84);border-color:#4ADE80}.res-liga.baja{border-color:#F87171}
+  .res-liga small{display:block;font-weight:600;color:var(--suave);margin-top:.2rem}
   .liga-vacia{text-align:center;color:var(--suave);padding:1.4rem .6rem}
   .tema-claro .liga-t{background:#FFF4DC;border-color:#E3D6BC}.tema-claro .tabla-liga li{border-color:#E3D6BC}.tema-claro .tabla-liga li.yo{background:#FFF4DC;border-color:var(--ambar)}
   .misiones{background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1rem}
@@ -889,8 +898,13 @@ async function ligaEnviar(forzar = false) {
     return r;
   } catch { return null; } finally { LIGA_ENVIANDO = false; if (otraVez) setTimeout(() => ligaEnviar(), 1000); }
 }
-async function ligaPedir(grupo) {
-  const q = new URLSearchParams({ token: (E.liga && E.liga.token) || '' }); if (grupo) q.set('grupo', grupo);
+function textoResultado(r) {
+  if (r.tipo === 'sube') return { titulo: `🎉 ¡Has subido a la liga ${r.a.nombre}!`, sub: `Quedaste #${r.puesto} la semana pasada en ${r.de.nombre}.` };
+  if (r.tipo === 'baja') return { titulo: `Has bajado a la liga ${r.a.nombre}`, sub: `Quedaste #${r.puesto} en ${r.de.nombre}. ¡Esta semana puedes volver a subir!` };
+  return { titulo: `Sigues en la liga ${r.a.nombre}`, sub: r.puesto ? `Quedaste #${r.puesto} la semana pasada.` : '' };
+}
+async function ligaPedir(grupo, vista = '') {
+  const q = new URLSearchParams({ token: (E.liga && E.liga.token) || '' }); if (grupo) q.set('grupo', grupo); if (vista) q.set('vista', vista);
   return fetch(BASE + 'api/liga?' + q).then(x => x.json());
 }
 function urlInvitacion(g) { return URL_APP + '?liga=' + encodeURIComponent(g); }
@@ -903,20 +917,22 @@ async function pintarLigaTarjeta() {
   }
   const quedan = diasHastaLunes();
   h.innerHTML = `<div class="liga-t"><span class="ico">🏆</span><div class="txt"><b>Liga semanal</b><span class="pie" style="opacity:1" id="liga-res">Se reinicia en ${quedan} ${quedan === 1 ? 'día' : 'días'}</span></div><button class="btn peq" id="b-liga">Ver</button></div>`;
-  document.getElementById('b-liga').onclick = () => verLiga(E.liga.grupo ? 'grupo' : 'global');
+  document.getElementById('b-liga').onclick = () => verLiga('mi');
   try {
     await ligaEnviar();
-    const r = await ligaPedir(''); const el = document.getElementById('liga-res');
-    if (el && r.yo && r.yo.puesto) el.textContent = `Puesto #${r.yo.puesto} de ${r.total} · ${r.yo.xp} puntos · quedan ${quedan} ${quedan === 1 ? 'día' : 'días'}`;
-    else if (el) el.textContent = `Haz una lección para entrar en la clasificación · quedan ${quedan} ${quedan === 1 ? 'día' : 'días'}`;
+    const r = await ligaPedir('', 'mi'); const el = document.getElementById('liga-res'); if (!el || r.error) return;
+    const t = h.querySelector('.txt b'), ic = h.querySelector('.ico'); if (t) t.textContent = `Liga ${r.division.nombre}`; if (ic) ic.textContent = r.division.icono;
+    if (r.yo && r.yo.puesto) el.textContent = `Puesto #${r.yo.puesto} de ${r.total} · ${r.yo.xp} puntos · quedan ${quedan} ${quedan === 1 ? 'día' : 'días'}`;
+    else el.textContent = `Haz una lección para entrar en tu grupo · quedan ${quedan} ${quedan === 1 ? 'día' : 'días'}`;
+    if (r.resultado && E.liga.visto !== r.resultado.semana) avisar(textoResultado(r.resultado).titulo);
   } catch {}
 }
-async function verLiga(tab = 'global') {
+async function verLiga(tab = 'mi') {
   APP.dataset.vista = 'liga';
   const L = E.liga, quedan = diasHastaLunes();
   APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver">←</button>`) + `
     <h1 class="t">🏆 Liga semanal</h1><p class="sub">Suma puntos con tus lecciones. Se reinicia el lunes: quedan ${quedan} ${quedan === 1 ? 'día' : 'días'}.</p>
-    <div class="pestanas" role="tablist"><button class="pestana${tab === 'global' ? ' sel' : ''}" data-tab="global" role="tab">🌍 Global</button><button class="pestana${tab === 'grupo' ? ' sel' : ''}" data-tab="grupo" role="tab">👥 Mi grupo</button></div>
+    <div class="pestanas" role="tablist"><button class="pestana${tab === 'mi' ? ' sel' : ''}" data-tab="mi" role="tab">🏅 Mi división</button><button class="pestana${tab === 'global' ? ' sel' : ''}" data-tab="global" role="tab">🌍 Global</button><button class="pestana${tab === 'grupo' ? ' sel' : ''}" data-tab="grupo" role="tab">👥 Mi grupo</button></div>
     <div id="liga-cuerpo"><p class="liga-vacia">Cargando…</p></div>
     <div class="dos-btn" style="margin-top:1.2rem"><button class="btn sec" id="b-perfil">✏️ Apodo y grupo</button>${L.grupo ? '<button class="btn" id="b-inv">📤 Invitar a mi grupo</button>' : ''}</div>
     <p class="pie" style="opacity:1;text-align:center;margin-top:1rem">Juegas como <b>${esc(L.apodo)}</b>${L.grupo ? ` · grupo <b>${esc(L.grupo)}</b>` : ''}. Tu apodo y tus puntos de la semana se ven en la clasificación.</p>`;
@@ -932,9 +948,10 @@ async function verLiga(tab = 'global') {
   }
   try {
     await ligaEnviar();
-    const r = await ligaPedir(tab === 'grupo' ? L.grupo : '');
+    const r = await ligaPedir(tab === 'grupo' ? L.grupo : '', tab === 'mi' ? 'mi' : '');
     if (APP.dataset.vista !== 'liga') return;
     if (r.error) { cuerpo.innerHTML = `<p class="liga-vacia">${esc(r.error)}</p>`; return; }
+    if (tab === 'mi') return pintarDivision(cuerpo, r);
     const fila = t => `<li class="${t.yo ? 'yo' : ''}"><span class="pos">${['🥇', '🥈', '🥉'][t.puesto - 1] || t.puesto}</span><span class="nom">${esc(t.apodo)}${t.yo ? ' (tú)' : ''}</span><span class="pts">${t.xp}</span></li>`;
     const enTop = r.top.some(t => t.yo);
     cuerpo.innerHTML = r.top.length ? `<ol class="tabla-liga">${r.top.map(fila).join('')}</ol>
@@ -943,6 +960,27 @@ async function verLiga(tab = 'global') {
       <p class="pie" style="opacity:1;text-align:center;margin-top:.8rem">${r.total} ${r.total === 1 ? 'participante' : 'participantes'} esta semana</p>`
       : `<p class="liga-vacia">Todavía nadie ha sumado puntos esta semana${tab === 'grupo' ? ' en tu grupo' : ''}. ¡Haz una lección y ponte el primero! 🚀</p>`;
   } catch { cuerpo.innerHTML = '<p class="liga-vacia">Sin conexión. Tus puntos se enviarán cuando vuelvas a tener internet.</p>'; }
+}
+// «Mi división»: tu grupo de hasta 30, con la zona de subida (arriba) y la de bajada (abajo)
+function pintarDivision(cuerpo, r) {
+  const d = r.division, sig = r.divisiones[d.n + 1], ant = r.divisiones[d.n - 1], z = r.zonas;
+  let res = '';
+  if (r.resultado && r.resultado.semana) { const t = textoResultado(r.resultado); res = `<div class="res-liga ${r.resultado.tipo}">${t.titulo}<small>${t.sub}</small></div>`; if (E.liga.visto !== r.resultado.semana) { E.liga.visto = r.resultado.semana; guardarE(); if (r.resultado.tipo === 'sube') { try { confeti(120); sonido('fin'); } catch {} } } }
+  const cab = `${res}<div class="divs" aria-label="Divisiones">${r.divisiones.map((x, i) => `<span class="${i === d.n ? 'aqui' : i < d.n ? 'ya' : ''}" title="${esc(x.nombre)}">${x.icono}</span>`).join('')}</div>
+    <h2 style="text-align:center;margin:.6rem 0 .1rem">${d.icono} Liga ${esc(d.nombre)}</h2>
+    <p class="pie" style="opacity:1;text-align:center;margin:0 0 .8rem">${r.total ? `${r.total} ${r.total === 1 ? 'persona' : 'personas'} en tu grupo` : 'Tu grupo de esta semana'}${sig && z.suben ? ` · los ${z.suben} primeros suben a ${sig.icono} ${esc(sig.nombre)}` : ''}${ant && z.bajan ? ` · los ${z.bajan} últimos bajan` : ''}</p>`;
+  if (!r.top.length || !r.yo || !r.yo.puesto) {
+    cuerpo.innerHTML = cab + `<p class="liga-vacia">Haz una lección para entrar en tu grupo de la liga ${esc(d.nombre)} y empezar a competir. 🚀${sig && r.total <= 1 ? `<br><small>Si estás solo en tu grupo, subes a ${esc(sig.nombre)} con al menos 300 puntos en la semana.</small>` : ''}</p>`;
+    return;
+  }
+  const filas = []; const n = r.top.length;
+  r.top.forEach(t => {
+    const sube = t.puesto <= z.suben, baja = z.bajan && t.puesto > n - z.bajan;
+    if (z.bajan && t.puesto === n - z.bajan + 1) filas.push(`</ol><div class="zona-l baja">⬇️ ZONA DE BAJADA</div><ol class="tabla-liga">`);
+    filas.push(`<li class="${t.yo ? 'yo ' : ''}${sube ? 'sube' : baja ? 'baja' : ''}"><span class="pos">${['🥇', '🥈', '🥉'][t.puesto - 1] || t.puesto}</span><span class="nom">${esc(t.apodo)}${t.yo ? ' (tú)' : ''}</span><span class="pts">${t.xp}</span></li>`);
+    if (z.suben && t.puesto === z.suben && n > z.suben) filas.push(`</ol><div class="zona-l sube">⬆️ ZONA DE SUBIDA</div><ol class="tabla-liga">`);
+  });
+  cuerpo.innerHTML = cab + `<ol class="tabla-liga">${filas.join('')}</ol>` + (n === 1 && sig ? `<p class="pie" style="opacity:1;text-align:center;margin-top:.8rem">Estás solo en tu grupo: subes a ${esc(sig.nombre)} si llegas a 300 puntos esta semana. ¡Invita a alguien para competir!</p>` : '');
 }
 function formLiga({ grupo, invitado, volver, foco }) {
   APP.dataset.vista = 'liga-form';
@@ -973,7 +1011,7 @@ function formLiga({ grupo, invitado, volver, foco }) {
     if (!r || r.error) { E.liga = previo; e.target.disabled = false; err.textContent = (r && r.error) || 'No se ha podido conectar. Prueba otra vez.'; return; }
     E.liga.apodo = r.apodo; E.liga.grupo = r.grupo; guardarE();
     avisar(previo && previo.token ? '✓ Guardado' : '🏆 ¡Ya estás en la liga!');
-    verLiga(E.liga.grupo ? 'grupo' : 'global');
+    verLiga('mi');
   };
   const bs = document.getElementById('b-salir-liga');
   if (bs) bs.onclick = async () => {

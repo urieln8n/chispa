@@ -159,6 +159,8 @@ async function api(req, env, url, ruta) {
     }
     return json({ error: 'No se ha podido crear la partida, prueba otra vez' }, 503);
   }
+  // Semana de la liga (LIGA_PRUEBA_SEMANA / LIGA_PRUEBA_ANTERIOR solo existen en pruebas locales, nunca en Cloudflare)
+  const semanaL = () => env.LIGA_PRUEBA_SEMANA || semanaLiga(), anteriorL = () => env.LIGA_PRUEBA_ANTERIOR || semanaLiga(Date.now() - 7 * 864e5);
   // Lumbrera: liga semanal (sin cuentas; cada móvil manda su token secreto)
   if (ruta === 'liga/puntos' && m === 'POST') {
     if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
@@ -168,9 +170,9 @@ async function api(req, env, url, ruta) {
     const a = apodoValido(b.apodo); if (a.error) return json(a, 400);
     const g = grupoValido(b.grupo); if (g.error) return json(g, 400);
     const xp = Math.max(0, Math.min(LIGA_MAX_ENVIO, parseInt(b.xp, 10) || 0));
-    const semana = semanaLiga();
+    const semana = semanaL();
     const caducado = !!(b.semana && b.semana !== semana); // puntos de una semana ya cerrada: no cuentan, pero el perfil sí se guarda
-    const r = await st.ligaSumar({ semana, dia: diaLiga(), jugador, apodo: a.apodo, grupo: g.grupo, xp: caducado ? 0 : xp });
+    const r = await st.ligaSumar({ semana, anterior: anteriorL(), dia: diaLiga(), jugador, apodo: a.apodo, grupo: g.grupo, xp: caducado ? 0 : xp });
     return json({ semana, apodo: a.apodo, grupo: g.grupo, caducado, ...r });
   }
   // Lumbrera: contadores anónimos de uso (sin identificadores ni datos personales)
@@ -218,7 +220,8 @@ async function api(req, env, url, ruta) {
     if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
     const g = grupoValido(url.searchParams.get('grupo')); if (g.error) return json(g, 400);
     const jugador = await jugadorDe(url.searchParams.get('token'));
-    return json(await st.ligaClasificacion({ semana: semanaLiga(), jugador, grupo: g.grupo }), 200, { 'cache-control': 'no-store' });
+    const vista = url.searchParams.get('vista') === 'mi' ? 'mi' : '';
+    return json(await st.ligaClasificacion({ semana: semanaL(), anterior: anteriorL(), jugador, grupo: vista ? '' : g.grupo, vista }), 200, { 'cache-control': 'no-store' });
   }
   if (ruta === 'contactos' && m === 'POST') {
     const b = await cuerpo();

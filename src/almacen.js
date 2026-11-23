@@ -1,7 +1,7 @@
 // Almacén permanente: cuestionarios, contraseña del presentador e informes de partidas
 import { DurableObject } from 'cloudflare:workers';
 import { idCorto, sha256, DEMO, DEMO_FE, huella } from './comun.js';
-import { LIGA_MAX_DIA } from './liga.js';
+import { LIGA_MAX_DIA, DIVISIONES, TAM_GRUPO, zonas, resultadoSemana } from './liga.js';
 import { generarClavesVapid, cabeceraVapid } from './push.js';
 
 export class Almacen extends DurableObject {
@@ -104,12 +104,46 @@ export class Almacen extends DurableObject {
       xp INTEGER NOT NULL DEFAULT 0, dia TEXT NOT NULL DEFAULT '', xp_dia INTEGER NOT NULL DEFAULT 0, act INTEGER NOT NULL, PRIMARY KEY (semana, jugador))`);
     sql.exec('CREATE INDEX IF NOT EXISTS liga_xp ON liga (semana, xp DESC)');
     sql.exec('CREATE INDEX IF NOT EXISTS liga_grupo ON liga (semana, grupo, xp DESC)');
+    // Divisiones: columnas nuevas en la tabla de la liga y una tabla con la división de cada jugador
+    const cols = sql.exec('PRAGMA table_info(liga)').toArray().map(c => c.name);
+    if (!cols.includes('division')) sql.exec('ALTER TABLE liga ADD COLUMN division INTEGER NOT NULL DEFAULT 0');
+    if (!cols.includes('cohorte')) sql.exec('ALTER TABLE liga ADD COLUMN cohorte INTEGER');
+    sql.exec('CREATE INDEX IF NOT EXISTS liga_cohorte ON liga (semana, division, cohorte, xp DESC)');
+    sql.exec(`CREATE TABLE IF NOT EXISTS liga_div (jugador TEXT PRIMARY KEY, division INTEGER NOT NULL DEFAULT 0, semana TEXT NOT NULL,
+      resultado TEXT NOT NULL DEFAULT '', de INTEGER, puesto INTEGER, de_semana TEXT)`);
     this.ligaLista = true;
     return sql;
   }
-  // Suma puntos (o solo actualiza apodo y grupo si xp = 0) respetando el tope diario
-  async ligaSumar({ semana, dia, jugador, apodo, grupo, xp }) {
+  // División del jugador esta semana: si es la primera vez que aparece esta semana, aplica el resultado de la anterior
+  ligaDivision(jugador, semana, anterior) {
     const sql = this.ligaTabla();
+    const d = sql.exec('SELECT * FROM liga_div WHERE jugador = ?', jugador).toArray()[0];
+    if (d && d.semana === semana) return d;
+    let division = d ? d.division : 0, resultado = '', puesto = null;
+    const prev = anterior && sql.exec('SELECT xp, act, division, cohorte FROM liga WHERE semana = ? AND jugador = ?', anterior, jugador).toArray()[0];
+    if (prev && prev.cohorte !== null && prev.xp > 0) {
+      const n = sql.exec('SELECT COUNT(*) AS n FROM liga WHERE semana = ? AND division = ? AND cohorte = ? AND xp > 0', anterior, prev.division, prev.cohorte).one().n;
+      puesto = sql.exec('SELECT COUNT(*) AS n FROM liga WHERE semana = ? AND division = ? AND cohorte = ? AND (xp > ? OR (xp = ? AND act < ?))', anterior, prev.division, prev.cohorte, prev.xp, prev.xp, prev.act).one().n + 1;
+      resultado = resultadoSemana({ puesto, n, xp: prev.xp, division: prev.division });
+      division = Math.max(0, Math.min(DIVISIONES.length - 1, prev.division + (resultado === 'sube' ? 1 : resultado === 'baja' ? -1 : 0)));
+    }
+    const de = prev ? prev.division : null;
+    sql.exec(`INSERT INTO liga_div (jugador, division, semana, resultado, de, puesto, de_semana) VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (jugador) DO UPDATE SET division = excluded.division, semana = excluded.semana, resultado = excluded.resultado, de = excluded.de, puesto = excluded.puesto, de_semana = excluded.de_semana`,
+      jugador, division, semana, resultado, de, puesto, prev ? anterior : null);
+    return sql.exec('SELECT * FROM liga_div WHERE jugador = ?', jugador).toArray()[0];
+  }
+  // Mete al jugador en un grupo (cohorte) de su división con hueco; se hace al sumar sus primeros puntos de la semana
+  ligaAsignarCohorte(semana, jugador, division) {
+    const sql = this.ligaTabla();
+    const hueco = sql.exec('SELECT cohorte, COUNT(*) AS n FROM liga WHERE semana = ? AND division = ? AND cohorte IS NOT NULL GROUP BY cohorte HAVING n < ? ORDER BY cohorte LIMIT 1', semana, division, TAM_GRUPO).toArray()[0];
+    const cohorte = hueco ? hueco.cohorte : (sql.exec('SELECT COALESCE(MAX(cohorte), -1) AS m FROM liga WHERE semana = ? AND division = ?', semana, division).one().m + 1);
+    sql.exec('UPDATE liga SET division = ?, cohorte = ? WHERE semana = ? AND jugador = ?', division, cohorte, semana, jugador);
+  }
+  // Suma puntos (o solo actualiza apodo y grupo si xp = 0) respetando el tope diario
+  async ligaSumar({ semana, anterior, dia, jugador, apodo, grupo, xp }) {
+    const sql = this.ligaTabla();
+    const div = this.ligaDivision(jugador, semana, anterior);
     const fila = sql.exec('SELECT dia, xp_dia FROM liga WHERE semana = ? AND jugador = ?', semana, jugador).toArray()[0];
     const yaHoy = fila && fila.dia === dia ? fila.xp_dia : 0;
     const suma = Math.max(0, Math.min(xp, LIGA_MAX_DIA - yaHoy));
@@ -117,15 +151,18 @@ export class Almacen extends DurableObject {
       ON CONFLICT (semana, jugador) DO UPDATE SET apodo = excluded.apodo, grupo = excluded.grupo, xp = liga.xp + excluded.xp,
       dia = excluded.dia, xp_dia = CASE WHEN liga.dia = excluded.dia THEN liga.xp_dia + excluded.xp ELSE excluded.xp END,
       act = CASE WHEN excluded.xp > 0 THEN excluded.act ELSE liga.act END`, semana, jugador, apodo, grupo, suma, dia, suma, Date.now());
+    const fila2 = sql.exec('SELECT xp, cohorte FROM liga WHERE semana = ? AND jugador = ?', semana, jugador).toArray()[0];
+    if (fila2 && fila2.xp > 0 && fila2.cohorte === null) this.ligaAsignarCohorte(semana, jugador, div.division);
     // Limpieza: borra semanas de hace más de un mes
     if (Math.random() < 0.02) sql.exec('DELETE FROM liga WHERE semana < ?', semanaAntigua(semana));
     return { sumados: suma };
   }
   // «Salir de la liga»: borra todas las filas de ese jugador
-  async ligaBorrar(jugador) { this.ligaTabla().exec('DELETE FROM liga WHERE jugador = ?', jugador); }
+  async ligaBorrar(jugador) { const sql = this.ligaTabla(); sql.exec('DELETE FROM liga WHERE jugador = ?', jugador); sql.exec('DELETE FROM liga_div WHERE jugador = ?', jugador); }
   // Clasificación de la semana: top 50 (global o de un grupo) y tu puesto
-  async ligaClasificacion({ semana, jugador, grupo }) {
+  async ligaClasificacion({ semana, anterior, jugador, grupo, vista }) {
     const sql = this.ligaTabla();
+    if (vista === 'mi') return this.ligaMiDivision({ semana, anterior, jugador });
     const filtro = grupo ? ' AND grupo = ?' : '', args = grupo ? [semana, grupo] : [semana];
     const top = sql.exec(`SELECT jugador, apodo, xp FROM liga WHERE semana = ? AND xp > 0${filtro} ORDER BY xp DESC, act ASC LIMIT 50`, ...args).toArray();
     const total = sql.exec(`SELECT COUNT(*) AS n FROM liga WHERE semana = ? AND xp > 0${filtro}`, ...args).one().n;
@@ -138,6 +175,23 @@ export class Almacen extends DurableObject {
       }
     }
     return { semana, total, top: top.map((t, i) => ({ puesto: i + 1, apodo: t.apodo, xp: t.xp, yo: t.jugador === jugador })), yo };
+  }
+
+  // Tu grupo de la semana (hasta 30 de tu división), con las zonas de subida y bajada
+  ligaMiDivision({ semana, anterior, jugador }) {
+    const sql = this.ligaTabla();
+    if (!jugador) return { error: 'Únete a la liga para ver tu división' };
+    const d = this.ligaDivision(jugador, semana, anterior);
+    let f = sql.exec('SELECT apodo, xp, act, cohorte FROM liga WHERE semana = ? AND jugador = ?', semana, jugador).toArray()[0];
+    if (f && f.xp > 0 && f.cohorte === null) { this.ligaAsignarCohorte(semana, jugador, d.division); f = sql.exec('SELECT apodo, xp, act, cohorte FROM liga WHERE semana = ? AND jugador = ?', semana, jugador).toArray()[0]; }
+    const info = i => ({ n: i, ...DIVISIONES[i] });
+    const base = { semana, vista: 'mi', division: info(d.division), divisiones: DIVISIONES,
+      resultado: d.resultado && d.de !== null ? { tipo: d.resultado, de: info(d.de), a: info(d.division), puesto: d.puesto, semana: d.de_semana } : null };
+    if (!f || f.cohorte === null) return { ...base, total: 0, top: [], yo: f ? { apodo: f.apodo, xp: f.xp, puesto: null } : null, zonas: zonas(0, d.division) };
+    const top = sql.exec('SELECT jugador, apodo, xp FROM liga WHERE semana = ? AND division = ? AND cohorte = ? AND xp > 0 ORDER BY xp DESC, act ASC', semana, d.division, f.cohorte).toArray();
+    const lista = top.map((t, i) => ({ puesto: i + 1, apodo: t.apodo, xp: t.xp, yo: t.jugador === jugador }));
+    const yo = lista.find(t => t.yo) || null;
+    return { ...base, total: lista.length, top: lista, yo, zonas: zonas(lista.length, d.division) };
   }
 
   // ---- Métricas anónimas de Lumbrera: solo contadores por día, semana y mes (sin identificadores) ----

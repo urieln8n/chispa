@@ -50,3 +50,31 @@ export function grupoValido(g) {
   if (!limpioDeTacos(s)) return { error: 'Elige otro código de grupo, por favor' };
   return { grupo: s };
 }
+
+// ---- Divisiones (como las ligas de Duolingo): cada semana compites en un grupo de hasta 30 de tu división ----
+// Piedras del pectoral del sumo sacerdote (Éxodo 28) después de los metales
+export const DIVISIONES = [
+  { nombre: 'Bronce', icono: '🥉' }, { nombre: 'Plata', icono: '🥈' }, { nombre: 'Oro', icono: '🥇' },
+  { nombre: 'Zafiro', icono: '🔷' }, { nombre: 'Rubí', icono: '♦️' }, { nombre: 'Esmeralda', icono: '💚' },
+  { nombre: 'Amatista', icono: '💜' }, { nombre: 'Perla', icono: '🤍' }, { nombre: 'Ónice', icono: '🖤' }, { nombre: 'Diamante', icono: '💎' },
+];
+export const TAM_GRUPO = 30;
+export const XP_SUBIR_SOLO = 300; // si estás solo en tu grupo, subes si haces al menos ~3 lecciones en la semana
+
+// Cuántos suben y cuántos bajan en un grupo con n participantes (con puntos)
+export function zonas(n, division) {
+  let suben = n >= 2 ? Math.min(10, Math.ceil(n / 3)) : 0;
+  let bajan = n >= 10 ? Math.min(5, Math.floor(n / 6)) : 0;
+  if (division >= DIVISIONES.length - 1) suben = 0;
+  if (division <= 0) bajan = 0;
+  return { suben, bajan };
+}
+// Resultado de la semana: 'sube' | 'baja' | 'queda'
+export function resultadoSemana({ puesto, n, xp, division }) {
+  if (!xp) return 'queda';
+  const z = zonas(n, division);
+  if (n === 1 && division < DIVISIONES.length - 1) return xp >= XP_SUBIR_SOLO ? 'sube' : 'queda';
+  if (puesto <= z.suben) return 'sube';
+  if (z.bajan && puesto > n - z.bajan) return 'baja';
+  return 'queda';
+}
