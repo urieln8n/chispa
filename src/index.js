@@ -4,6 +4,33 @@ import { json, iguales, limpiarCuestionario, normalizarLugar, huella, marcaDe } 
 export { Juego } from './juego.js';
 export { Almacen } from './almacen.js';
 
+// Resumen para asistentes de IA (ChatGPT, Perplexity, Claude…) de la web de Lumbrera
+const LLMS_LUMBRERA = `# Lumbrera · Aprende Génesis
+
+> App gratuita para aprender el libro de Génesis con lecciones cortas, repaso de fallos y partidas en grupo con PIN. Sin registro. Se puede instalar como app y funciona sin conexión.
+
+## Qué incluye
+- 150 preguntas sobre los 50 capítulos de Génesis, en 5 unidades y 15 lecciones de 10 preguntas.
+- Tipos de pregunta: elegir respuesta, verdadero o falso, completar versículos, ordenar hechos y emparejar personajes.
+- Cada respuesta muestra la cita bíblica y una explicación breve. Citas de la Reina-Valera 1960.
+- Puntos, racha diaria, meta diaria, logros y repaso de las preguntas falladas. El progreso se guarda en el propio dispositivo.
+
+## Unidades
+1. La creación y la caída (Génesis 1–5)
+2. Noé y la torre de Babel (Génesis 6–11)
+3. Abraham, el amigo de Dios (Génesis 12–24)
+4. Isaac, Esaú y Jacob (Génesis 25–36)
+5. José en Egipto (Génesis 37–50)
+
+## Jugar en grupo
+Se eligen de 10 a 150 preguntas y de 10 a 60 segundos por pregunta. La pantalla muestra un PIN y cada persona juega desde su móvil en {{ORIGEN}}/jugar, sin contraseña.
+
+## Enlaces
+- Aprender: {{ORIGEN}}/
+- Entrar en una partida con PIN: {{ORIGEN}}/jugar
+- Autor: Andrés Rendón, https://www.andresrendon.com/
+`;
+
 const almacen = env => env.ALMACEN.get(env.ALMACEN.idFromName('principal'));
 const juego = (env, pin) => env.JUEGO.get(env.JUEGO.idFromName(pin));
 
@@ -26,6 +53,7 @@ export default {
       }
       if (ruta.startsWith('/api/')) return await api(req, env, url, ruta.slice(5));
       if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+      if (ruta === '/llms.txt' && env.MARCA === 'fe') return new Response(LLMS_LUMBRERA.replaceAll('{{ORIGEN}}', url.origin), { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
       if (ruta === '/sitemap.xml') {
         const urls = env.MARCA === 'fe' ? ['/', '/jugar'] : ['/', '/privacidad'];
         return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u => `<url><loc>${url.origin}${u}</loc></url>`).join('')}</urlset>`, { headers: { 'content-type': 'application/xml; charset=utf-8' } });

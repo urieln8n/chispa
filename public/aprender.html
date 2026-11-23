@@ -5,7 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1B1640">
 <title>Lumbrera · Aprende Génesis</title>
-<meta name="description" content="Aprende el libro de Génesis con lecciones cortas: preguntas, versículos para completar, hechos para ordenar y personajes para emparejar. Gratis y sin registrarte.">
+<meta name="description" content="Aprende el libro de Génesis con 150 preguntas en lecciones cortas: preguntas, versículos para completar, hechos para ordenar y personajes para emparejar. Juega solo o en grupo con PIN. Gratis, sin registro y también sin conexión.">
+<link rel="canonical" href="https://genesis.andresrendon.com/">
+<link rel="manifest" href="/app/manifest.webmanifest">
+<link rel="icon" href="/app/icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/app/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lumbrera">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lumbrera">
+<meta property="og:url" content="https://genesis.andresrendon.com/">
+<meta property="og:title" content="Lumbrera · Aprende Génesis">
+<meta property="og:description" content="150 preguntas sobre Génesis en lecciones cortas, repaso de fallos y partidas en grupo con PIN. Gratis, sin registro y también sin conexión.">
+<meta property="og:image" content="https://genesis.andresrendon.com/app/icono-512.png">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "@id": "https://genesis.andresrendon.com/#app", "name": "Lumbrera", "alternateName": "Lumbrera · Aprende Génesis", "url": "https://genesis.andresrendon.com/", "description": "App gratuita para aprender el libro de Génesis con lecciones cortas de 10 preguntas, repaso de fallos y partidas en grupo con PIN.", "applicationCategory": "EducationalApplication", "operatingSystem": "Web, Android, iOS, Windows, macOS", "inLanguage": "es", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}, "image": "https://genesis.andresrendon.com/app/icono-512.png", "author": {"@type": "Person", "name": "Andrés Fabián Rendón Ramírez", "url": "https://www.andresrendon.com/"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Course", "name": "Aprende Génesis", "description": "150 preguntas sobre los 50 capítulos de Génesis en 5 unidades: la creación y la caída, Noé y Babel, Abraham, Isaac y Jacob, y José en Egipto.", "inLanguage": "es", "isAccessibleForFree": true, "provider": {"@id": "https://genesis.andresrendon.com/#app"}, "educationalLevel": "Principiante", "hasCourseInstance": {"@type": "CourseInstance", "courseMode": "online", "courseWorkload": "PT10M"}, "about": {"@type": "Book", "name": "Génesis", "isPartOf": {"@type": "Book", "name": "La Biblia"}}, "syllabusSections": [{"@type": "Syllabus", "name": "La creación y la caída", "description": "Génesis 1–5"}, {"@type": "Syllabus", "name": "Noé y la torre de Babel", "description": "Génesis 6–11"}, {"@type": "Syllabus", "name": "Abraham, el amigo de Dios", "description": "Génesis 12–24"}, {"@type": "Syllabus", "name": "Isaac, Esaú y Jacob", "description": "Génesis 25–36"}, {"@type": "Syllabus", "name": "José en Egipto", "description": "Génesis 37–50"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "¿Lumbrera es gratis?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. Lumbrera es gratuita, no pide registro y guarda tu progreso en tu propio dispositivo."}}, {"@type": "Question", "name": "¿Cuántas preguntas tiene Génesis en Lumbrera?", "acceptedAnswer": {"@type": "Answer", "text": "150 preguntas sobre los 50 capítulos de Génesis, repartidas en 5 unidades y 15 lecciones de 10 preguntas."}}, {"@type": "Question", "name": "¿Se puede jugar en grupo?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. Eliges cuántas preguntas (de 10 a 150) y cuántos segundos por pregunta (de 10 a 60); la pantalla muestra un PIN y cada persona entra desde su móvil, sin contraseña."}}, {"@type": "Question", "name": "¿Puedo instalar Lumbrera como app?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. En Android y en ordenador aparece el botón «Descargar la app»; en iPhone, toca Compartir y «Añadir a pantalla de inicio». Una vez instalada, las lecciones funcionan sin conexión."}}, {"@type": "Question", "name": "¿Qué traducción de la Biblia usa?", "acceptedAnswer": {"@type": "Answer", "text": "Las citas son de la Reina-Valera 1960."}}]}</script>
 <link rel="stylesheet" href="styles.css">
 <style>
   body{min-height:100vh}
@@ -90,10 +108,83 @@
   @media(max-width:380px){.cantidades{grid-template-columns:repeat(3,1fr)}.dos-btn{grid-template-columns:1fr}}
   .repaso{display:flex;justify-content:space-between;align-items:center;gap:1rem;background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1.2rem}
   .creditos{color:#7E76AE;font-size:.72rem;text-align:center;margin-top:2rem}
+  /* Contenido de la portada legible sin JavaScript (buscadores e IA); se oculta durante las lecciones */
+  .sobre{max-width:560px;margin:0 auto;padding:0 16px 120px;position:relative;z-index:2;color:var(--suave);line-height:1.6}
+  .sobre h2{font-size:1.35rem;color:var(--texto);margin:2.4rem 0 .4rem}
+  .sobre h3{font-size:1.05rem;color:var(--texto);margin:1.4rem 0 .3rem}
+  .sobre b{color:var(--texto)}.sobre ol,.sobre ul{padding-left:1.2rem}.sobre li{margin:.3rem 0}
+  .sobre details{border:1px solid #433a86;border-radius:14px;padding:.7rem .9rem;margin:.5rem 0;background:var(--noche2)}
+  .sobre summary{cursor:pointer;font-weight:800;color:var(--texto)}.sobre details p{margin:.5rem 0 0}
+  .sobre a{color:var(--ambar)}
+  body:has(#app[data-vista]) .sobre{display:none}
+  /* Tarjetas de la portada */
+  .saludo{color:var(--ambar);font-weight:800;margin:.6rem 0 0}
+  .tarjeta-x{display:flex;align-items:center;gap:.9rem;background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1rem}
+  .tarjeta-x .ico{font-size:1.8rem;flex:none}.tarjeta-x .txt{flex:1}.tarjeta-x .txt b{display:block}
+  .tarjeta-x .x{background:none;border:0;color:var(--suave);font-size:1.2rem;cursor:pointer;padding:.2rem}
+  .instalar{background:linear-gradient(135deg,rgba(242,196,107,.22),rgba(242,196,107,.06));border-color:rgba(242,196,107,.55)}
+  .dia .resp{margin-top:.5rem}.dia .resp[hidden]{display:none}
+  .logros{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:.6rem}
+  .logro{background:var(--noche2);border:1px solid #433a86;border-radius:14px;padding:.6rem .3rem;text-align:center;font-size:.72rem;font-weight:800;color:var(--suave)}
+  .logro i{display:block;font-style:normal;font-size:1.6rem;filter:grayscale(1);opacity:.35}
+  .logro.si{border-color:var(--ambar);color:var(--texto)}.logro.si i{filter:none;opacity:1}
+  .boton-ajustes{background:var(--noche2);border:1px solid #433a86;color:var(--texto);border-radius:99px;width:38px;height:38px;font-size:1.05rem;cursor:pointer;flex:none}
+  .aviso-logro{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:40;background:var(--ambar);color:#1B1640;font-weight:800;padding:.7em 1.1em;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.35);animation:entra .4s ease}
+  @keyframes entra{from{opacity:0;transform:translate(-50%,-12px)}}
+  /* Personalizar */
+  .ajuste{background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:.9rem}
+  .ajuste h3{font-size:1.05rem;margin-bottom:.6rem}
+  .eliges{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+  .elige{border:2px solid #433a86;background:transparent;color:var(--texto);border-radius:12px;padding:.6em .4em;font-weight:800;font-size:.95rem;line-height:1.2;cursor:pointer;display:block;text-align:center;box-shadow:none}
+  .elige small{display:block;font-weight:600;opacity:.75;font-size:.72rem;margin-top:.15rem}
+  .elige.sel{background:var(--ambar);border-color:var(--ambar);color:#1B1640}
+  .fila{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.35rem 0}
+  .interruptor{width:52px;height:30px;border-radius:99px;border:0;background:#433a86;position:relative;cursor:pointer;flex:none}
+  .interruptor::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+  .interruptor[aria-checked="true"]{background:var(--ambar)}.interruptor[aria-checked="true"]::after{left:25px}
+  /* Tamaño de letra */
+  html.letra-grande{font-size:112.5%}html.letra-muy-grande{font-size:125%}
+  /* Tema claro «Pergamino» */
+  body.tema-fe.tema-claro{--noche2:#FFFFFF;--noche3:#EADFC8;--texto:#2A2140;--suave:#615878;--ambar:#C08A2E;
+    background:radial-gradient(900px 560px at 50% -12%,rgba(242,196,107,.35) 0%,transparent 62%),#FBF5E9;color:var(--texto)}
+  .tema-claro .top{background:linear-gradient(#FBF5E9 70%,transparent)}
+  .tema-claro .stat,.tema-claro .meta,.tema-claro .partida,.tema-claro .repaso,.tema-claro .tarjeta-x,.tema-claro .ajuste,.tema-claro .logro,.tema-claro .sobre details,.tema-claro .boton-ajustes{border-color:#E3D6BC}
+  .tema-claro .op,.tema-claro .ficha,.tema-claro .cant,.tema-claro .tiem,.tema-claro .elige,.tema-claro .zona{border-color:#E3D6BC}
+  .tema-claro .op{box-shadow:0 3px 0 #E3D6BC}.tema-claro .op.sel,.tema-claro .pares .ficha.sel{background:#FFF1D2}
+  .tema-claro .libro{background:#EFE6D3;color:#9C93B5}.tema-claro .libro.on{color:#1B1640}
+  .tema-claro .nodo.bloq{background:#E6DCC6;color:#9C93B5;box-shadow:0 6px 0 #d4c7ab}
+  .tema-claro .prog,.tema-claro .anillo{background-color:#E6DCC6}.tema-claro .anillo{background:conic-gradient(var(--ambar) calc(var(--p)*1%),#E6DCC6 0)}
+  .tema-claro .pie-lec{background:#FBF5E9;border-color:#E3D6BC}
+  .tema-claro .pie-lec.bien{background:#E3F6EE;border-color:#2EAF7D}.tema-claro .pie-lec.bien h3{color:#1E8A5F}
+  .tema-claro .pie-lec.mal{background:#FCE6EC;border-color:#E2557A}.tema-claro .pie-lec.mal h3{color:#C23457}
+  .tema-claro .interruptor{background:#E3D6BC}.tema-claro .zona .vacio,.tema-claro .creditos{color:#8a81a6}
+  .tema-claro .btn.sec{box-shadow:0 4px 0 #d4c7ab}
+  .tema-claro .campo{background:#fff;color:var(--texto);border-color:#E3D6BC}
 </style>
 </head>
 <body class="tema-fe">
 <div class="app" id="app"></div>
+<section class="sobre" id="sobre" aria-labelledby="sobre-t">
+  <h2 id="sobre-t">Qué es Lumbrera</h2>
+  <p>Lumbrera es una app gratuita para aprender el libro de <b>Génesis</b> poco a poco: <b>150 preguntas</b> sobre sus <b>50 capítulos</b>, en <b>15 lecciones de 10 preguntas</b>. Hay preguntas de elegir respuesta, verdadero o falso, versículos para completar, hechos para ordenar y personajes para emparejar. Cada respuesta enseña la cita y una explicación breve.</p>
+  <h3>Las 5 unidades</h3>
+  <ol>
+    <li><b>La creación y la caída</b> · Génesis 1–5</li>
+    <li><b>Noé y la torre de Babel</b> · Génesis 6–11</li>
+    <li><b>Abraham, el amigo de Dios</b> · Génesis 12–24</li>
+    <li><b>Isaac, Esaú y Jacob</b> · Génesis 25–36</li>
+    <li><b>José en Egipto</b> · Génesis 37–50</li>
+  </ol>
+  <h3>Cómo se usa</h3>
+  <ul>
+    <li><b>Solo:</b> sigue el camino de lecciones, gana puntos y mantén tu racha diaria. Las preguntas que fallas quedan guardadas para repasarlas.</li>
+    <li><b>En grupo:</b> elige de 10 a 150 preguntas y de 10 a 60 segundos por pregunta. La pantalla muestra un PIN y cada persona juega desde su móvil, sin contraseña. Ideal para grupos de jóvenes, células y escuela dominical.</li>
+    <li><b>Como app:</b> instálala en el móvil o el ordenador y aprende también sin conexión.</li>
+  </ul>
+  <h3>Preguntas frecuentes</h3>
+  <details><summary>¿Lumbrera es gratis?</summary><p>Sí. Lumbrera es gratuita, no pide registro y guarda tu progreso en tu propio dispositivo.</p></details><details><summary>¿Cuántas preguntas tiene Génesis en Lumbrera?</summary><p>150 preguntas sobre los 50 capítulos de Génesis, repartidas en 5 unidades y 15 lecciones de 10 preguntas.</p></details><details><summary>¿Se puede jugar en grupo?</summary><p>Sí. Eliges cuántas preguntas (de 10 a 150) y cuántos segundos por pregunta (de 10 a 60); la pantalla muestra un PIN y cada persona entra desde su móvil, sin contraseña.</p></details><details><summary>¿Puedo instalar Lumbrera como app?</summary><p>Sí. En Android y en ordenador aparece el botón «Descargar la app»; en iPhone, toca Compartir y «Añadir a pantalla de inicio». Una vez instalada, las lecciones funcionan sin conexión.</p></details><details><summary>¿Qué traducción de la Biblia usa?</summary><p>Las citas son de la Reina-Valera 1960.</p></details>
+  <p class="creditos">Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. · Hecho por <a href="https://www.andresrendon.com/">Andrés Rendón</a></p>
+</section>
 <script src="comun.js"></script>
 <script>
 // ===================== Estado (se guarda en este dispositivo) =====================
@@ -102,6 +193,24 @@ const hoyISO = () => new Date().toLocaleDateString('sv-SE');
 let E = { xp: 0, racha: 0, ultimoDia: '', meta: 30, hoy: { fecha: '', xp: 0 }, lecciones: {}, fallos: {} };
 try { Object.assign(E, JSON.parse(localStorage.getItem(CLAVE_E) || '{}')); } catch {}
 function guardarE() { try { localStorage.setItem(CLAVE_E, JSON.stringify(E)); } catch {} }
+// ===================== Personalización (también en este dispositivo) =====================
+const CLAVE_A = 'lumbrera-ajustes';
+let AJ = { nombre: '', tema: 'noche', letra: 'normal', sonido: true, vibracion: true, ocultarInstalar: false };
+try { Object.assign(AJ, JSON.parse(localStorage.getItem(CLAVE_A) || '{}')); } catch {}
+const temaSistema = matchMedia('(prefers-color-scheme: light)');
+function aplicarAJ() {
+  const claro = AJ.tema === 'claro' || (AJ.tema === 'auto' && temaSistema.matches);
+  document.body.classList.toggle('tema-claro', claro);
+  document.documentElement.classList.toggle('letra-grande', AJ.letra === 'grande');
+  document.documentElement.classList.toggle('letra-muy-grande', AJ.letra === 'muy-grande');
+  const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.content = claro ? '#FBF5E9' : '#1B1640';
+}
+function guardarAJ() { try { localStorage.setItem(CLAVE_A, JSON.stringify(AJ)); } catch {} aplicarAJ(); }
+temaSistema.addEventListener?.('change', aplicarAJ);
+aplicarAJ();
+const _sonido = sonido; sonido = t => { if (AJ.sonido) _sonido(t); };
+const vibrar = ms => { if (AJ.vibracion && navigator.vibrate) navigator.vibrate(ms); };
+
 function xpHoy() { return E.hoy.fecha === hoyISO() ? E.hoy.xp : 0; }
 function rachaViva() { if (!E.ultimoDia) return 0; const d = (new Date(hoyISO()) - new Date(E.ultimoDia)) / 864e5; return d <= 1 ? E.racha : 0; }
 function sumarXP(n) {
@@ -112,6 +221,7 @@ function sumarXP(n) {
     const ayer = new Date(Date.now() - 864e5).toLocaleDateString('sv-SE');
     E.racha = E.ultimoDia === ayer ? E.racha + 1 : 1; E.ultimoDia = hoy;
   }
+  E.mejorRacha = Math.max(E.mejorRacha || 0, E.racha);
   guardarE();
 }
 
@@ -128,12 +238,74 @@ function progresoLibro(L) {
 function fallosDe(lid) { return Object.entries(E.fallos).filter(([id, f]) => f.libro === lid).map(([id]) => id); }
 
 const APP = document.getElementById('app');
+
+// ===================== Logros =====================
+const lecHechas = () => Object.keys(E.lecciones).length;
+function unidadesHechas() { const L = LIBROS.genesis; if (!L) return 0; return L.unidades.filter((u, ui) => u.lecciones.every((_, li) => E.lecciones[claveLec(L.id, ui, li)])).length; }
+const LOGROS = [
+  { id: 'primera', i: '🌱', t: 'Primera lección', ok: () => lecHechas() >= 1 },
+  { id: 'perfecta', i: '🏆', t: 'Lección perfecta', ok: () => Object.values(E.lecciones).some(l => l.estrellas === 3) },
+  { id: 'racha3', i: '🔥', t: '3 días seguidos', ok: () => (E.mejorRacha || 0) >= 3 },
+  { id: 'racha7', i: '📅', t: '7 días seguidos', ok: () => (E.mejorRacha || 0) >= 7 },
+  { id: 'xp500', i: '⭐', t: '500 puntos', ok: () => E.xp >= 500 },
+  { id: 'xp1000', i: '🌟', t: '1.000 puntos', ok: () => E.xp >= 1000 },
+  { id: 'unidad', i: '📜', t: 'Una unidad', ok: () => unidadesHechas() >= 1 },
+  { id: 'libro', i: '📖', t: 'Génesis completo', ok: () => LIBROS.genesis && unidadesHechas() === LIBROS.genesis.unidades.length },
+];
+// Devuelve los logros recién conseguidos (y los apunta)
+function revisarLogros() {
+  E.logros = E.logros || {};
+  const nuevos = LOGROS.filter(l => !E.logros[l.id] && l.ok());
+  nuevos.forEach(l => { E.logros[l.id] = hoyISO(); });
+  if (nuevos.length) guardarE();
+  return nuevos;
+}
+function avisarLogros(lista) {
+  lista.forEach((l, k) => setTimeout(() => {
+    const a = document.createElement('div'); a.className = 'aviso-logro'; a.setAttribute('role', 'status');
+    a.textContent = `${l.i} Logro conseguido: ${l.t}`; document.body.appendChild(a); sonido('tic');
+    setTimeout(() => a.remove(), 3200);
+  }, 900 + k * 3400));
+}
+
+// ===================== Pregunta del día (la misma para todos cada día) =====================
+function preguntaDelDia(L) {
+  const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => { if (q.t === 'opcion' || q.t === 'vf' || q.t === 'completar') todas.push(q); })));
+  const dia = Math.floor(new Date(hoyISO()).getTime() / 864e5);
+  return todas[(dia * 7919) % todas.length];
+}
+
+// ===================== Instalar como app =====================
+let PROMPT = null;
+const instalada = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); PROMPT = e; pintarInstalar(); });
+addEventListener('appinstalled', () => { PROMPT = null; pintarInstalar(); });
+function bloqueInstalar(enAjustes) {
+  if (instalada()) return enAjustes ? '<p class="pie" style="opacity:1;margin:0">✅ Ya tienes Lumbrera instalada en este dispositivo.</p>' : '';
+  if (!enAjustes && AJ.ocultarInstalar) return '';
+  const cerrar = enAjustes ? '' : '<button class="x" data-x-inst aria-label="Ocultar">✕</button>';
+  if (PROMPT) return `<div class="tarjeta-x instalar"><span class="ico">📲</span><div class="txt"><b>Descarga Lumbrera</b><span class="pie" style="opacity:1">Ábrela como una app y aprende también sin conexión.</span></div><button class="btn peq" data-inst>Descargar</button>${cerrar}</div>`;
+  if (esIOS) return `<div class="tarjeta-x instalar"><span class="ico">📲</span><div class="txt"><b>Instálala en tu iPhone</b><span class="pie" style="opacity:1">En Safari, toca <b>Compartir</b> (el cuadrado con la flecha ⬆️) y elige <b>«Añadir a pantalla de inicio»</b>.</span></div>${cerrar}</div>`;
+  return enAjustes ? '<p class="pie" style="opacity:1;margin:0">Para instalarla, abre esta página en Chrome (Android u ordenador) o en Safari (iPhone).</p>' : '';
+}
+function pintarInstalar() {
+  const h = document.getElementById('hueco-inst'); if (h) h.innerHTML = bloqueInstalar(false);
+  const ha = document.getElementById('hueco-inst-aj'); if (ha) ha.innerHTML = bloqueInstalar(true);
+}
+document.addEventListener('click', async e => {
+  if (e.target.closest('[data-inst]') && PROMPT) { const pr = PROMPT; PROMPT = null; pr.prompt(); try { await pr.userChoice; } catch {} pintarInstalar(); }
+  if (e.target.closest('[data-x-inst]')) { AJ.ocultarInstalar = true; guardarAJ(); pintarInstalar(); }
+  if (e.target.closest('#b-aj')) ajustes();
+});
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 const barajar = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 function cabecera(extra = '') {
   return `<div class="top">${extra || marca()}<div class="stats">
     <span class="stat racha" title="Días seguidos aprendiendo">🔥 <b>${rachaViva()}</b></span>
-    <span class="stat xp" title="Puntos de experiencia">⭐ <b>${E.xp}</b></span></div></div>`;
+    <span class="stat xp" title="Puntos de experiencia">⭐ <b>${E.xp}</b></span>
+    <button class="boton-ajustes" id="b-aj" aria-label="Personalizar" title="Personalizar">⚙️</button></div></div>`;
 }
 
 // ===================== Inicio: elegir libro =====================
@@ -149,12 +321,15 @@ async function inicio() {
   };
   const totalFallos = Object.keys(E.fallos).length;
   APP.innerHTML = cabecera() + `
+    ${AJ.nombre ? `<p class="saludo">Hola, ${esc(AJ.nombre)} 👋</p>` : ''}
     <h1 class="t">Aprende Génesis</h1>
     <p class="sub">El libro de los comienzos, en lecciones de 10 preguntas. Unos minutos al día bastan.</p>
     <div class="meta"><div class="anillo" style="--p:${pct}"><span>${pct}%</span></div>
       <div><b>Meta de hoy: ${E.meta} puntos</b><div class="pie" style="opacity:1">${xpHoy() >= E.meta ? '¡Cumplida! Vuelve mañana para mantener la racha.' : `Llevas ${xpHoy()}. Una lección son unos 100.`}</div></div></div>
+    <div id="hueco-inst">${bloqueInstalar(false)}</div>
     ${totalFallos ? `<div class="repaso"><div><b>Repasa tus fallos</b><div class="pie" style="opacity:1">${totalFallos} pregunta${totalFallos === 1 ? '' : 's'} para afianzar</div></div><button class="btn peq" id="b-rep">Repasar</button></div>` : ''}
     <div class="libros solo">${cat.libros.map(tarjeta).join('')}</div>
+    <div id="extra"></div>
     <div class="partida">
       <h2>Partida a tu medida</h2>
       <p class="pie" style="opacity:1">Elige cuántas preguntas de ${esc(cat.libros[0].nombre)} quieres jugar, al azar entre las ${cat.libros[0].preguntas}.</p>
@@ -165,7 +340,7 @@ async function inicio() {
       <p class="pie" id="grupo-msg" style="opacity:1;min-height:1.2em"></p>
     </div>
     <p class="pie" style="text-align:center;margin-top:1.2rem"><a href="jugar">¿Ya tienes un PIN? Entra en la partida</a></p>
-    <p class="creditos">${esc(cat.creditos)}</p>`;
+    `;
   APP.querySelectorAll('[data-l]').forEach(b => b.onclick = () => verLibro(b.dataset.l));
   const br = document.getElementById('b-rep'); if (br) br.onclick = () => repasar(null);
   APP.querySelectorAll('.cant').forEach(b => b.onclick = () => { CANT = +b.dataset.n; APP.querySelectorAll('.cant').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); });
@@ -174,7 +349,43 @@ async function inicio() {
   document.getElementById('b-grupo').onclick = () => crearGrupo(CANT, TIEMPO);
   // carga en segundo plano los libros disponibles para mostrar su progreso
   for (const b of cat.libros.filter(x => x.preguntas && !LIBROS[x.id])) { await libro(b.id); }
-  if (!APP.dataset.vista) inicioRefresco();
+  if (!APP.dataset.vista) { inicioRefresco(); pintarExtra(); }
+}
+function pintarExtra() {
+  const h = document.getElementById('extra'), L = LIBROS.genesis; if (!h || !L) return;
+  const q = preguntaDelDia(L);
+  const respuesta = q.t === 'vf' ? (q.v ? 'Verdadero' : 'Falso') : q.ok;
+  const enun = q.t === 'vf' ? `Verdadero o falso: ${esc(q.q)}` : esc(q.q).replace('___', '_____');
+  const conseguidos = LOGROS.filter(l => (E.logros || {})[l.id]).length;
+  h.innerHTML = `
+    <div class="tarjeta-x dia"><span class="ico">💡</span><div class="txt"><b>Pregunta del día</b><span>${enun}</span>
+      <div class="resp" id="resp-dia" hidden><b style="color:var(--ambar)">${esc(respuesta)}</b>${q.exp ? `<span class="pie" style="opacity:1">${esc(q.exp)}</span>` : ''}<span class="pie" style="opacity:1">📖 ${esc(q.ref)}</span></div>
+      <button class="btn peq sec" id="b-dia" style="margin-top:.6rem">Ver respuesta</button></div></div>
+    <h2 class="grupo-t">Logros · ${conseguidos} de ${LOGROS.length}</h2>
+    <div class="logros">${LOGROS.map(l => `<div class="logro${(E.logros || {})[l.id] ? ' si' : ''}" title="${esc(l.t)}"><i>${l.i}</i>${esc(l.t)}</div>`).join('')}</div>`;
+  document.getElementById('b-dia').onclick = e => { document.getElementById('resp-dia').hidden = false; e.target.remove(); };
+}
+
+// ===================== Personalizar =====================
+function ajustes() {
+  APP.dataset.vista = 'ajustes';
+  const op = (g, v, txt, sub = '') => `<button class="elige${AJ[g] === v ? ' sel' : ''}" data-g="${g}" data-v="${v}">${txt}${sub ? `<small>${sub}</small>` : ''}</button>`;
+  const meta = (n, txt) => `<button class="elige${E.meta === n ? ' sel' : ''}" data-meta="${n}">${txt}<small>${n} puntos</small></button>`;
+  const inter = (k, txt) => `<div class="fila"><span>${txt}</span><button class="interruptor" role="switch" aria-checked="${AJ[k]}" data-k="${k}" aria-label="${txt}"></button></div>`;
+  APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver">←</button>`) + `
+    <h1 class="t">Personalizar</h1><p class="sub">Todo se guarda solo en este dispositivo.</p>
+    <div class="ajuste"><h3>¿Cómo te llamas?</h3><input class="campo" id="i-nombre" maxlength="30" placeholder="Tu nombre" value="${esc(AJ.nombre)}" autocomplete="given-name"></div>
+    <div class="ajuste"><h3>Meta diaria</h3><div class="eliges">${meta(30, 'Suave')}${meta(50, 'Normal')}${meta(100, 'Intensa')}${meta(150, 'Máxima')}</div></div>
+    <div class="ajuste"><h3>Tema</h3><div class="eliges">${op('tema', 'noche', '🌙 Noche')}${op('tema', 'claro', '📜 Pergamino')}${op('tema', 'auto', '⚙️ Auto', 'Como tu móvil')}</div></div>
+    <div class="ajuste"><h3>Tamaño de letra</h3><div class="eliges">${op('letra', 'normal', 'Normal')}${op('letra', 'grande', 'Grande')}${op('letra', 'muy-grande', 'Muy grande')}</div></div>
+    <div class="ajuste"><h3>Sonido y vibración</h3>${inter('sonido', 'Sonidos')}${inter('vibracion', 'Vibración')}</div>
+    <div class="ajuste"><h3>Instalar la app</h3><div id="hueco-inst-aj">${bloqueInstalar(true)}</div></div>
+    <button class="btn grande" id="b-listo" style="margin-top:1.2rem">Listo</button>`;
+  const salirAj = () => { AJ.nombre = document.getElementById('i-nombre').value.trim().slice(0, 30); guardarAJ(); delete APP.dataset.vista; inicio(); };
+  document.getElementById('b-atras').onclick = salirAj; document.getElementById('b-listo').onclick = salirAj;
+  APP.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { AJ[b.dataset.g] = b.dataset.v; guardarAJ(); APP.querySelectorAll(`[data-g="${b.dataset.g}"]`).forEach(x => x.classList.toggle('sel', x === b)); });
+  APP.querySelectorAll('[data-meta]').forEach(b => b.onclick = () => { E.meta = +b.dataset.meta; guardarE(); APP.querySelectorAll('[data-meta]').forEach(x => x.classList.toggle('sel', x === b)); });
+  APP.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { AJ[b.dataset.k] = !AJ[b.dataset.k]; guardarAJ(); b.setAttribute('aria-checked', AJ[b.dataset.k]); if (b.dataset.k === 'sonido' && AJ.sonido) sonido('ok'); if (b.dataset.k === 'vibracion') vibrar(40); });
 }
 function inicioRefresco() { APP.querySelectorAll('[data-l]').forEach(b => { const L = LIBROS[b.dataset.l]; if (!L || b.querySelector('.barra')) return; const p = progresoLibro(L); b.insertAdjacentHTML('beforeend', `<span class="barra"><i style="width:${100 * p.hechas / p.total}%"></i></span>`); }); }
 
@@ -324,10 +535,10 @@ function corregir(ok, correcta, fallosPar = 0) {
     LEC.bien++; const g = ok && primera ? 10 : 5; LEC.xp += g;
     if (LEC.modo === 'repaso' && ok && primera) delete E.fallos[q.id]; // sale de la lista al acertarla en un repaso
     if (emparejadoConFallos) { LEC.errores++; E.fallos[q.id] = { libro: q.libro }; }
-    sonido('ok'); if (navigator.vibrate) navigator.vibrate(20);
+    sonido('ok'); vibrar(20);
   } else {
     LEC.errores++; LEC.fallidas.add(q.id); LEC.cola.push(q); E.fallos[q.id] = { libro: q.libro };
-    sonido('mal'); if (navigator.vibrate) navigator.vibrate(120);
+    sonido('mal'); vibrar(120);
   }
   guardarE();
   APP.querySelectorAll('.op,.ficha').forEach(b => b.disabled = true);
@@ -360,14 +571,17 @@ function terminar() {
   const precision = Math.round(100 * LEC.total / (LEC.total + LEC.errores));
   confeti(perfecta ? 140 : 80); sonido('fin');
   const subioRacha = rachaViva() > rachaAntes;
+  const nuevosLogros = revisarLogros();
+  const tu = AJ.nombre ? `, ${esc(AJ.nombre)}` : '';
   APP.innerHTML = `<div class="fin">
     <div class="big">${perfecta ? '🏆' : '🎉'}</div>
-    <h1 class="t">${LEC.libre ? '¡Partida completada!' : LEC.modo === 'repaso' ? '¡Repaso completado!' : perfecta ? '¡Lección perfecta!' : '¡Lección completada!'}</h1>
+    <h1 class="t">${LEC.libre ? '¡Partida completada' : LEC.modo === 'repaso' ? '¡Repaso completado' : perfecta ? '¡Lección perfecta' : '¡Lección completada'}${tu}!</h1>
     ${estrellas ? `<div style="font-size:2rem;color:var(--ambar);letter-spacing:4px">${'★'.repeat(estrellas)}${'☆'.repeat(3 - estrellas)}</div>` : ''}
     <div class="cajas"><div class="caja-f"><b>+${total}</b>puntos</div><div class="caja-f"><b>${precision}%</b>aciertos</div><div class="caja-f"><b>🔥 ${rachaViva()}</b>${rachaViva() === 1 ? 'día' : 'días'}</div></div>
     ${subioRacha ? `<p style="margin:0;font-weight:800;color:#FF9A4D">${rachaViva() === 1 ? '¡Empiezas tu racha! Vuelve mañana para seguir.' : '¡Tu racha sigue viva!'}</p>` : ''}
     ${LEC.errores ? `<p class="pie" style="opacity:1;margin:0">Las preguntas que fallaste quedan guardadas para repasarlas.</p>` : ''}
     <button class="btn grande" id="b-fin">Continuar</button></div>`;
+  avisarLogros(nuevosLogros);
   document.getElementById('b-fin').onclick = () => LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
 }
 function salir() {
@@ -383,6 +597,8 @@ function salir() {
 function volver() { const id = LEC && (LEC.L ? LEC.L.id : LEC.vuelta); LEC = null; id ? verLibro(id) : inicio(); }
 
 // ===================== Arranque =====================
+E.mejorRacha = Math.max(E.mejorRacha || 0, rachaViva());
+libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
 const lib = new URLSearchParams(location.search).get('libro');
 lib ? verLibro(lib).catch(inicio) : inicio();
 </script>
