@@ -1,6 +1,7 @@
 // Chispa en Cloudflare: el Worker sirve la web, la API y reparte cada partida a su Durable Object.
 import QRCode from 'qrcode';
 import { json, iguales, limpiarCuestionario, normalizarLugar, huella, marcaDe } from './comun.js';
+import { semanaLiga, diaLiga, jugadorDe, apodoValido, grupoValido, LIGA_MAX_ENVIO } from './liga.js';
 export { Juego } from './juego.js';
 export { Almacen } from './almacen.js';
 
@@ -120,6 +121,26 @@ async function api(req, env, url, ruta) {
       if (!res.ocupado) return json({ ...res, n: quiz.preguntas.length });
     }
     return json({ error: 'No se ha podido crear la partida, prueba otra vez' }, 503);
+  }
+  // Lumbrera: liga semanal (sin cuentas; cada móvil manda su token secreto)
+  if (ruta === 'liga/puntos' && m === 'POST') {
+    if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
+    const b = await cuerpo();
+    const jugador = await jugadorDe(b.token);
+    if (!jugador) return json({ error: 'Falta tu clave de la liga' }, 400);
+    const a = apodoValido(b.apodo); if (a.error) return json(a, 400);
+    const g = grupoValido(b.grupo); if (g.error) return json(g, 400);
+    const xp = Math.max(0, Math.min(LIGA_MAX_ENVIO, parseInt(b.xp, 10) || 0));
+    const semana = semanaLiga();
+    const caducado = !!(b.semana && b.semana !== semana); // puntos de una semana ya cerrada: no cuentan, pero el perfil sí se guarda
+    const r = await st.ligaSumar({ semana, dia: diaLiga(), jugador, apodo: a.apodo, grupo: g.grupo, xp: caducado ? 0 : xp });
+    return json({ semana, apodo: a.apodo, grupo: g.grupo, caducado, ...r });
+  }
+  if (ruta === 'liga' && m === 'GET') {
+    if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
+    const g = grupoValido(url.searchParams.get('grupo')); if (g.error) return json(g, 400);
+    const jugador = await jugadorDe(url.searchParams.get('token'));
+    return json(await st.ligaClasificacion({ semana: semanaLiga(), jugador, grupo: g.grupo }), 200, { 'cache-control': 'no-store' });
   }
   if (ruta === 'contactos' && m === 'POST') {
     const b = await cuerpo();

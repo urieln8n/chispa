@@ -137,6 +137,21 @@
   .dia-s i{display:grid;place-items:center;font-style:normal;width:32px;height:32px;margin:.25rem auto 0;border-radius:50%;background:var(--noche3);font-size:1rem}
   .dia-s.si i{background:#FF9A4D}.dia-s.prot i{background:#4FA3E0}.dia-s.hoy{color:var(--texto)}.dia-s.hoy i{outline:2px solid var(--ambar);outline-offset:2px}
   .stat.tal b{color:#FFD15C}
+  /* Liga semanal */
+  .liga-t{display:flex;align-items:center;gap:.9rem;background:linear-gradient(135deg,#3a2d84,#2a2163);border:1px solid #5a4fb0;border-radius:18px;padding:1rem 1.1rem;margin-top:1rem}
+  .liga-t .ico{font-size:2rem;flex:none}.liga-t .txt{flex:1}.liga-t .txt b{display:block}
+  .pestanas{display:flex;gap:8px;margin:1rem 0}
+  .pestana{flex:1;border:2px solid #433a86;background:transparent;color:var(--texto);border-radius:14px;padding:.6em;font-weight:800;cursor:pointer}
+  .pestana.sel{background:var(--ambar);border-color:var(--ambar);color:#1B1640}
+  .tabla-liga{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+  .tabla-liga li{display:flex;align-items:center;gap:.8rem;background:var(--noche2);border:1px solid #433a86;border-radius:14px;padding:.65rem .9rem}
+  .tabla-liga li.yo{border-color:var(--ambar);background:#3a2d84}
+  .tabla-liga .pos{width:2.2em;text-align:center;font-weight:800;color:var(--suave)}
+  .tabla-liga li:nth-child(1) .pos,.tabla-liga li:nth-child(2) .pos,.tabla-liga li:nth-child(3) .pos{font-size:1.3rem}
+  .tabla-liga .nom{flex:1;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tabla-liga .pts{font-weight:800;color:var(--ambar)}
+  .liga-vacia{text-align:center;color:var(--suave);padding:1.4rem .6rem}
+  .tema-claro .liga-t{background:#FFF4DC;border-color:#E3D6BC}.tema-claro .tabla-liga li{border-color:#E3D6BC}.tema-claro .tabla-liga li.yo{background:#FFF4DC;border-color:var(--ambar)}
   .misiones{background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1rem}
   .misiones .cab-m{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}.misiones .cab-m b{flex:1}
   .mision{display:grid;grid-template-columns:1fr auto;gap:.2rem .8rem;align-items:center;padding:.55rem 0;border-top:1px solid rgba(255,255,255,.06)}
@@ -248,7 +263,9 @@ function sumarXP(n) {
     E.racha = E.ultimoDia === ayer ? E.racha + 1 : 1; E.ultimoDia = hoy;
   }
   E.mejorRacha = Math.max(E.mejorRacha || 0, E.racha);
+  if (E.liga && E.liga.token) { const sem = semanaLocal(); if (E.liga.semPend !== sem) { E.liga.semPend = sem; E.liga.pendiente = 0; } E.liga.pendiente = (E.liga.pendiente || 0) + n; }
   guardarE();
+  ligaEnviar();
 }
 
 // ===================== Datos =====================
@@ -415,6 +432,7 @@ async function inicio() {
     ${totalFallos ? `<div class="repaso"><div><b>Repasa tus fallos</b><div class="pie" style="opacity:1">${totalFallos} pregunta${totalFallos === 1 ? '' : 's'} para afianzar</div></div><button class="btn peq" id="b-rep">Repasar</button></div>` : ''}
     <div class="libros solo">${cat.libros.map(tarjeta).join('')}</div>
     <div id="misiones"></div>
+    <div id="liga"></div>
     <div id="extra"></div>
     <div class="partida" id="grupo">
       <h2>Partida a tu medida</h2>
@@ -435,7 +453,8 @@ async function inicio() {
   document.getElementById('b-grupo').onclick = () => crearGrupo(CANT, TIEMPO);
   // carga en segundo plano los libros disponibles para mostrar su progreso
   for (const b of cat.libros.filter(x => x.preguntas && !LIBROS[x.id])) { await libro(b.id); }
-  if (!APP.dataset.vista) { inicioRefresco(); pintarMisiones(); pintarExtra(); }
+  if (!APP.dataset.vista) { inicioRefresco(); pintarMisiones(); pintarExtra(); pintarLigaTarjeta(); }
+  if (LIGA_INV && !APP.dataset.vista) { const g = LIGA_INV; LIGA_INV = null; if (!E.liga || E.liga.grupo !== g) return formLiga({ grupo: g, invitado: true }); }
   // Desde la página para líderes (/grupos) se llega con #grupo: baja directo a la partida en grupo
   if (IR_GRUPO) { IR_GRUPO = false; const ir = () => setTimeout(() => { const g = document.getElementById('grupo'); if (g) g.scrollIntoView({ block: 'center' }); }, 50); document.readyState === 'complete' ? ir() : addEventListener('load', ir, { once: true }); }
 }
@@ -723,6 +742,119 @@ function terminar() {
   setTimeout(revisarMisiones, 800);
   document.getElementById('b-fin').onclick = () => LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
 }
+// ===================== Liga semanal =====================
+// Clasificación de puntos de lunes a domingo: global y de tu grupo. Sin cuentas: un token secreto en este dispositivo.
+function semanaLocal() {
+  const [y, m, d] = hoyISO().split('-').map(Number); const t = new Date(Date.UTC(y, m - 1, d)); const dia = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - dia); const a = t.getUTCFullYear();
+  return `${a}-W${String(Math.ceil(((t - Date.UTC(a, 0, 1)) / 864e5 + 1) / 7)).padStart(2, '0')}`;
+}
+function diasHastaLunes() { const d = new Date().getDay(); return d === 1 ? 7 : (8 - d) % 7 || 7; }
+function tokenLiga() { const b = crypto.getRandomValues(new Uint8Array(24)); return btoa(String.fromCharCode(...b)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+let LIGA_ENVIANDO = false;
+async function ligaEnviar(forzar = false) {
+  const L = E.liga; if (!L || !L.token || LIGA_ENVIANDO || !navigator.onLine) return null;
+  if (L.semPend && L.semPend !== semanaLocal()) { L.pendiente = 0; L.semPend = semanaLocal(); guardarE(); }
+  const xp = Math.min(L.pendiente || 0, 2000); if (!xp && !forzar) return null;
+  LIGA_ENVIANDO = true; let otraVez = false;
+  try {
+    const r = await fetch(BASE + 'api/liga/puntos', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: L.token, apodo: L.apodo, grupo: L.grupo, xp, semana: L.semPend || semanaLocal() }) }).then(x => x.json());
+    if (r.error) return r;
+    L.pendiente = Math.max(0, (L.pendiente || 0) - xp); guardarE();
+    otraVez = L.pendiente > 0; // quedan puntos (más de 2.000 de golpe): manda el resto
+    return r;
+  } catch { return null; } finally { LIGA_ENVIANDO = false; if (otraVez) setTimeout(() => ligaEnviar(), 1000); }
+}
+async function ligaPedir(grupo) {
+  const q = new URLSearchParams({ token: (E.liga && E.liga.token) || '' }); if (grupo) q.set('grupo', grupo);
+  return fetch(BASE + 'api/liga?' + q).then(x => x.json());
+}
+function urlInvitacion(g) { return URL_APP + '?liga=' + encodeURIComponent(g); }
+async function pintarLigaTarjeta() {
+  const h = document.getElementById('liga'); if (!h) return;
+  if (!E.liga || !E.liga.token) {
+    h.innerHTML = `<div class="liga-t"><span class="ico">🏆</span><div class="txt"><b>Liga semanal</b><span class="pie" style="opacity:1">Compite cada semana con lectores de todas partes y con tu grupo.</span></div><button class="btn peq" id="b-liga">Unirme</button></div>`;
+    document.getElementById('b-liga').onclick = () => formLiga({});
+    return;
+  }
+  const quedan = diasHastaLunes();
+  h.innerHTML = `<div class="liga-t"><span class="ico">🏆</span><div class="txt"><b>Liga semanal</b><span class="pie" style="opacity:1" id="liga-res">Se reinicia en ${quedan} ${quedan === 1 ? 'día' : 'días'}</span></div><button class="btn peq" id="b-liga">Ver</button></div>`;
+  document.getElementById('b-liga').onclick = () => verLiga(E.liga.grupo ? 'grupo' : 'global');
+  try {
+    await ligaEnviar();
+    const r = await ligaPedir(''); const el = document.getElementById('liga-res');
+    if (el && r.yo && r.yo.puesto) el.textContent = `Puesto #${r.yo.puesto} de ${r.total} · ${r.yo.xp} puntos · quedan ${quedan} ${quedan === 1 ? 'día' : 'días'}`;
+    else if (el) el.textContent = `Haz una lección para entrar en la clasificación · quedan ${quedan} ${quedan === 1 ? 'día' : 'días'}`;
+  } catch {}
+}
+async function verLiga(tab = 'global') {
+  APP.dataset.vista = 'liga';
+  const L = E.liga, quedan = diasHastaLunes();
+  APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver">←</button>`) + `
+    <h1 class="t">🏆 Liga semanal</h1><p class="sub">Suma puntos con tus lecciones. Se reinicia el lunes: quedan ${quedan} ${quedan === 1 ? 'día' : 'días'}.</p>
+    <div class="pestanas" role="tablist"><button class="pestana${tab === 'global' ? ' sel' : ''}" data-tab="global" role="tab">🌍 Global</button><button class="pestana${tab === 'grupo' ? ' sel' : ''}" data-tab="grupo" role="tab">👥 Mi grupo</button></div>
+    <div id="liga-cuerpo"><p class="liga-vacia">Cargando…</p></div>
+    <div class="dos-btn" style="margin-top:1.2rem"><button class="btn sec" id="b-perfil">✏️ Apodo y grupo</button>${L.grupo ? '<button class="btn" id="b-inv">📤 Invitar a mi grupo</button>' : ''}</div>
+    <p class="pie" style="opacity:1;text-align:center;margin-top:1rem">Juegas como <b>${esc(L.apodo)}</b>${L.grupo ? ` · grupo <b>${esc(L.grupo)}</b>` : ''}. Tu apodo y tus puntos de la semana se ven en la clasificación.</p>`;
+  document.getElementById('b-atras').onclick = () => { delete APP.dataset.vista; inicio(); };
+  APP.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => verLiga(b.dataset.tab));
+  document.getElementById('b-perfil').onclick = () => formLiga({ volver: tab });
+  const bi = document.getElementById('b-inv'); if (bi) bi.onclick = () => compartir(`👥 Únete a nuestro grupo «${L.grupo}» en la liga semanal de Lumbrera y aprendamos Génesis juntos:`, urlInvitacion(L.grupo));
+  const cuerpo = document.getElementById('liga-cuerpo');
+  if (tab === 'grupo' && !L.grupo) {
+    cuerpo.innerHTML = `<div class="liga-vacia"><p>Aún no estás en ningún grupo.</p><p>Si tu líder te ha dado un código, escríbelo. Si eres el líder, inventa uno (por ejemplo <b>jovenes-sants</b>) y compártelo.</p><button class="btn" id="b-unir-g">Unirme o crear un grupo</button></div>`;
+    document.getElementById('b-unir-g').onclick = () => formLiga({ volver: 'grupo', foco: 'grupo' });
+    return;
+  }
+  try {
+    await ligaEnviar();
+    const r = await ligaPedir(tab === 'grupo' ? L.grupo : '');
+    if (APP.dataset.vista !== 'liga') return;
+    if (r.error) { cuerpo.innerHTML = `<p class="liga-vacia">${esc(r.error)}</p>`; return; }
+    const fila = t => `<li class="${t.yo ? 'yo' : ''}"><span class="pos">${['🥇', '🥈', '🥉'][t.puesto - 1] || t.puesto}</span><span class="nom">${esc(t.apodo)}${t.yo ? ' (tú)' : ''}</span><span class="pts">${t.xp}</span></li>`;
+    const enTop = r.top.some(t => t.yo);
+    cuerpo.innerHTML = r.top.length ? `<ol class="tabla-liga">${r.top.map(fila).join('')}</ol>
+      ${!enTop && r.yo && r.yo.puesto ? `<p class="pie" style="opacity:1;text-align:center;margin:.6rem 0">…</p><ol class="tabla-liga">${fila({ ...r.yo, yo: true })}</ol>` : ''}
+      ${!r.yo || !r.yo.puesto ? '<p class="pie" style="opacity:1;text-align:center;margin-top:.8rem">Haz una lección para aparecer en la clasificación.</p>' : ''}
+      <p class="pie" style="opacity:1;text-align:center;margin-top:.8rem">${r.total} ${r.total === 1 ? 'participante' : 'participantes'} esta semana</p>`
+      : `<p class="liga-vacia">Todavía nadie ha sumado puntos esta semana${tab === 'grupo' ? ' en tu grupo' : ''}. ¡Haz una lección y ponte el primero! 🚀</p>`;
+  } catch { cuerpo.innerHTML = '<p class="liga-vacia">Sin conexión. Tus puntos se enviarán cuando vuelvas a tener internet.</p>'; }
+}
+function formLiga({ grupo, invitado, volver, foco }) {
+  APP.dataset.vista = 'liga-form';
+  const L = E.liga || {};
+  const apodoIni = L.apodo || (AJ.nombre ? AJ.nombre.split(' ')[0].slice(0, 16) : '');
+  const grupoIni = grupo !== undefined ? grupo : (L.grupo || '');
+  APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver">←</button>`) + `
+    <h1 class="t">🏆 ${L.token ? 'Tu apodo y tu grupo' : 'Únete a la liga semanal'}</h1>
+    <p class="sub">${invitado ? `Te han invitado al grupo <b>${esc(grupoIni)}</b>. ` : ''}Cada lección suma puntos. Cada lunes empieza una semana nueva.</p>
+    <div class="ajuste"><h3>Tu apodo</h3><input class="campo" id="i-apodo" maxlength="16" placeholder="Por ejemplo: Ana G." value="${esc(apodoIni)}" autocomplete="off">
+      <p class="pie" style="opacity:1;margin:.5rem 0 0">Se verá en la clasificación junto a tus puntos. No pongas tu nombre completo.</p></div>
+    <div class="ajuste"><h3>Código de grupo <small style="font-weight:600;opacity:.8">(opcional)</small></h3><input class="campo" id="i-grupo" maxlength="20" placeholder="Por ejemplo: jovenes-sants" value="${esc(grupoIni)}" autocomplete="off" autocapitalize="none">
+      <p class="pie" style="opacity:1;margin:.5rem 0 0">Escribe el código que te ha dado tu líder, o inventa uno y compártelo con tu grupo.</p></div>
+    <p class="error" id="liga-err"></p>
+    <button class="btn grande" id="b-guardar-liga">${L.token ? 'Guardar' : 'Unirme a la liga'}</button>
+    ${L.token ? '<button class="btn sec grande" id="b-salir-liga" style="margin-top:.6rem">Salir de la liga</button>' : ''}`;
+  const atras = () => { if (volver) verLiga(volver); else { delete APP.dataset.vista; inicio(); } };
+  document.getElementById('b-atras').onclick = atras;
+  document.getElementById(foco === 'grupo' ? 'i-grupo' : 'i-apodo').focus();
+  document.getElementById('b-guardar-liga').onclick = async e => {
+    const apodo = document.getElementById('i-apodo').value.trim(), g = document.getElementById('i-grupo').value.trim(), err = document.getElementById('liga-err');
+    if (apodo.length < 2) { err.textContent = 'Escribe un apodo de al menos 2 letras'; return; }
+    if (!navigator.onLine) { err.textContent = 'Necesitas conexión a internet para unirte'; return; }
+    e.target.disabled = true; err.textContent = '';
+    const nuevo = { ...L, token: L.token || tokenLiga(), apodo, grupo: g };
+    const previo = E.liga; E.liga = nuevo;
+    const r = await ligaEnviar(true);
+    if (!r || r.error) { E.liga = previo; e.target.disabled = false; err.textContent = (r && r.error) || 'No se ha podido conectar. Prueba otra vez.'; return; }
+    E.liga.apodo = r.apodo; E.liga.grupo = r.grupo; guardarE();
+    avisar(previo && previo.token ? '✓ Guardado' : '🏆 ¡Ya estás en la liga!');
+    verLiga(E.liga.grupo ? 'grupo' : 'global');
+  };
+  const bs = document.getElementById('b-salir-liga');
+  if (bs) bs.onclick = () => { if (!confirm('¿Salir de la liga? Dejarás de sumar puntos en la clasificación.')) return; delete E.liga; guardarE(); delete APP.dataset.vista; inicio(); };
+}
+
 // ===================== Imagen para compartir (formato Story 1080×1920) =====================
 async function tarjetaPNG(d) {
   const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
@@ -801,6 +933,7 @@ const salvados = aplicarProtectores();
 if (salvados) setTimeout(() => avisar(`🛡️ Tu protector salvó tu racha (${salvados} día${salvados === 1 ? '' : 's'})`), 1200);
 E.mejorRacha = Math.max(E.mejorRacha || 0, rachaViva());
 libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
+var LIGA_INV = (new URLSearchParams(location.search).get('liga') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20) || null;
 var IR_GRUPO = location.hash === '#grupo'; // se lee antes de que inicio() limpie la dirección
 const lib = new URLSearchParams(location.search).get('libro');
 lib ? verLibro(lib).catch(inicio) : inicio();
