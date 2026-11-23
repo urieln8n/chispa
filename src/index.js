@@ -76,6 +76,23 @@ export default {
       }
       if (env.MARCA !== 'fe' && (ruta === '/aprender' || ruta === '/aprender.html' || ruta === '/grupos' || ruta === '/grupos.html')) return Response.redirect(url.origin + '/', 302);
       if (env.MARCA !== 'fe' && (ruta === '/privacidad-lumbrera' || ruta === '/privacidad-lumbrera.html')) return Response.redirect(url.origin + '/privacidad', 302);
+      // Lumbrera: la página para entrar con PIN es compartida con Pulsazo; aquí se le pone el título y la vista previa de Lumbrera (WhatsApp lee el HTML, no el JavaScript)
+      if (env.MARCA === 'fe' && (ruta === '/jugar' || ruta === '/jugar.html')) {
+        const res = await env.ASSETS.fetch(req);
+        if (!(res.headers.get('content-type') || '').includes('text/html')) return res;
+        const pin = /^\d{6}$/.test(url.searchParams.get('pin') || '') ? url.searchParams.get('pin') : '';
+        const desc = pin ? `Entra con el PIN ${pin.slice(0, 3)} ${pin.slice(3)} y juega desde tu móvil. Sin instalar nada y sin registrarte.` : 'Escribe el PIN de la partida y juega desde tu móvil. Sin instalar nada y sin registrarte.';
+        const at = t => t.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        const metas = `<meta name="description" content="${at(desc)}"><meta property="og:type" content="website"><meta property="og:site_name" content="Lumbrera">` +
+          `<meta property="og:title" content="🎮 Entra a jugar en Lumbrera"><meta property="og:description" content="${at(desc)}">` +
+          `<meta property="og:url" content="${at(url.origin + '/jugar' + (pin ? '?pin=' + pin : ''))}"><meta property="og:image" content="${at(url.origin)}/app/icono-512.png"><meta name="twitter:card" content="summary">` +
+          `<link rel="icon" href="/app/icono-192.png" type="image/png">`;
+        return new HTMLRewriter()
+          .on('title', { element(e) { e.setInnerContent('Lumbrera · Entra a jugar'); } })
+          .on('meta[name="theme-color"]', { element(e) { e.setAttribute('content', '#1B1640'); } })
+          .on('head', { element(e) { e.append(metas, { html: true }); } })
+          .transform(res);
+      }
       // Lumbrera tiene su propia política de privacidad en la misma dirección /privacidad
       const res = env.MARCA === 'fe' && (ruta === '/privacidad' || ruta === '/privacidad.html')
         ? await env.ASSETS.fetch(new Request(new URL('/privacidad-lumbrera', url), req))

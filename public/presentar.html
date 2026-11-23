@@ -198,21 +198,31 @@ function escuchar() {
   // Al conectar (y al reconectar tras un corte) retoma la misma partida
   let primera = true;
   socket.on('connect', () => socket.emit('host:reanudar', { claveHost: CLAVE_HOST }, r => {
-    if (r.error) { ES.innerHTML = `<div class="centro"><h2>${esc(r.error)}</h2><a class="btn" href="${VOLVER}">Volver</a></div>`; return; }
+    if (r.error) { olvidarHost(); ES.innerHTML = `<div class="centro"><h2>${esc(r.error)}</h2><a class="btn" href="${VOLVER}">Volver</a></div>`; return; }
     if (primera) { primera = false; restaurar(r.estado); }
     else { jugadores = r.estado.jugadores; pintarJugadores(); }
   }));
   socket.on('disconnect', () => aviso('Conexión perdida… reconectando'));
 }
 // Partidas creadas desde «Aprender» (sin contraseña) vuelven allí, no al panel
-let VOLVER = (() => { try { return JSON.parse(sessionStorage.getItem('chispa-host') || '{}').volver || 'panel'; } catch { return 'panel'; } })();
+// La partida también se recuerda en el dispositivo (3 horas): si el móvil cierra la app al ir a WhatsApp, al volver se retoma
+const HOST_LS = 'chispa-host-activa', HOST_MAX = 3 * 3600e3;
+function hostGuardado() {
+  try { const s = JSON.parse(sessionStorage.getItem('chispa-host') || 'null'); if (s && s.pin) return s; } catch {}
+  try { const l = JSON.parse(localStorage.getItem(HOST_LS) || 'null'); if (l && l.pin && Date.now() - (l.t || 0) < HOST_MAX) return l; } catch {}
+  return null;
+}
+function olvidarHost() { try { localStorage.removeItem(HOST_LS); sessionStorage.removeItem('chispa-host'); } catch {} }
+let VOLVER = (() => { const h = hostGuardado(); return (h && h.volver) || 'panel'; })();
+document.addEventListener('click', e => { const a = e.target.closest('a[href]'); if (a && a.getAttribute('href') === VOLVER) olvidarHost(); });
 function arrancar(pin, claveHost) {
   CLAVE_HOST = claveHost;
   try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin, claveHost, volver: VOLVER })); } catch {}
+  try { const l = JSON.parse(localStorage.getItem(HOST_LS) || 'null'); localStorage.setItem(HOST_LS, JSON.stringify({ pin, claveHost, volver: VOLVER, t: l && l.pin === pin ? l.t : Date.now() })); } catch {}
   socket = conectarJuego(pin); escuchar();
 }
 (async () => {
-  let prev = null; try { prev = JSON.parse(sessionStorage.getItem('chispa-host') || 'null'); } catch {}
+  const prev = hostGuardado();
   if (prev && qs.get('pin') === prev.pin) return arrancar(prev.pin, prev.claveHost);
   if (!qs.get('id')) { location.href = VOLVER; return; }
   VOLVER = 'panel';

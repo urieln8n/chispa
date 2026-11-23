@@ -835,6 +835,23 @@ function bloqueAvisos() {
     : `<p class="pie" style="opacity:1;margin:0 0 .6rem">Te avisamos en este dispositivo a la hora elegida, solo si ese día aún no has hecho tu lección.</p><button class="btn" id="b-av-on" style="width:100%">🔔 Activar avisos</button>`;
 }
 
+// ===================== Partida en grupo abierta =====================
+// Si el móvil cerró la app (por ejemplo, al compartir el PIN por WhatsApp), al volver se retoma la partida.
+async function partidaAbierta() {
+  let h = null; try { h = JSON.parse(localStorage.getItem('chispa-host-activa') || 'null'); } catch {}
+  if (!h || !h.pin || Date.now() - (h.t || 0) > 3 * 3600e3) return;
+  let info = null; try { const r = await fetch(BASE + 'api/partidas/' + h.pin, { cache: 'no-store' }); if (r.ok) info = await r.json(); } catch { return; }
+  if (!info || info.estado === 'podio') { try { localStorage.removeItem('chispa-host-activa'); } catch {} return; }
+  const ir = () => { try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin: h.pin, claveHost: h.claveHost, volver: h.volver || 'aprender' })); } catch {} location.href = BASE + 'presentar?pin=' + h.pin; };
+  if (info.estado === 'sala' && Date.now() - h.t < 30 * 60e3) return ir(); // aún esperando jugadores: vuelve directo
+  if (document.getElementById('aviso-partida')) return;
+  const d = document.createElement('div'); d.id = 'aviso-partida'; d.className = 'tarjeta-x';
+  d.innerHTML = `<span class="ico">🎮</span><div class="txt"><b>Tienes una partida en grupo abierta</b><span class="pie" style="opacity:1">${esc(info.titulo || '')} · PIN ${esc(h.pin.slice(0, 3) + ' ' + h.pin.slice(3))}</span></div><button class="btn peq" id="b-volver-partida">Volver</button><button class="x" id="b-cerrar-partida" aria-label="Cerrar">✕</button>`;
+  const ap = document.getElementById('app'); ap.insertBefore(d, ap.children[1] || null);
+  document.getElementById('b-volver-partida').onclick = ir;
+  document.getElementById('b-cerrar-partida').onclick = () => { try { localStorage.removeItem('chispa-host-activa'); } catch {} d.remove(); };
+}
+
 // ===================== Contadores anónimos de uso =====================
 // Solo se envía el tipo de evento (sin identificadores). Sirve para saber cuánta gente usa Lumbrera y si vuelve.
 function enviarMetrica(datos) {
@@ -1048,6 +1065,7 @@ if (salvados) setTimeout(() => avisar(`🛡️ Tu protector salvó tu racha (${s
 E.mejorRacha = Math.max(E.mejorRacha || 0, rachaViva());
 metricaActivo();
 avisosSincronizar(); estadoParaAvisos();
+setTimeout(partidaAbierta, 600);
 libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
 var LIGA_INV = (new URLSearchParams(location.search).get('liga') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20) || null;
 var IR_GRUPO = location.hash === '#grupo'; // se lee antes de que inicio() limpie la dirección
