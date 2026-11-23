@@ -23,6 +23,7 @@
           { "name": "ALMACEN", "class_name": "Almacen" }
         ]
       },
+      "triggers": { "crons": ["0 * * * *"] },
       "vars": { "MARCA": "fe", "MAX_PLAYERS": "500", "AI_DAILY_LIMIT": "50", "ANTHROPIC_MODEL": "claude-sonnet-5-5" }
     }
   }

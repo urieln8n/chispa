@@ -2,6 +2,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { idCorto, sha256, DEMO, DEMO_FE, huella } from './comun.js';
 import { LIGA_MAX_DIA } from './liga.js';
+import { generarClavesVapid, cabeceraVapid } from './push.js';
 
 export class Almacen extends DurableObject {
   async init() {
@@ -159,7 +160,63 @@ export class Almacen extends DurableObject {
       liga = sl.exec('SELECT COUNT(*) AS n FROM liga WHERE semana = ?', semana).one().n;
       ligaGrupos = sl.exec("SELECT COUNT(DISTINCT grupo) AS n FROM liga WHERE semana = ? AND grupo != ''", semana).one().n;
     } catch {}
-    return { filas, liga, ligaGrupos };
+    let avisos = 0; try { avisos = this.pushTabla().exec('SELECT COUNT(*) AS n FROM push').one().n; } catch {}
+    return { filas, liga, ligaGrupos, avisos };
+  }
+
+  // ---- Notificaciones push (recordatorio diario de Lumbrera) ----
+  pushTabla() {
+    if (this.pushLista) return this.ctx.storage.sql;
+    this.ctx.storage.sql.exec(`CREATE TABLE IF NOT EXISTS push (endpoint TEXT PRIMARY KEY, hora TEXT NOT NULL, zona TEXT NOT NULL,
+      ultimo_dia TEXT NOT NULL DEFAULT '', ultimo_envio TEXT NOT NULL DEFAULT '', creado INTEGER NOT NULL)`);
+    this.pushLista = true;
+    return this.ctx.storage.sql;
+  }
+  async pushClaves() {
+    let c = await this.ctx.storage.get('vapid');
+    if (!c) { c = await generarClavesVapid(); await this.ctx.storage.put('vapid', c); }
+    return c;
+  }
+  async pushClavePublica() { return (await this.pushClaves()).publica; }
+  async pushGuardar({ endpoint, hora, zona, dia }) {
+    this.pushTabla().exec(`INSERT INTO push (endpoint, hora, zona, ultimo_dia, creado) VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT (endpoint) DO UPDATE SET hora = excluded.hora, zona = excluded.zona, ultimo_dia = CASE WHEN excluded.ultimo_dia > push.ultimo_dia THEN excluded.ultimo_dia ELSE push.ultimo_dia END`,
+      endpoint, hora, zona, dia || '', Date.now());
+    return { total: this.pushTabla().exec('SELECT COUNT(*) AS n FROM push').one().n };
+  }
+  async pushHecho(endpoint, dia) { this.pushTabla().exec('UPDATE push SET ultimo_dia = ? WHERE endpoint = ? AND ultimo_dia < ?', dia, endpoint, dia); }
+  async pushBorrar(endpoint) { this.pushTabla().exec('DELETE FROM push WHERE endpoint = ?', endpoint); }
+  async pushContar() { return this.pushTabla().exec('SELECT COUNT(*) AS n FROM push').one().n; }
+  // Cada hora: avisa a quien tenga esa hora elegida (en su zona) y todavía no haya hecho su lección hoy.
+  // Si alguien lleva más de 14 días sin usar la app, deja de recibir avisos (para no molestar).
+  async pushEnviar({ contacto, ahora = Date.now(), soloEndpoint = null } = {}) {
+    const sql = this.pushTabla(), claves = await this.pushClaves();
+    const filas = soloEndpoint ? sql.exec('SELECT * FROM push WHERE endpoint = ?', soloEndpoint).toArray() : sql.exec('SELECT * FROM push').toArray();
+    const toca = [];
+    for (const f of filas) {
+      let dia, hora;
+      try {
+        dia = new Date(ahora).toLocaleDateString('sv-SE', { timeZone: f.zona });
+        hora = new Intl.DateTimeFormat('en-GB', { timeZone: f.zona, hour: '2-digit', hourCycle: 'h23' }).format(ahora).padStart(2, '0');
+      } catch { continue; }
+      if (!soloEndpoint) {
+        if (hora !== f.hora.slice(0, 2) || f.ultimo_dia === dia || f.ultimo_envio === dia) continue;
+        if (f.ultimo_dia && (new Date(dia) - new Date(f.ultimo_dia)) / 864e5 > 14) continue;
+      }
+      toca.push({ ...f, dia });
+    }
+    let enviados = 0, borrados = 0, fallos = 0;
+    for (let i = 0; i < toca.length; i += 50) {
+      await Promise.all(toca.slice(i, i + 50).map(async f => {
+        try {
+          const r = await fetch(f.endpoint, { method: 'POST', headers: { Authorization: await cabeceraVapid(f.endpoint, claves, contacto), TTL: '43200', Urgency: 'normal', Topic: 'racha', 'Content-Length': '0' } });
+          if (r.status === 404 || r.status === 410) { sql.exec('DELETE FROM push WHERE endpoint = ?', f.endpoint); borrados++; }
+          else if (r.ok) { sql.exec('UPDATE push SET ultimo_envio = ? WHERE endpoint = ?', f.dia, f.endpoint); enviados++; }
+          else { fallos++; console.error('push', r.status, await r.text().catch(() => '')); }
+        } catch (e) { fallos++; console.error('push', e); }
+      }));
+    }
+    return { candidatos: toca.length, enviados, borrados, fallos };
   }
 
   // ---- Tope diario de IA ----

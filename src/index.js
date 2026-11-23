@@ -2,6 +2,8 @@
 import QRCode from 'qrcode';
 import { json, iguales, limpiarCuestionario, normalizarLugar, huella, marcaDe } from './comun.js';
 import { semanaLiga, diaLiga, jugadorDe, apodoValido, grupoValido, LIGA_MAX_ENVIO } from './liga.js';
+import { endpointValido, horaValida, zonaValida } from './push.js';
+const CONTACTO_PUSH = 'mailto:fa.andres18@hotmail.com';
 export { Juego } from './juego.js';
 export { Almacen } from './almacen.js';
 
@@ -85,6 +87,11 @@ export default {
       console.error(e);
       return json({ error: 'Error del servidor' }, 500);
     }
+  },
+  // Cada hora (solo Lumbrera): recordatorios push a quien aún no ha hecho su lección hoy
+  async scheduled(ev, env, ctx) {
+    if (env.MARCA !== 'fe') return;
+    ctx.waitUntil(almacen(env).pushEnviar({ contacto: CONTACTO_PUSH }).then(r => console.log('push', JSON.stringify(r))));
   }
 };
 
@@ -160,6 +167,19 @@ async function api(req, env, url, ruta) {
     else return json({ error: 'Evento desconocido' }, 400);
     await st.metricaSumar(pares);
     return json({ ok: true });
+  }
+  // Lumbrera: notificaciones push (recordatorio diario)
+  if (ruta.startsWith('push/')) {
+    if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
+    if (ruta === 'push/clave' && m === 'GET') return json({ clave: await st.pushClavePublica() }, 200, { 'cache-control': 'no-store' });
+    const b = m === 'POST' ? await cuerpo() : {};
+    const local = env.PUSH_PERMITIR_LOCAL === '1';
+    if (!endpointValido(b.endpoint, local)) return json({ error: 'Suscripción no válida' }, 400);
+    if (ruta === 'push/suscribir' && m === 'POST') return json({ ok: true, ...(await st.pushGuardar({ endpoint: b.endpoint, hora: horaValida(b.hora), zona: zonaValida(b.zona), dia: /^\d{4}-\d{2}-\d{2}$/.test(b.dia || '') ? b.dia : '' })) });
+    if (ruta === 'push/hecho' && m === 'POST') { if (/^\d{4}-\d{2}-\d{2}$/.test(b.dia || '')) await st.pushHecho(b.endpoint, b.dia); return json({ ok: true }); }
+    if (ruta === 'push/borrar' && m === 'POST') { await st.pushBorrar(b.endpoint); return json({ ok: true }); }
+    if (ruta === 'push/probar' && m === 'POST') return json(await st.pushEnviar({ contacto: CONTACTO_PUSH, soloEndpoint: b.endpoint }));
+    return json({ error: 'No encontrado' }, 404);
   }
   if (ruta === 'liga/salir' && m === 'POST') {
     if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);

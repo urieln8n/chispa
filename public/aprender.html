@@ -226,7 +226,7 @@ const CLAVE_E = 'lumbrera-aprender';
 const hoyISO = () => new Date().toLocaleDateString('sv-SE');
 let E = { xp: 0, racha: 0, ultimoDia: '', meta: 30, hoy: { fecha: '', xp: 0 }, lecciones: {}, fallos: {}, talentos: 0, protectores: 0, dias: {}, protegidos: {}, misiones: null };
 try { Object.assign(E, JSON.parse(localStorage.getItem(CLAVE_E) || '{}')); } catch {}
-function guardarE() { try { localStorage.setItem(CLAVE_E, JSON.stringify(E)); } catch {} }
+function guardarE() { try { localStorage.setItem(CLAVE_E, JSON.stringify(E)); } catch {} estadoParaAvisos(); }
 // ===================== Personalización (también en este dispositivo) =====================
 const CLAVE_A = 'lumbrera-ajustes';
 let AJ = { nombre: '', tema: 'noche', letra: 'normal', sonido: true, vibracion: true, ocultarInstalar: false };
@@ -515,16 +515,26 @@ function ajustes() {
     <div class="ajuste"><h3>Tema</h3><div class="eliges">${op('tema', 'noche', '🌙 Noche')}${op('tema', 'claro', '📜 Pergamino')}${op('tema', 'auto', '⚙️ Auto', 'Como tu móvil')}</div></div>
     <div class="ajuste"><h3>Tamaño de letra</h3><div class="eliges">${op('letra', 'normal', 'Normal')}${op('letra', 'grande', 'Grande')}${op('letra', 'muy-grande', 'Muy grande')}</div></div>
     <div class="ajuste"><h3>Sonido y vibración</h3>${inter('sonido', 'Sonidos')}${inter('vibracion', 'Vibración')}</div>
-    <div class="ajuste"><h3>Recordatorio diario</h3><p class="pie" style="opacity:1;margin:0 0 .6rem">Lo añadimos a tu calendario para que te avise cada día.</p>
+    <div class="ajuste"><h3>Recordatorio diario</h3><p class="pie" style="opacity:1;margin:0 0 .6rem">¿A qué hora te aviso?</p>
       <div class="eliges">${['08:00', '14:00', '20:00', '22:00'].map(hh => `<button class="elige${(AJ.hora || '20:00') === hh ? ' sel' : ''}" data-hora="${hh}">${hh}</button>`).join('')}</div>
-      <button class="btn sec" id="b-recordatorio" style="margin-top:.7rem;width:100%">📅 Añadir a mi calendario</button></div>
+      <div id="hueco-avisos" style="margin-top:.8rem">${bloqueAvisos()}</div><p class="error" id="av-err" style="margin:.4rem 0 0"></p>
+      <button class="btn sec" id="b-recordatorio" style="margin-top:.7rem;width:100%">📅 O añádelo a tu calendario</button></div>
     <div class="ajuste"><h3>Instalar la app</h3><div id="hueco-inst-aj">${bloqueInstalar(true)}</div></div>
     <button class="btn grande" id="b-listo" style="margin-top:1.2rem">Listo</button>`;
   const salirAj = () => { AJ.nombre = document.getElementById('i-nombre').value.trim().slice(0, 30); guardarAJ(); delete APP.dataset.vista; inicio(); };
   document.getElementById('b-atras').onclick = salirAj; document.getElementById('b-listo').onclick = salirAj;
   APP.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { AJ[b.dataset.g] = b.dataset.v; guardarAJ(); APP.querySelectorAll(`[data-g="${b.dataset.g}"]`).forEach(x => x.classList.toggle('sel', x === b)); });
   APP.querySelectorAll('[data-meta]').forEach(b => b.onclick = () => { E.meta = +b.dataset.meta; guardarE(); APP.querySelectorAll('[data-meta]').forEach(x => x.classList.toggle('sel', x === b)); });
-  APP.querySelectorAll('[data-hora]').forEach(b => b.onclick = () => { AJ.hora = b.dataset.hora; guardarAJ(); APP.querySelectorAll('[data-hora]').forEach(x => x.classList.toggle('sel', x === b)); });
+  APP.querySelectorAll('[data-hora]').forEach(b => b.onclick = () => { AJ.hora = b.dataset.hora; guardarAJ(); APP.querySelectorAll('[data-hora]').forEach(x => x.classList.toggle('sel', x === b)); avisosSincronizar(); });
+  const pintarAvisos = () => {
+    const h = document.getElementById('hueco-avisos'), err = document.getElementById('av-err'); if (!h) return;
+    h.innerHTML = bloqueAvisos(); err.textContent = '';
+    const on = document.getElementById('b-av-on'), off = document.getElementById('b-av-off'), pr = document.getElementById('b-av-probar');
+    if (on) on.onclick = async () => { on.disabled = true; const r = await activarAvisos(); if (r.error) { err.textContent = r.error; on.disabled = false; } else { pintarAvisos(); avisar('🔔 Avisos activados'); } };
+    if (off) off.onclick = async () => { off.disabled = true; await desactivarAvisos(); pintarAvisos(); avisar('🔕 Avisos desactivados'); };
+    if (pr) pr.onclick = async () => { pr.disabled = true; const sub = await suscripcionActual(); const r = sub ? await postPush('probar', { endpoint: sub.endpoint }).catch(() => null) : null; pr.disabled = false; if (!r || !r.enviados) err.textContent = 'No se ha podido enviar el aviso. Desactiva y vuelve a activar los avisos.'; else avisar('📨 Aviso enviado: debería llegarte en unos segundos'); };
+  };
+  pintarAvisos();
   document.getElementById('b-recordatorio').onclick = () => descargarRecordatorio(AJ.hora || '20:00');
   APP.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { AJ[b.dataset.k] = !AJ[b.dataset.k]; guardarAJ(); b.setAttribute('aria-checked', AJ[b.dataset.k]); if (b.dataset.k === 'sonido' && AJ.sonido) sonido('ok'); if (b.dataset.k === 'vibracion') vibrar(40); });
 }
@@ -737,12 +747,78 @@ function terminar() {
     <button class="btn sec grande" id="b-compartir-fin">📤 Compartir</button></div>`;
   E.talentos = (E.talentos || 0) + talentosLec; guardarE();
   enviarMetrica({ e: 'leccion', modo: LEC.libre ? 'libre' : LEC.modo === 'repaso' ? 'repaso' : 'leccion', perfecta });
+  avisoHecho();
   const datosTarjeta = { racha: rachaViva(), subioRacha, perfecta, precision, puntos: total, estrellas, libre: LEC.libre, repaso: LEC.modo === 'repaso', nombre: AJ.nombre || '' };
   document.getElementById('b-compartir-fin').onclick = () => compartirTarjeta(textoCompartir, datosTarjeta);
+  if (avisosPosibles() && !avisosNecesitaInstalar() && !AJ.avisos && !AJ.avisosPreguntado && Notification.permission !== 'denied') {
+    const f = APP.querySelector('.fin'), d = document.createElement('div');
+    d.className = 'tarjeta-x'; d.style.textAlign = 'left';
+    d.innerHTML = `<span class="ico">🔔</span><div class="txt"><b>¿Te aviso mañana?</b><span class="pie" style="opacity:1">Un aviso a las ${esc(AJ.hora || '20:00')} si aún no has hecho tu lección, para no perder la racha.</span></div><button class="btn peq" id="b-av-si">Sí</button><button class="x" id="b-av-no" aria-label="No, gracias">✕</button>`;
+    f.insertBefore(d, document.getElementById('b-fin'));
+    document.getElementById('b-av-no').onclick = () => { AJ.avisosPreguntado = true; guardarAJ(); d.remove(); };
+    document.getElementById('b-av-si').onclick = async () => { const r = await activarAvisos(); if (r.error) { AJ.avisosPreguntado = true; guardarAJ(); d.querySelector('.pie').textContent = r.error; d.querySelector('#b-av-si').remove(); } else { d.remove(); avisar('🔔 ¡Hecho! Te avisaré si un día se te olvida'); } };
+  }
   avisarLogros(nuevosLogros);
   setTimeout(revisarMisiones, 800);
   document.getElementById('b-fin').onclick = () => LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
 }
+// ===================== Avisos (notificaciones push) =====================
+// El servidor manda un aviso a la hora elegida si hoy aún no has hecho tu lección; el texto lo pone el service worker con tu racha.
+let T_ESTADO = null;
+function estadoParaAvisos() {
+  clearTimeout(T_ESTADO);
+  T_ESTADO = setTimeout(() => {
+    try {
+      const r = indexedDB.open('lumbrera', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => { try { r.result.transaction('kv', 'readwrite').objectStore('kv').put({ racha: E.racha || 0, ultimoDia: E.ultimoDia || '', nombre: (typeof AJ !== 'undefined' && AJ.nombre) || '' }, 'estado'); } catch {} };
+    } catch {}
+  }, 300);
+}
+const avisosPosibles = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const avisosNecesitaInstalar = () => esIOS && !instalada();
+const zonaHoraria = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Madrid'; } catch { return 'Europe/Madrid'; } };
+function claveAUint8(b) { const s = atob(b.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b.length + 3) % 4)); return Uint8Array.from(s, c => c.charCodeAt(0)); }
+async function suscripcionActual() { try { const reg = await navigator.serviceWorker.ready; return await reg.pushManager.getSubscription(); } catch { return null; } }
+const postPush = (ruta, datos) => fetch(BASE + 'api/push/' + ruta, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(datos) }).then(r => r.json());
+async function activarAvisos() {
+  if (!avisosPosibles()) return { error: 'Este navegador no permite avisos. Prueba con Chrome, Edge o Safari actualizados.' };
+  if (avisosNecesitaInstalar()) return { error: 'En iPhone, primero instala Lumbrera (Compartir → «Añadir a pantalla de inicio») y ábrela desde su icono.' };
+  const permiso = await Notification.requestPermission();
+  if (permiso !== 'granted') return { error: permiso === 'denied' ? 'Los avisos están bloqueados. Actívalos en los ajustes del navegador para esta web.' : 'No has dado permiso para los avisos.' };
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) { const { clave } = await fetch(BASE + 'api/push/clave').then(r => r.json()); sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: claveAUint8(clave) }); }
+    const r = await postPush('suscribir', { endpoint: sub.endpoint, hora: AJ.hora || '20:00', zona: zonaHoraria(), dia: E.ultimoDia || '' });
+    if (r.error) return r;
+    AJ.avisos = true; AJ.avisosPreguntado = true; guardarAJ(); estadoParaAvisos();
+    return { ok: true };
+  } catch (e) { return { error: 'No se han podido activar los avisos. Prueba otra vez con conexión.' }; }
+}
+async function desactivarAvisos() {
+  const sub = await suscripcionActual();
+  if (sub) { try { await postPush('borrar', { endpoint: sub.endpoint }); } catch {} try { await sub.unsubscribe(); } catch {} }
+  AJ.avisos = false; guardarAJ();
+}
+async function avisosSincronizar() { // al abrir la app: mantiene al servidor al día (hora, zona) o apaga si se quitó el permiso
+  if (!AJ.avisos || !avisosPosibles()) return;
+  if (Notification.permission !== 'granted') { AJ.avisos = false; guardarAJ(); return; }
+  const sub = await suscripcionActual(); if (!sub) { AJ.avisos = false; guardarAJ(); return; }
+  postPush('suscribir', { endpoint: sub.endpoint, hora: AJ.hora || '20:00', zona: zonaHoraria(), dia: E.ultimoDia || '' }).catch(() => {});
+}
+async function avisoHecho() { // hoy ya has aprendido: el servidor no te avisará hoy
+  if (!AJ.avisos || !avisosPosibles()) return;
+  const sub = await suscripcionActual(); if (sub) postPush('hecho', { endpoint: sub.endpoint, dia: hoyISO() }).catch(() => {});
+}
+function bloqueAvisos() {
+  if (!avisosPosibles() && !esIOS) return '';
+  if (avisosNecesitaInstalar()) return `<p class="pie" style="opacity:1;margin:0 0 .6rem">🔔 Para recibir avisos en iPhone, instala Lumbrera: toca <b>Compartir</b> y <b>«Añadir a pantalla de inicio»</b>, y ábrela desde su icono.</p>`;
+  return AJ.avisos
+    ? `<p class="pie" style="opacity:1;margin:0 0 .6rem">🔔 Avisos activados: te escribimos a la hora elegida solo si ese día aún no has hecho tu lección.</p><div class="dos-btn"><button class="btn sec" id="b-av-probar">Enviar aviso de prueba</button><button class="btn sec" id="b-av-off">Desactivar</button></div>`
+    : `<p class="pie" style="opacity:1;margin:0 0 .6rem">Te avisamos en este dispositivo a la hora elegida, solo si ese día aún no has hecho tu lección.</p><button class="btn" id="b-av-on" style="width:100%">🔔 Activar avisos</button>`;
+}
+
 // ===================== Contadores anónimos de uso =====================
 // Solo se envía el tipo de evento (sin identificadores). Sirve para saber cuánta gente usa Lumbrera y si vuelve.
 function enviarMetrica(datos) {
@@ -955,6 +1031,7 @@ const salvados = aplicarProtectores();
 if (salvados) setTimeout(() => avisar(`🛡️ Tu protector salvó tu racha (${salvados} día${salvados === 1 ? '' : 's'})`), 1200);
 E.mejorRacha = Math.max(E.mejorRacha || 0, rachaViva());
 metricaActivo();
+avisosSincronizar(); estadoParaAvisos();
 libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
 var LIGA_INV = (new URLSearchParams(location.search).get('liga') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20) || null;
 var IR_GRUPO = location.hash === '#grupo'; // se lee antes de que inicio() limpie la dirección

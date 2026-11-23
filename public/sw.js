@@ -1,6 +1,6 @@
 // Lumbrera: permite instalarla como app y aprender sin conexión.
 // Solo lo registra la web de Lumbrera (aprender.html). Nunca guarda la API ni las partidas en vivo.
-const VERSION = 'lumbrera-v2';
+const VERSION = 'lumbrera-v3';
 const BASICO = ['/', '/aprender', '/jugar', '/styles.css', '/comun.js', '/biblia/libros.json', '/biblia/genesis.json',
   '/app/manifest.webmanifest', '/app/icono-192.png', '/app/icono-512.png'];
 
@@ -37,4 +37,36 @@ self.addEventListener('fetch', e => {
     if (res.ok) { const c = res.clone(); caches.open(VERSION).then(x => x.put(req, c)); }
     return res;
   }).catch(() => caches.match(req)));
+});
+
+// ===================== Notificaciones: recordatorio diario =====================
+// El aviso llega sin texto; aquí se elige según la racha que la app guarda en IndexedDB.
+function leerEstado() {
+  return new Promise(ok => {
+    try {
+      const r = indexedDB.open('lumbrera', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onerror = () => ok(null);
+      r.onsuccess = () => { try { const g = r.result.transaction('kv').objectStore('kv').get('estado'); g.onsuccess = () => ok(g.result || null); g.onerror = () => ok(null); } catch { ok(null); } };
+    } catch { ok(null); }
+  });
+}
+self.addEventListener('push', e => {
+  e.waitUntil(leerEstado().then(est => {
+    const hoy = new Date().toLocaleDateString('sv-SE'), ayer = new Date(Date.now() - 864e5).toLocaleDateString('sv-SE');
+    const racha = est && est.racha || 0, nombre = est && est.nombre ? est.nombre.split(' ')[0] : '';
+    let titulo, cuerpo;
+    if (est && est.ultimoDia === hoy) { titulo = '✨ ¡Bien hecho hoy!'; cuerpo = 'Ya has hecho tu lección. Mañana te espera otra.'; }
+    else if (racha >= 2 && est.ultimoDia === ayer) { titulo = `🔥 Tu racha de ${racha} días está en peligro`; cuerpo = `${nombre ? nombre + ', haz' : 'Haz'} una lección de 2 minutos para no perderla.`; }
+    else if (racha === 1 && est.ultimoDia === ayer) { titulo = '🔥 ¡Mantén viva tu racha!'; cuerpo = 'Ayer empezaste. Hoy toca el día 2.'; }
+    else { titulo = '📖 Tu lección de Génesis te espera'; cuerpo = 'Unos minutos al día bastan. ¡Vamos!'; }
+    return self.registration.showNotification(titulo, { body: cuerpo, icon: '/app/icono-192.png', badge: '/app/icono-192.png', tag: 'racha', renotify: true, data: { url: '/' } });
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    const c = cs.find(x => new URL(x.url).origin === location.origin);
+    return c ? c.focus().then(w => w && w.navigate ? w.navigate('/') : w).catch(() => self.clients.openWindow('/')) : self.clients.openWindow('/');
+  }));
 });

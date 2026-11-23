@@ -87,7 +87,7 @@ function pintar(d) {
       ${tile(fmt(v(sem, 'activos')), 'Activos esta semana', 'Desde el lunes · ' + d.semana)}
       ${tile(fmt(v(mes, 'activos')), 'Activos este mes', d.hoy.slice(0, 7))}
       ${tile(fmt(suma7('nuevos')), 'Nuevos (7 días)', 'Total desde el inicio: ' + fmt(v('total', 'nuevos')))}
-      ${tile(vuelven + '%', 'Vuelven en racha', 'Aperturas de los últimos 7 días con racha de 2+ días')}
+      ${tile(vuelven + '%', 'Vuelven en racha', 'Aperturas de los últimos 7 días con racha de 2+ días · ' + fmt(d.avisos) + ' con avisos activados')}
       ${tile(fmt(suma7('lecciones')), 'Lecciones (7 días)', fmt(suma7('perfectas')) + ' perfectas · ' + fmt(suma7('repasos')) + ' repasos · ' + fmt(suma7('partidas_libres')) + ' partidas')}
       ${tile(fmt(suma7('grupo_partidas')), 'Partidas en grupo (7 días)', fmt(suma7('grupo_jugadores')) + ' personas jugando')}
       ${tile(fmt(d.liga), 'En la liga esta semana', fmt(d.ligaGrupos) + (d.ligaGrupos === 1 ? ' grupo' : ' grupos') + ' · ' + fmt(suma7('compartidos')) + ' compartidos (7 días) · ' + app7 + '% desde la app')}
