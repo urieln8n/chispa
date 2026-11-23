@@ -736,12 +736,27 @@ function terminar() {
     <button class="btn grande" id="b-fin">Continuar</button>
     <button class="btn sec grande" id="b-compartir-fin">📤 Compartir</button></div>`;
   E.talentos = (E.talentos || 0) + talentosLec; guardarE();
+  enviarMetrica({ e: 'leccion', modo: LEC.libre ? 'libre' : LEC.modo === 'repaso' ? 'repaso' : 'leccion', perfecta });
   const datosTarjeta = { racha: rachaViva(), subioRacha, perfecta, precision, puntos: total, estrellas, libre: LEC.libre, repaso: LEC.modo === 'repaso', nombre: AJ.nombre || '' };
   document.getElementById('b-compartir-fin').onclick = () => compartirTarjeta(textoCompartir, datosTarjeta);
   avisarLogros(nuevosLogros);
   setTimeout(revisarMisiones, 800);
   document.getElementById('b-fin').onclick = () => LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
 }
+// ===================== Contadores anónimos de uso =====================
+// Solo se envía el tipo de evento (sin identificadores). Sirve para saber cuánta gente usa Lumbrera y si vuelve.
+function enviarMetrica(datos) {
+  try { fetch(BASE + 'api/m', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(datos), keepalive: true }).catch(() => {}); } catch {}
+}
+function metricaActivo() {
+  const hoy = hoyISO(), sem = semanaLocal(), mes = hoy.slice(0, 7), M = E.met;
+  if (M && M.dia === hoy) return;
+  if (!navigator.onLine) return;
+  enviarMetrica({ e: 'activo', nuevo: !M && !E.xp, semana: !M || M.semana !== sem, mes: !M || M.mes !== mes, racha: rachaViva() >= 2,
+    app: matchMedia('(display-mode: standalone)').matches || navigator.standalone === true });
+  E.met = { dia: hoy, semana: sem, mes }; guardarE();
+}
+
 // ===================== Liga semanal =====================
 // Clasificación de puntos de lunes a domingo: global y de tu grupo. Sin cuentas: un token secreto en este dispositivo.
 function semanaLocal() {
@@ -909,6 +924,7 @@ async function tarjetaPNG(d) {
 }
 async function compartirTarjeta(texto, d) {
   const b = document.getElementById('b-compartir-fin'); if (b) b.disabled = true;
+  enviarMetrica({ e: 'compartir' });
   try {
     const blob = await tarjetaPNG(d);
     const f = blob && new File([blob], 'lumbrera.png', { type: 'image/png' });
@@ -938,6 +954,7 @@ function volver() { const id = LEC && (LEC.L ? LEC.L.id : LEC.vuelta); LEC = nul
 const salvados = aplicarProtectores();
 if (salvados) setTimeout(() => avisar(`🛡️ Tu protector salvó tu racha (${salvados} día${salvados === 1 ? '' : 's'})`), 1200);
 E.mejorRacha = Math.max(E.mejorRacha || 0, rachaViva());
+metricaActivo();
 libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
 var LIGA_INV = (new URLSearchParams(location.search).get('liga') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20) || null;
 var IR_GRUPO = location.hash === '#grupo'; // se lee antes de que inicio() limpie la dirección

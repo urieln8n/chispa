@@ -53,7 +53,7 @@ export default {
         return juego(env, pin).fetch(req);
       }
       if (ruta.startsWith('/api/')) return await api(req, env, url, ruta.slice(5));
-      if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+      if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /estadisticas\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
       if (ruta === '/llms.txt' && env.MARCA === 'fe') return new Response(LLMS_LUMBRERA.replaceAll('{{ORIGEN}}', url.origin), { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
       if (ruta === '/sitemap.xml') {
         const urls = env.MARCA === 'fe' ? ['/', '/grupos', '/jugar', '/privacidad'] : ['/', '/privacidad'];
@@ -122,7 +122,7 @@ async function api(req, env, url, ruta) {
     for (let i = 0; i < 8; i++) {
       const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
       const res = await juego(env, pin).crear(pin, { titulo: quiz.titulo, preguntas: quiz.preguntas, cierre: null });
-      if (!res.ocupado) return json({ ...res, n: quiz.preguntas.length });
+      if (!res.ocupado) { const d = diaLiga(); try { await st.metricaSumar([[d, 'grupo_partidas', 1], ['S:' + semanaLiga(), 'grupo_partidas', 1], ['M:' + d.slice(0, 7), 'grupo_partidas', 1]]); } catch {} return json({ ...res, n: quiz.preguntas.length }); }
     }
     return json({ error: 'No se ha podido crear la partida, prueba otra vez' }, 503);
   }
@@ -139,6 +139,27 @@ async function api(req, env, url, ruta) {
     const caducado = !!(b.semana && b.semana !== semana); // puntos de una semana ya cerrada: no cuentan, pero el perfil sí se guarda
     const r = await st.ligaSumar({ semana, dia: diaLiga(), jugador, apodo: a.apodo, grupo: g.grupo, xp: caducado ? 0 : xp });
     return json({ semana, apodo: a.apodo, grupo: g.grupo, caducado, ...r });
+  }
+  // Lumbrera: contadores anónimos de uso (sin identificadores ni datos personales)
+  if (ruta === 'm' && m === 'POST') {
+    if (env.MARCA !== 'fe') return json({ ok: true });
+    const b = await cuerpo(), dia = diaLiga(), sem = 'S:' + semanaLiga(), mes = 'M:' + dia.slice(0, 7), pares = [];
+    const sumar = (clave, enSemana = false, enMes = false) => { pares.push([dia, clave, 1]); if (enSemana) pares.push([sem, clave, 1]); if (enMes) pares.push([mes, clave, 1]); };
+    if (b.e === 'activo') {
+      sumar('activos');
+      if (b.semana === true) pares.push([sem, 'activos', 1]);
+      if (b.mes === true) pares.push([mes, 'activos', 1]);
+      if (b.nuevo === true) { sumar('nuevos', true, true); pares.push(['total', 'nuevos', 1]); }
+      if (b.racha === true) sumar('en_racha');
+      if (b.app === true) sumar('desde_app');
+    } else if (b.e === 'leccion') {
+      const modo = ['leccion', 'repaso', 'libre'].includes(b.modo) ? b.modo : 'leccion';
+      sumar(modo === 'leccion' ? 'lecciones' : modo === 'repaso' ? 'repasos' : 'partidas_libres', true, true);
+      if (b.perfecta === true && modo === 'leccion') sumar('perfectas', true, true);
+    } else if (b.e === 'compartir') sumar('compartidos', true, true);
+    else return json({ error: 'Evento desconocido' }, 400);
+    await st.metricaSumar(pares);
+    return json({ ok: true });
   }
   if (ruta === 'liga/salir' && m === 'POST') {
     if (env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
@@ -194,6 +215,10 @@ async function api(req, env, url, ruta) {
   // --- A partir de aquí, solo presentador ---
   if (!(await autorizado(req, env))) return json({ error: 'Contraseña de presentador incorrecta' }, 401);
 
+  if (ruta === 'metricas' && m === 'GET') {
+    const desde = diaLiga(Date.now() - 34 * 864e5);
+    return json({ hoy: diaLiga(), semana: semanaLiga(), ...(await st.metricas({ desdeDia: desde, semana: semanaLiga() })) }, 200, { 'cache-control': 'no-store' });
+  }
   if (ruta === 'cuestionarios' && m === 'GET')
     return json((await st.listar()).map(q => ({ id: q.id, titulo: q.titulo, categoria: q.categoria || '', tipo: q.tipo || 'trivial',
       n: q.tipo === 'bingo' ? q.canciones.length : q.preguntas.length, actualizado: q.actualizado })));

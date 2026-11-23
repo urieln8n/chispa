@@ -1,5 +1,6 @@
 // Una partida en vivo = un Durable Object (identificado por su PIN). Todo en tiempo real por WebSocket.
 import { DurableObject } from 'cloudflare:workers';
+import { diaLiga, semanaLiga } from './liga.js';
 import { aleatorio, iguales } from './comun.js';
 import * as B from './bingo.js';
 
@@ -175,6 +176,9 @@ export class Juego extends DurableObject {
         respuestas: g.quiz.preguntas.map((_, k) => p.historial[k] || null) }))
     };
     try { await this.env.ALMACEN.get(this.env.ALMACEN.idFromName('principal')).guardarInforme(inf); } catch (e) { console.error('informe', e); }
+    if (this.env.MARCA === 'fe' && rk.length) { // Lumbrera: cuántas personas juegan en grupo (solo el número)
+      const d = diaLiga(); try { await this.env.ALMACEN.get(this.env.ALMACEN.idFromName('principal')).metricaSumar([[d, 'grupo_jugadores', rk.length], ['S:' + semanaLiga(), 'grupo_jugadores', rk.length], ['M:' + d.slice(0, 7), 'grupo_jugadores', rk.length]]); } catch (e) { console.error('metricas', e); }
+    }
     g.informe = { preguntas, csv: `api/informes/${g.pin}.csv?k=${encodeURIComponent(g.claveHost)}` };
     this.aHosts('host:informe', g.informe);
   }

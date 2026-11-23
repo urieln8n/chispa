@@ -139,6 +139,29 @@ export class Almacen extends DurableObject {
     return { semana, total, top: top.map((t, i) => ({ puesto: i + 1, apodo: t.apodo, xp: t.xp, yo: t.jugador === jugador })), yo };
   }
 
+  // ---- Métricas anónimas de Lumbrera: solo contadores por día, semana y mes (sin identificadores) ----
+  metricaTabla() {
+    if (this.metLista) return this.ctx.storage.sql;
+    this.ctx.storage.sql.exec('CREATE TABLE IF NOT EXISTS metricas (periodo TEXT NOT NULL, clave TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (periodo, clave))');
+    this.metLista = true;
+    return this.ctx.storage.sql;
+  }
+  async metricaSumar(pares) {
+    const sql = this.metricaTabla();
+    for (const [periodo, clave, n] of pares) sql.exec('INSERT INTO metricas (periodo, clave, n) VALUES (?, ?, ?) ON CONFLICT (periodo, clave) DO UPDATE SET n = metricas.n + excluded.n', periodo, clave, n);
+  }
+  async metricas({ desdeDia, semana }) {
+    const sql = this.metricaTabla();
+    const filas = sql.exec("SELECT periodo, clave, n FROM metricas WHERE (periodo >= ? AND periodo LIKE '____-__-__') OR periodo LIKE 'S:%' OR periodo LIKE 'M:%' OR periodo = 'total'", desdeDia).toArray();
+    let liga = 0, ligaGrupos = 0;
+    try {
+      const sl = this.ligaTabla();
+      liga = sl.exec('SELECT COUNT(*) AS n FROM liga WHERE semana = ?', semana).one().n;
+      ligaGrupos = sl.exec("SELECT COUNT(DISTINCT grupo) AS n FROM liga WHERE semana = ? AND grupo != ''", semana).one().n;
+    } catch {}
+    return { filas, liga, ligaGrupos };
+  }
+
   // ---- Tope diario de IA ----
   async usoIA(limite) {
     const hoy = new Date().toISOString().slice(0, 10);

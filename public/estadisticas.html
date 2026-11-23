@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1B1640">
+<title>Lumbrera · Estadísticas</title>
+<link rel="icon" href="/app/icono-192.png" type="image/png">
+<link rel="stylesheet" href="styles.css">
+<style>
+  main{max-width:1000px;margin:0 auto;padding:20px 18px 60px}
+  header{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+  h1{font-size:1.7rem}
+  .sub{color:var(--suave);margin:.2rem 0 1.4rem}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media (max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+  .tile{background:rgba(36,30,82,.85);border:1px solid #433a86;border-radius:16px;padding:1rem}
+  .tile .v{font-family:var(--tit);font-size:2.1rem;font-weight:800;line-height:1.1;color:var(--texto)}
+  .tile .l{font-weight:800;color:var(--texto);font-size:.92rem}
+  .tile .d{color:var(--suave);font-size:.8rem;margin-top:.2rem}
+  h2{font-size:1.15rem;margin:2rem 0 .2rem}
+  .nota{color:var(--suave);font-size:.85rem;margin:0 0 .6rem}
+  .grafico{background:rgba(36,30,82,.55);border:1px solid #362e74;border-radius:16px;padding:14px 14px 8px;position:relative}
+  .barras{display:flex;align-items:flex-end;gap:2px;height:170px;border-bottom:1px solid #433a86;position:relative}
+  .barra{flex:1;display:flex;align-items:flex-end;justify-content:center;height:100%;cursor:default;position:relative}
+  .barra i{display:block;width:100%;max-width:24px;background:#F2C46B;border-radius:4px 4px 0 0;min-height:0}
+  .barra.cero i{background:transparent}
+  .barra:hover i{filter:brightness(1.15)}
+  .ejes{display:flex;justify-content:space-between;color:var(--suave);font-size:.75rem;margin-top:6px}
+  .max{position:absolute;left:0;top:-2px;color:var(--suave);font-size:.75rem}
+  .linea-max{position:absolute;left:0;right:0;top:0;border-top:1px dashed rgba(185,178,217,.25)}
+  .tip{position:fixed;pointer-events:none;background:#0d0a26;border:1px solid #5a4fb0;border-radius:10px;padding:.45em .7em;font-size:.85rem;z-index:20;display:none;white-space:nowrap}
+  .tip b{color:var(--texto)}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th,td{padding:.45em .5em;text-align:right;border-bottom:1px solid #2f2770}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--suave);font-weight:800}
+  details summary{cursor:pointer;font-weight:800;margin:1.2rem 0 .6rem}
+  .tabla-wrap{overflow-x:auto}
+  .login{max-width:380px;margin:12vh auto;text-align:center}
+  .login .campo{margin:1rem 0 .6rem}
+</style>
+</head>
+<body class="tema-fe">
+<main id="app"><p class="sub">Cargando…</p></main>
+<div class="tip" id="tip"></div>
+<script src="comun.js"></script>
+<script>
+const app = document.getElementById('app'), tip = document.getElementById('tip');
+const fmt = n => Number(n || 0).toLocaleString('es-ES');
+
+function login(msg = '') {
+  app.innerHTML = `<div class="login"><h1>📊 Estadísticas</h1><p class="sub">Escribe la contraseña del panel de Lumbrera.</p>
+    <input class="campo" id="i-clave" type="password" autocomplete="current-password" placeholder="Contraseña">
+    <p class="error">${esc(msg)}</p><button class="btn" id="b-entrar" style="width:100%">Entrar</button></div>`;
+  const entrar = () => { guardarClave(document.getElementById('i-clave').value); cargar(); };
+  document.getElementById('b-entrar').onclick = entrar;
+  document.getElementById('i-clave').onkeydown = e => { if (e.key === 'Enter') entrar(); };
+  document.getElementById('i-clave').focus();
+}
+
+async function cargar() {
+  if (!clave()) return login();
+  let r;
+  try { r = await fetch(BASE + 'api/metricas', { headers: { 'x-chispa-clave': clave() } }); }
+  catch { app.innerHTML = '<p class="sub">Sin conexión.</p>'; return; }
+  if (r.status === 401) return login('Contraseña incorrecta');
+  pintar(await r.json());
+}
+
+function pintar(d) {
+  // filas → { periodo: { clave: n } }
+  const P = {}; d.filas.forEach(f => { (P[f.periodo] = P[f.periodo] || {})[f.clave] = f.n; });
+  const dias = []; const base = new Date(d.hoy + 'T12:00:00Z');
+  for (let i = 29; i >= 0; i--) { const x = new Date(base - i * 864e5).toISOString().slice(0, 10); dias.push(x); }
+  const v = (per, k) => (P[per] && P[per][k]) || 0;
+  const ult7 = dias.slice(-7), suma7 = k => ult7.reduce((a, x) => a + v(x, k), 0);
+  const sem = 'S:' + d.semana, mes = 'M:' + d.hoy.slice(0, 7);
+  const act7 = suma7('activos'), vuelven = act7 ? Math.round(100 * suma7('en_racha') / act7) : 0, app7 = act7 ? Math.round(100 * suma7('desde_app') / act7) : 0;
+
+  const tile = (valor, l, desc) => `<div class="tile"><div class="v">${valor}</div><div class="l">${l}</div><div class="d">${desc}</div></div>`;
+  app.innerHTML = `<header><div><h1>📊 Estadísticas de Lumbrera</h1></div><a class="btn sec peq" href="/">Ir a la app</a></header>
+    <p class="sub">Contadores anónimos (sin datos personales). Días y semanas en hora de España. Actualizado: ${new Date().toLocaleString('es-ES')}.</p>
+    <div class="tiles">
+      ${tile(fmt(v(d.hoy, 'activos')), 'Activos hoy', 'Personas que han abierto la app hoy')}
+      ${tile(fmt(v(sem, 'activos')), 'Activos esta semana', 'Desde el lunes · ' + d.semana)}
+      ${tile(fmt(v(mes, 'activos')), 'Activos este mes', d.hoy.slice(0, 7))}
+      ${tile(fmt(suma7('nuevos')), 'Nuevos (7 días)', 'Total desde el inicio: ' + fmt(v('total', 'nuevos')))}
+      ${tile(vuelven + '%', 'Vuelven en racha', 'Aperturas de los últimos 7 días con racha de 2+ días')}
+      ${tile(fmt(suma7('lecciones')), 'Lecciones (7 días)', fmt(suma7('perfectas')) + ' perfectas · ' + fmt(suma7('repasos')) + ' repasos · ' + fmt(suma7('partidas_libres')) + ' partidas')}
+      ${tile(fmt(suma7('grupo_partidas')), 'Partidas en grupo (7 días)', fmt(suma7('grupo_jugadores')) + ' personas jugando')}
+      ${tile(fmt(d.liga), 'En la liga esta semana', fmt(d.ligaGrupos) + (d.ligaGrupos === 1 ? ' grupo' : ' grupos') + ' · ' + fmt(suma7('compartidos')) + ' compartidos (7 días) · ' + app7 + '% desde la app')}
+    </div>
+    <h2>Personas activas por día</h2><p class="nota">Últimos 30 días</p>${grafico(dias, x => v(x, 'activos'), 'activas')}
+    <h2>Lecciones terminadas por día</h2><p class="nota">Últimos 30 días · solo lecciones del camino (sin repasos ni partidas)</p>${grafico(dias, x => v(x, 'lecciones'), 'lecciones')}
+    <details><summary>Ver la tabla día a día</summary><div class="tabla-wrap"><table>
+      <thead><tr><th>Día</th><th>Activos</th><th>Nuevos</th><th>En racha</th><th>Lecciones</th><th>Repasos</th><th>Partidas en grupo</th><th>Jugadores en grupo</th><th>Compartidos</th></tr></thead>
+      <tbody>${dias.slice().reverse().map(x => `<tr><td>${fechaCorta(x)}</td>${['activos', 'nuevos', 'en_racha', 'lecciones', 'repasos', 'grupo_partidas', 'grupo_jugadores', 'compartidos'].map(k => `<td>${fmt(v(x, k))}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div></details>
+    <p class="nota" style="margin-top:2rem">Las visitas a la web (páginas vistas, de dónde llega la gente, países) están en Cloudflare → Analytics → Web Analytics.</p>`;
+  app.querySelectorAll('.barra').forEach(b => {
+    b.onmousemove = e => { tip.innerHTML = `<b>${fmt(b.dataset.v)}</b> ${b.dataset.u} · ${b.dataset.f}`; tip.style.display = 'block'; tip.style.left = Math.min(e.clientX + 12, innerWidth - 200) + 'px'; tip.style.top = (e.clientY - 40) + 'px'; };
+    b.onmouseleave = () => { tip.style.display = 'none'; };
+  });
+}
+function fechaCorta(iso) { return new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
+function grafico(dias, valor, unidad) {
+  const vals = dias.map(valor), max = Math.max(1, ...vals);
+  return `<div class="grafico"><div class="barras"><span class="linea-max"></span><span class="max">${fmt(max)}</span>${dias.map((x, i) => `<div class="barra${vals[i] ? '' : ' cero'}" data-v="${vals[i]}" data-u="${unidad}" data-f="${fechaCorta(x)}" aria-label="${fechaCorta(x)}: ${vals[i]} ${unidad}"><i style="height:${100 * vals[i] / max}%"></i></div>`).join('')}</div>
+    <div class="ejes"><span>${fechaCorta(dias[0])}</span><span>${fechaCorta(dias[14])}</span><span>Hoy</span></div></div>`;
+}
+cargar();
+</script>
+</body>
+</html>
