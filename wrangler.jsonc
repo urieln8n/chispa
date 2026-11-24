@@ -3,7 +3,7 @@
   "name": "chispa",
   "main": "src/index.js",
   "compatibility_date": "2026-06-01",
-  "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "none", "run_worker_first": ["/", "/index.html", "/privacidad", "/privacidad.html", "/aprender", "/aprender.html", "/grupos", "/grupos.html", "/privacidad-lumbrera", "/privacidad-lumbrera.html", "/jugar", "/jugar.html", "/favicon.ico", "/preguntas", "/preguntas.html", "/preguntas/*", "/google4d510a5713a71d14.html", "/lider", "/lider.html"] },
+  "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "none", "run_worker_first": ["/", "/index.html", "/privacidad", "/privacidad.html", "/aprender", "/aprender.html", "/grupos", "/grupos.html", "/privacidad-lumbrera", "/privacidad-lumbrera.html", "/jugar", "/jugar.html", "/favicon.ico", "/preguntas", "/preguntas.html", "/preguntas/*", "/google4d510a5713a71d14.html", "/lider", "/lider.html", "/mudanza"] },
   "durable_objects": {
     "bindings": [
       { "name": "JUEGO", "class_name": "Juego" },
@@ -24,7 +24,8 @@
         ]
       },
       "triggers": { "crons": ["0 * * * *"] },
-      "vars": { "MARCA": "fe", "MAX_PLAYERS": "500", "AI_DAILY_LIMIT": "50", "ANTHROPIC_MODEL": "claude-sonnet-5-5" }
+      // Cambio de dominio: DOMINIO_NUEVO vacío = apagado. El día del cambio lo rellena scripts/cambiar-dominio.sh
+      "vars": { "MARCA": "fe", "MAX_PLAYERS": "500", "AI_DAILY_LIMIT": "50", "ANTHROPIC_MODEL": "claude-sonnet-5-5", "DOMINIO_ANTIGUO": "genesis.andresrendon.com", "DOMINIO_NUEVO": "" }
     }
   }
 }

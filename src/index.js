@@ -56,6 +56,10 @@ export default {
     const url = new URL(req.url);
     const ruta = url.pathname;
     try {
+      // Cambio de dominio de Lumbrera (apagado mientras DOMINIO_NUEVO esté vacío): la dirección vieja manda a la nueva
+      const mud = mudanza(req, env, url);
+      if (mud) return mud;
+      if (ruta === '/mudanza' && env.MARCA === 'fe') return new Response(PAGINA_LLEGADA, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
       if (ruta === '/ws') {
         const pin = url.searchParams.get('pin') || '';
         if (!/^\d{6}$/.test(pin)) return new Response('PIN no válido', { status: 400 });
@@ -494,6 +498,42 @@ function preguntaPropia(p) {
   if (malas.some(x => x.toLowerCase() === ok.toLowerCase()) || new Set(malas.map(x => x.toLowerCase())).size !== malas.length) return { error: 'Las respuestas no pueden repetirse' };
   return { t: 'opcion', q, ok, malas, ref: t(p.ref, 40), exp: t(p.exp, 240) };
 }
+
+// ---- Mudanza a un dominio nuevo ----
+// El progreso (racha, lecciones, liga, panel del líder) vive en el navegador y va ligado a la dirección.
+// Por eso, en las páginas de la app, la dirección vieja no redirige a ciegas: una página mínima lee el progreso
+// y lo lleva a la nueva en el fragmento (#), que nunca se envía al servidor. Buscadores y resto de páginas: 301.
+const CLAVES_MUDANZA = ['lumbrera-aprender', 'lumbrera-ajustes', 'lumbrera-lider'];
+function mudanza(req, env, url) {
+  const nuevo = String(env.DOMINIO_NUEVO || '').trim().toLowerCase();
+  if (!nuevo || env.MARCA !== 'fe' || url.hostname !== env.DOMINIO_ANTIGUO || url.hostname === nuevo) return null;
+  if (req.method !== 'GET' && req.method !== 'HEAD') return null;
+  const ruta = url.pathname;
+  if (ruta.startsWith('/api/') || ruta === '/ws' || ruta.startsWith('/google')) return null; // las apps ya instaladas siguen funcionando
+  const pagina = !/\.[a-z0-9]{2,12}$/i.test(ruta) || /\.(html|xml|txt)$/i.test(ruta);
+  if (!pagina) return null; // estilos, libros e iconos siguen sirviéndose en la dirección vieja
+  const destino = 'https://' + nuevo + ruta + url.search;
+  const bot = /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegram|preview|lighthouse/i.test(req.headers.get('user-agent') || '');
+  const conProgreso = ['/', '/index.html', '/aprender', '/aprender.html', '/lider', '/lider.html'].includes(ruta);
+  if (!conProgreso || bot) return Response.redirect(destino, 301);
+  const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<link rel="canonical" href="${destino}"><title>Lumbrera se muda</title><meta name="theme-color" content="#1B1640"></head>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#1B1640;color:#F4F1EA;font-family:system-ui,sans-serif;text-align:center">
+<p>Lumbrera ahora está en <b>${nuevo}</b>.<br>Llevando tu progreso…<noscript><br><a style="color:#F2C46B" href="${destino}">Continuar</a></noscript></p>
+<script>(function(){var d={},n=0;try{${JSON.stringify(CLAVES_MUDANZA)}.forEach(function(k){var v=localStorage.getItem(k);if(v){d[k]=v;n++;}});}catch(e){}
+var ir=${JSON.stringify(destino)};if(n){ir='https://${nuevo}/mudanza?a='+encodeURIComponent(${JSON.stringify(ruta + url.search)})+'#'+encodeURIComponent(JSON.stringify(d));}location.replace(ir);})();</script></body></html>`;
+  return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
+}
+// En la dirección nueva: guarda el progreso traído (sin pisar uno mejor que ya hubiera aquí) y sigue a la página pedida
+const PAGINA_LLEGADA = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Lumbrera</title><meta name="theme-color" content="#1B1640"></head>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#1B1640;color:#F4F1EA;font-family:system-ui,sans-serif"><p>Preparando tu progreso…</p>
+<script>(function(){var ok=${JSON.stringify(CLAVES_MUDANZA)};
+try{var d=JSON.parse(decodeURIComponent(location.hash.slice(1))||'{}');
+ok.forEach(function(k){var v=d[k];if(typeof v!=='string'||v.length>500000)return;var aqui=localStorage.getItem(k);
+if(!aqui){localStorage.setItem(k,v);return;}
+if(k==='lumbrera-aprender'){try{if((JSON.parse(v).xp||0)>(JSON.parse(aqui).xp||0))localStorage.setItem(k,v);}catch(e){}}});}catch(e){}
+var a=new URLSearchParams(location.search).get('a')||'/';if(a.charAt(0)!=='/'||a.charAt(1)==='/')a='/';
+history.replaceState(null,'',location.pathname);location.replace(a);})();</script></body></html>`;
 
 function barajar(a) {
   for (let i = a.length - 1; i > 0; i--) { const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
