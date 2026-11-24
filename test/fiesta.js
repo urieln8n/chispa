@@ -60,6 +60,20 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   ok(!(await host.emit('host:siguiente')).error, 'ir al podio');
   await espera(200);
   ok(podio && podio.top.length === 3 && podio.total === N, 'podio ' + JSON.stringify(podio));
+  // El primero que entra es el anfitrión y lleva el mando; las rondas pasan solas
+  const c3 = await (await fetch(U + '/api/fiesta/crear', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ rondas: 4, modo: 'movil' }) })).json();
+  const p1 = await conectar(c3.pin), p2 = await conectar(c3.pin);
+  const e1 = await p1.emit('jugador:entrar', { apodo: 'Uno' }), e2 = await p2.emit('jugador:entrar', { apodo: 'Dos' });
+  ok(e1.anfitrion && !e2.anfitrion, 'el primero debería ser el anfitrión');
+  ok((await p2.emit('host:siguiente')).error, 'un jugador normal no puede pasar ronda');
+  let rondas = 0; const contar = r => { if (r.fase !== 'votar') rondas++; };
+  p1.on('fiesta:ronda', async r => { contar(r); await espera(r.empiezaEn + 50); p1.emit('fiesta:responder', r.tipo === 'trivial' ? { opcion: 0 } : r.tipo === 'probable' ? { voto: r.opciones[0].id } : r.fase === 'escribir' ? { texto: 'uno' } : { opcion: r.mia === 0 ? 1 : 0 }); });
+  p2.on('fiesta:ronda', async r => { await espera(r.empiezaEn + 80); p2.emit('fiesta:responder', r.tipo === 'trivial' ? { opcion: 1 } : r.tipo === 'probable' ? { voto: r.opciones[1].id } : r.fase === 'escribir' ? { texto: 'dos' } : { opcion: r.mia === 0 ? 1 : 0 }); });
+  ok(!(await p1.emit('host:siguiente')).error, 'el anfitrión empieza desde el móvil');
+  for (let t = 0; t < 200 && rondas < 2; t++) await espera(100);
+  ok(rondas >= 2, 'la segunda ronda debería empezar sola');
+  console.log('✔ Mando en el móvil del primer jugador y rondas automáticas');
+
   console.log(`✔ Partida completa: ${N} jugadores, 9 rondas (trivial ${tipos.trivial}, más probable ${tipos.probable}, verdad o mentira ${tipos.mentira}). Ganador: ${podio.top[0].apodo} con ${podio.top[0].puntos} puntos`);
   process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

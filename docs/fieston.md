@@ -19,6 +19,8 @@ Tercera marca del mismo motor (después de Pulsazo y Lumbrera). La tele es el ta
 
 - **Enviar a la tele con código**: en la tele se abre `/tv`, que enseña un código de 4 letras; el móvil crea la partida con «Con tele», escribe ese código y la tele carga la partida sola (WebSocket `/ws-tele`). El móvil se queda como jugador y mando.
 
+- **Mando en el móvil**: el primer jugador que entra es el anfitrión y lleva el mando (empezar, adelantar, pausar) desde su móvil. Las rondas pasan solas 10 s después de cada resultado.
+
 ## IA
 - Si existe el secreto `OPENAI_API_KEY`, las preguntas personalizadas se hacen con OpenAI (modelo `OPENAI_MODEL`, por defecto `gpt-5.5`; si falla el modelo, prueba `gpt-4o-mini`). Si no, usa `ANTHROPIC_API_KEY`.
 

@@ -11,13 +11,13 @@ export function crear(self, pin, partida) {
   self.g = {
     tipo: 'fiesta', pin, quiz: { titulo: partida.titulo || 'Fiestón' }, rondas, indice: -1, estado: 'sala',
     claveHost: aleatorio(12), jugadores: new Map(), apodos: new Set(), respuestas: new Map(),
-    resultado: null, podio: null, timer: null, inicio: 0, fin: 0, ultima: Date.now(), anfitrion: partida.anfitrion || '', max: Math.min(Math.max(parseInt(partida.maxJugadores, 10) || 12, 2), 50), modo: partida.modo === 'movil' ? 'movil' : 'tele'
+    resultado: null, podio: null, timer: null, inicio: 0, fin: 0, ultima: Date.now(), anfitrion: partida.anfitrion || '', max: Math.min(Math.max(parseInt(partida.maxJugadores, 10) || 12, 2), 50), modo: partida.modo === 'movil' ? 'movil' : 'tele', auto: true, anfitrionId: null
   };
   return { pin, claveHost: self.g.claveHost };
 }
 
 // ---------- utilidades ----------
-const publico = p => ({ id: p.id, apodo: p.apodo, color: p.color, conectado: p.conectado });
+const publico = p => ({ id: p.id, apodo: p.apodo, color: p.color, conectado: p.conectado, anfitrion: !!p.anfitrion });
 const publicos = g => [...g.jugadores.values()].map(publico);
 const ranking = g => [...g.jugadores.values()].sort((a, b) => b.puntos - a.puntos || a.msTotal - b.msTotal);
 const top = (g, n = 5) => ranking(g).slice(0, n).map(p => ({ apodo: p.apodo, color: p.color, puntos: p.puntos }));
@@ -52,11 +52,12 @@ function personal(g, p) {
 function paraMovil(g) {
   const r = ronda(g), res = g.resultado || {};
   return { texto: r.texto, tipo: r.tipo, elegidos: res.elegidos || null, verdad: r.verdad || null,
-    correcta: r.tipo === 'trivial' ? r.opciones[r.correcta] : null, ranking: res.ranking || top(g), ultima: !!res.ultima };
+    correcta: r.tipo === 'trivial' ? r.opciones[r.correcta] : null, ranking: res.ranking || top(g), ultima: !!res.ultima, autoEn: res.autoEn || 0 };
 }
 
 function estadoJugador(g, p) {
-  const r = { id: p.id, token: p.token, apodo: p.apodo, color: p.color, estado: g.estado, titulo: g.quiz.titulo, puntos: p.puntos, total: g.rondas.length, modo: g.modo };
+  const r = { id: p.id, token: p.token, apodo: p.apodo, color: p.color, estado: g.estado, titulo: g.quiz.titulo, puntos: p.puntos, total: g.rondas.length, modo: g.modo, anfitrion: p.id === g.anfitrionId, auto: g.auto };
+  if (p.id === g.anfitrionId) r.jugadores = publicos(g);
   if (g.estado === 'pregunta') {
     r.ronda = datosRonda(g, true); r.yaRespondio = g.fase === 'escribir' ? g.mentiras.has(p.id) : g.respuestas.has(p.id);
     if (g.fase === 'votar') r.ronda.mia = suya(g, p.id);
@@ -174,10 +175,21 @@ function terminar(self) {
   }
   res.indice = g.indice; res.total = g.rondas.length; res.ultima = g.indice + 1 >= g.rondas.length;
   res.ranking = top(g);
+  res.autoEn = g.auto ? ESPERA_AUTO : 0;
   g.resultado = res;
+  programarSiguiente(self);
   self.aHosts('fiesta:resultado', res);
   for (const p of jug) self.aJugador(p, 'fiesta:resultado', { ...personal(g, p), ...paraMovil(g) });
   return { ok: true };
+}
+
+// Rondas automáticas: tras enseñar el resultado, pasa sola a la siguiente (el anfitrión puede adelantarla o pausar)
+const ESPERA_AUTO = 10000;
+function programarSiguiente(self) {
+  const g = self.g; clearTimeout(g.timer);
+  if (!g.auto) return;
+  const indice = g.indice;
+  g.timer = setTimeout(() => { if (self.g === g && g.estado === 'resultado' && g.indice === indice) siguiente(self); }, ESPERA_AUTO);
 }
 
 function final(self) {
@@ -232,7 +244,7 @@ function entrar(self, c, d) {
     if (p) {
       if (p.conn && p.conn !== c) p.conn.rol = null;
       p.conn = c; p.conectado = true; c.rol = 'jugador'; c.jid = p.id;
-      self.aHosts('host:jugadores', publicos(g));
+      avisarJugadores(self);
       return estadoJugador(g, p);
     }
   }
@@ -242,26 +254,28 @@ function entrar(self, c, d) {
   if (g.jugadores.size >= g.max) return { error: `La partida está llena (máximo ${g.max})` };
   if (g.apodos.has(apodo.toLowerCase())) return { error: 'Ese nombre ya está cogido, prueba otro' };
   const p = { id: aleatorio(5), token: aleatorio(12), apodo, color: COLORES[g.jugadores.size % COLORES.length], puntos: 0, racha: 0, msTotal: 0, conn: c, conectado: true, ultimo: null };
+  if (!g.anfitrionId) { g.anfitrionId = p.id; p.anfitrion = true; } // el primero que entra lleva el mando desde su móvil
   g.jugadores.set(p.id, p); g.apodos.add(apodo.toLowerCase());
   c.rol = 'jugador'; c.jid = p.id;
-  self.aHosts('host:jugadores', publicos(g));
+  avisarJugadores(self);
   return estadoJugador(g, p);
 }
 
 export function mensaje(self, c, m, d, ok) {
-  const g = self.g, esHost = c.rol === 'host';
-  const soloHost = fn => { if (!esHost) return ok({ error: 'Solo la pantalla principal' }); ok(fn() || { ok: true }); };
+  const g = self.g, esHost = c.rol === 'host' || (c.rol === 'jugador' && c.jid && c.jid === g.anfitrionId);
+  const soloHost = fn => { if (!esHost) return ok({ error: 'Solo el anfitrión' }); ok(fn() || { ok: true }); };
   switch (m.t) {
     case 'host:reanudar':
       if (!iguales(d.claveHost, g.claveHost)) return ok({ error: 'Partida no encontrada' });
       c.rol = 'host'; return ok({ estado: estadoHost(g) });
     case 'host:siguiente': return soloHost(() => siguiente(self));
     case 'host:terminar': return soloHost(() => final(self));
+    case 'host:pausa': return soloHost(() => { g.auto = !g.auto; if (!g.auto) clearTimeout(g.timer); else if (g.estado === 'resultado') programarSiguiente(self); return { auto: g.auto }; });
     case 'host:expulsar': return soloHost(() => {
       const p = g.jugadores.get(d.id); if (!p || g.estado !== 'sala') return { error: 'Solo se puede quitar a alguien antes de empezar' };
       g.jugadores.delete(p.id); g.apodos.delete(p.apodo.toLowerCase());
       if (p.conn) { self.enviar(p.conn, 'jugador:expulsado', {}); p.conn.rol = null; }
-      self.aHosts('host:jugadores', publicos(g));
+      avisarJugadores(self);
     });
     case 'jugador:entrar': return ok(entrar(self, c, d));
     case 'fiesta:responder': return ok(responder(self, c, d));
@@ -270,4 +284,10 @@ export function mensaje(self, c, m, d, ok) {
 }
 
 export function info(g) { return { titulo: g.quiz.titulo, estado: g.estado, tipo: 'fiesta' }; }
-export function desconectado(self) { self.aHosts('host:jugadores', publicos(self.g)); }
+export function desconectado(self) { avisarJugadores(self); }
+// La lista de jugadores va a la tele y al móvil del anfitrión (que lleva el mando)
+function avisarJugadores(self) {
+  const g = self.g, l = publicos(g);
+  self.aHosts('host:jugadores', l);
+  const a = g.jugadores.get(g.anfitrionId); if (a) self.aJugador(a, 'host:jugadores', l);
+}

@@ -105,7 +105,7 @@ body{overflow-x:hidden}
         <span class="chip">Trivial</span><span class="chip">¿Quién es más probable…?</span><span class="chip">Verdad o mentira</span><span class="chip" id="chip-ia">Preguntas sobre vosotros</span>
       </div>
       <button class="btn" id="btn-empezar" disabled>Empezar partida</button>
-      <p class="pie" style="margin:0">Hacen falta al menos 2 jugadores. También puedes pulsar la barra espaciadora.</p>
+      <p class="pie" style="margin:0">El primero que entra lleva el mando desde su móvil: empezar, adelantar o pausar. Las rondas pasan solas.</p>
     </div>
   </section>
 
@@ -129,7 +129,8 @@ body{overflow-x:hidden}
     <div class="b tarjeta" style="display:flex;flex-direction:column;gap:14px">
       <h2 style="font-size:1.5rem;font-weight:600">Clasificación</h2>
       <div class="ranking" id="res-ranking"></div>
-      <button class="btn" id="btn-siguiente" style="margin-top:auto">Siguiente ronda</button>
+      <p class="sub" id="res-auto" style="margin:auto 0 0"></p>
+      <button class="btn" id="btn-siguiente">Siguiente ronda</button>
     </div>
   </section>
 
@@ -199,7 +200,7 @@ function pintarSala() {
   $('#qr').src = 'api/qr?t=' + encodeURIComponent(e.completo);
   const n = S.jugadores.length;
   $('#n-jug').textContent = n ? `${n} dentro · esperando…` : 'Nadie todavía';
-  $('#lista-sala').innerHTML = S.jugadores.map(p => `<div class="jug entra ${p.conectado ? '' : 'off'}">${av(p)}<span class="nom">${esc(p.apodo)}</span></div>`).join('');
+  $('#lista-sala').innerHTML = S.jugadores.map(p => `<div class="jug entra ${p.conectado ? '' : 'off'}">${av(p)}<span class="nom">${esc(p.apodo)}</span>${p.anfitrion ? '<span class="estado ok">Mando</span>' : ''}</div>`).join('');
   $('#btn-empezar').disabled = n < 2;
 }
 
@@ -213,6 +214,7 @@ function pintarJugadoresRonda() {
 }
 
 function pintarRonda(r) {
+  clearInterval(S.cuentaAuto);
   S.ronda = r; S.respondieron = r.respondieron || []; S.total = r.total;
   $('#info-ronda').textContent = `Ronda ${r.indice + 1} de ${r.total}`;
   $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : r.tipo === 'mentira' ? (r.fase === 'escribir' ? 'Verdad o mentira · Escribid en el móvil una respuesta falsa que parezca de verdad' : 'Verdad o mentira · ¿Cuál es la de verdad? Votad en el móvil') : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial');
@@ -260,6 +262,9 @@ function pintarResultado(res) {
   $('#res-cuerpo').innerHTML = h;
   $('#res-ranking').innerHTML = res.ranking.map((p, i) => `<div class="fila"><span class="pos">${i + 1}</span>${av(p, 32)}<span class="nom">${esc(p.apodo)}</span><span class="pts">${p.puntos.toLocaleString('es-ES')}</span></div>`).join('');
   $('#btn-siguiente').textContent = res.ultima ? 'Ver el podio' : 'Siguiente ronda';
+  clearInterval(S.cuentaAuto);
+  if (res.autoEn) { const fin = Date.now() + res.autoEn; const paso = () => { const s = Math.max(0, Math.ceil((fin - Date.now()) / 1000)); $('#res-auto').textContent = s ? `${res.ultima ? 'Podio' : 'Siguiente ronda'} en ${s} s` : ''; if (!s) clearInterval(S.cuentaAuto); }; paso(); S.cuentaAuto = setInterval(paso, 500); }
+  else $('#res-auto').textContent = '';
   ver('v-resultado'); sonido('ok');
 }
 

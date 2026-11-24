@@ -76,6 +76,7 @@
     <p class="grande" id="res-tit"></p>
     <p style="color:var(--claro);margin:0" id="res-txt"></p>
     <p class="chip" id="res-puesto"></p>
+    <p class="pie" id="res-auto" style="margin:0"></p>
     <div class="rk" id="res-ranking"></div>
   </section>
 
@@ -90,7 +91,7 @@
   <!-- Mandos del anfitrión (modo «solo móviles») -->
   <div class="mandos oculto" id="mandos">
     <div class="fila"><button class="btn sec" type="button" id="btn-invitar">Invitar por WhatsApp</button></div>
-    <div class="fila"><button class="btn" type="button" id="btn-mando">Empezar partida</button></div>
+    <div class="fila"><button class="btn sec oculto" type="button" id="btn-pausa">Pausar</button><button class="btn" type="button" id="btn-mando">Empezar partida</button></div>
   </div>
 </div>
 
@@ -99,7 +100,8 @@
 const qs = new URLSearchParams(location.search);
 const VISTAS = ['v-entrar', 'v-espera', 'v-ronda', 'v-resultado', 'v-final'];
 const S = { pin: String(qs.get('pin') || '').replace(/\D/g, '').slice(0, 6), yo: null, ronda: null, elegido: null, enviado: false, fin: 0, inicio: 0, modo: 'tele' };
-const H = { socket: null, estado: 'sala', jugadores: [], ultima: false };
+const H = { socket: null, activo: false, estado: 'sala', jugadores: [], ultima: false, auto: true };
+let cuentaAuto = null;
 let socket = null, tic = null;
 const claveAnfitrion = () => { try { return localStorage.getItem('fiesta-host-' + S.pin) || ''; } catch { return ''; } };
 const tele = () => S.modo !== 'movil';
@@ -120,22 +122,33 @@ function conectarAnfitrion() {
   H.socket.on('fiesta:podio', () => { H.estado = 'podio'; pintarMandos(); });
 }
 function pintarMandos() {
-  if (!H.socket) return;
+  if (!H.socket && !H.activo) return;
   const m = $('#mandos'), b = $('#btn-mando');
   m.classList.toggle('oculto', H.estado === 'podio');
   $('#btn-invitar').parentElement.classList.toggle('oculto', H.estado !== 'sala');
   const n = H.jugadores.length;
   if (H.estado === 'sala') { b.textContent = n < 2 ? 'Esperando jugadores…' : `Empezar partida (${n})`; b.disabled = n < 2; b.className = 'btn'; }
   else if (H.estado === 'pregunta') { b.textContent = 'Cerrar la ronda ya'; b.disabled = false; b.className = 'btn sec'; }
-  else if (H.estado === 'resultado') { b.textContent = H.ultima ? 'Ver el podio' : 'Siguiente ronda'; b.disabled = false; b.className = 'btn'; }
+  else if (H.estado === 'resultado') { b.textContent = H.ultima ? 'Ver podio' : 'Siguiente'; b.disabled = false; b.className = 'btn'; }
+  $('#btn-pausa').classList.toggle('oculto', H.estado !== 'resultado');
+  $('#btn-pausa').textContent = H.auto ? 'Pausar' : 'Seguir solo';
   if (S.yo && H.estado === 'sala') {
     $('#sala-anfitrion').classList.remove('oculto');
     $('#sala-pin').textContent = S.pin.slice(0, 3) + ' ' + S.pin.slice(3);
     $('#sala-lista').innerHTML = H.jugadores.map(p => `<div>${av(p, 28)}<span class="nom">${esc(p.apodo)}</span></div>`).join('');
-    $('#espera-tit').textContent = 'Tu partida está lista'; $('#espera-txt').textContent = 'Pasa el código o invita por WhatsApp. Cuando estéis todos, pulsa «Empezar».';
+    $('#espera-tit').textContent = 'Tú llevas el mando'; $('#espera-txt').textContent = 'Cuando estéis todos, pulsa «Empezar». Las rondas pasan solas; puedes adelantarlas o pausarlas desde aquí.';
   }
 }
-$('#btn-mando').onclick = () => H.socket && H.socket.emit('host:siguiente', {}, r => { if (r && r.error) aviso(r.error); });
+const mando = (t, cb) => { const sk = H.activo ? socket : H.socket; if (sk) sk.emit(t, {}, r => { if (r && r.error) aviso(r.error); else if (cb) cb(r); }); };
+$('#btn-mando').onclick = () => mando('host:siguiente');
+$('#btn-pausa').onclick = () => mando('host:pausa', r => { H.auto = r.auto; pintarMandos(); pintarCuenta(H.auto ? 10000 : 0); aviso(H.auto ? 'Rondas automáticas' : 'Pausado: pulsa «Siguiente ronda» cuando queráis', 2500); });
+function pintarCuenta(ms) {
+  clearInterval(cuentaAuto); const el = $('#res-auto');
+  if (!ms) { el.textContent = ''; return; }
+  const fin = Date.now() + ms;
+  const paso = () => { const s = Math.max(0, Math.ceil((fin - Date.now()) / 1000)); el.textContent = s ? `Siguiente ronda en ${s} s` : ''; if (!s) clearInterval(cuentaAuto); };
+  paso(); cuentaAuto = setInterval(paso, 500);
+}
 $('#btn-invitar').onclick = () => {
   const url = location.origin + location.pathname + '?pin=' + S.pin;
   compartir(`¡Vente a jugar al Fiestón! Entra desde el móvil con el código ${S.pin.slice(0, 3)} ${S.pin.slice(3)}:`, url);
@@ -153,7 +166,9 @@ function pintarYo() { $('#yo').innerHTML = S.yo ? `${av(S.yo, 26)}<span>${esc(S.
 function aplicarEstado(r) {
   S.yo = { id: r.id, apodo: r.apodo, color: r.color, puntos: r.puntos }; S.modo = r.modo || 'tele'; pintarYo();
   if (!tele()) $('#espera-txt').textContent = 'Esperando a que el anfitrión empiece la partida.';
-  conectarAnfitrion(); pintarMandos();
+  if (r.anfitrion) { H.activo = true; H.estado = r.estado; H.jugadores = r.jugadores || []; H.auto = r.auto !== false; H.ultima = !!(r.resultado && r.resultado.ultima); }
+  else conectarAnfitrion();
+  pintarMandos();
   if (r.estado === 'sala') ver('v-espera');
   else if (r.estado === 'pregunta' && r.ronda) pintarRonda(r.ronda, r.yaRespondio);
   else if (r.estado === 'resultado' && r.resultado) pintarResultado(r.resultado);
@@ -172,14 +187,16 @@ function conectar(apodo) {
     history.replaceState(null, '', location.pathname + '?pin=' + S.pin);
     aplicarEstado(r);
   }));
-  socket.on('fiesta:ronda', r => { if (navigator.vibrate) navigator.vibrate(30); pintarRonda(r, false); });
-  socket.on('fiesta:resultado', r => pintarResultado(r));
-  socket.on('fiesta:podio', r => pintarFinal(r));
+  socket.on('fiesta:ronda', r => { if (navigator.vibrate) navigator.vibrate(30); pintarRonda(r, false); if (H.activo) { H.estado = 'pregunta'; pintarMandos(); } });
+  socket.on('fiesta:resultado', r => { pintarResultado(r); if (H.activo) { H.estado = 'resultado'; H.ultima = r.ultima; pintarMandos(); } });
+  socket.on('fiesta:podio', r => { pintarFinal(r); if (H.activo) { H.estado = 'podio'; pintarMandos(); } });
+  socket.on('host:jugadores', l => { if (H.activo) { H.jugadores = l; pintarMandos(); } });
   socket.on('jugador:expulsado', () => { try { localStorage.removeItem('fiesta-token-' + S.pin); } catch {} socket.close(); ver('v-entrar'); $('#error').textContent = 'Te han quitado de la partida.'; });
   socket.on('jugador:cerrada', () => { socket.close(); ver('v-entrar'); $('#error').textContent = 'La partida se ha cerrado.'; });
 }
 
 function pintarRonda(r, yaRespondio) {
+  clearInterval(cuentaAuto);
   S.ronda = r; S.elegido = null; S.enviado = !!yaRespondio;
   $('#ronda-info').textContent = `Ronda ${r.indice + 1} de ${r.total}`;
   $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : r.tipo === 'mentira' ? (r.fase === 'escribir' ? 'Verdad o mentira · invéntate una respuesta' : 'Verdad o mentira · ¿cuál es la de verdad?') : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial');
@@ -258,6 +275,7 @@ function pintarResultado(r) {
   $('#res-tit').textContent = tit; $('#res-txt').textContent = txt;
   $('#res-puesto').textContent = `Vas ${r.puesto}.º de ${r.total} · ${r.puntos.toLocaleString('es-ES')} puntos`;
   $('#res-ranking').innerHTML = tele() ? '' : rankingHtml(r.ranking);
+  pintarCuenta(r.autoEn && !r.ultima ? r.autoEn : 0);
   ver('v-resultado');
   if (navigator.vibrate) navigator.vibrate(r.acierto ? [20, 40, 20] : 60);
 }
