@@ -2,6 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "chispa",
   "main": "src/index.js",
+  "keep_vars": true,
   "compatibility_date": "2026-06-01",
   "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "none", "run_worker_first": ["/", "/index.html", "/privacidad", "/privacidad.html", "/aprender", "/aprender.html", "/grupos", "/grupos.html", "/privacidad-lumbrera", "/privacidad-lumbrera.html", "/jugar", "/jugar.html", "/favicon.ico", "/preguntas", "/preguntas.html", "/preguntas/*", "/google4d510a5713a71d14.html", "/lider", "/lider.html", "/mudanza", "/panel", "/panel.html", "/editor", "/editor.html", "/presentar", "/presentar.html", "/estadisticas", "/estadisticas.html", "/bingo-*", "/tv"] },
   "durable_objects": {
@@ -30,7 +31,6 @@
     // Tercera marca con el mismo motor: «Fiestón» (juegos de fiesta: la tele es el tablero, el móvil el mando). A mano: npx wrangler deploy --env fiesta
     "fiesta": {
       "name": "fieston",
-      "keep_vars": true,
       "routes": [{ "pattern": "fiesta.andresrendon.com", "custom_domain": true }],
       "durable_objects": {
         "bindings": [
