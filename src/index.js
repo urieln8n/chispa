@@ -4,6 +4,7 @@ import { json, iguales, aleatorio, limpiarCuestionario, normalizarLugar, huella,
 import { semanaLiga, diaLiga, jugadorDe, apodoValido, grupoValido, LIGA_MAX_ENVIO } from './liga.js';
 import { endpointValido, horaValida, zonaValida } from './push.js';
 import { montarRondas, limpiarExtra, PACKS } from './fiesta-packs.js';
+import { permisos, crearPago, canjearPago, PLANES } from './fiesta-pagos.js';
 const CONTACTO_PUSH = 'https://genesis.andresrendon.com/privacidad'; // contacto VAPID (la página de privacidad tiene el email)
 export { Juego } from './juego.js';
 export { Almacen } from './almacen.js';
@@ -148,7 +149,7 @@ async function api(req, env, url, ruta) {
   const cuerpo = async () => { try { return await req.json(); } catch { return {}; } };
   const st = almacen(env);
   // Fiestón solo expone lo que necesita el juego (sin panel de presentador ni cuestionarios guardados)
-  if (env.MARCA === 'fiesta' && !(ruta === 'marca' || ruta === 'qr' || ruta === 'fiesta/crear' || /^partidas\/\d{6}$/.test(ruta))) return json({ error: 'No encontrado' }, 404);
+  if (env.MARCA === 'fiesta' && !(ruta === 'marca' || ruta === 'qr' || ruta.startsWith('fiesta/') || /^partidas\/\d{6}$/.test(ruta))) return json({ error: 'No encontrado' }, 404);
 
   // --- Acceso del presentador ---
   if (ruta === 'login' && m === 'POST') {
@@ -349,6 +350,17 @@ async function api(req, env, url, ruta) {
   }
   // --- Fiestón: cualquiera puede crear una partida (las preguntas personalizadas con IA tienen tope diario) ---
   if (ruta === 'fiesta/crear' && m === 'POST') return crearFiesta(env, st, await cuerpo());
+  if (ruta === 'fiesta/permisos' && m === 'POST') { const b = await cuerpo(); return json({ pagos: !!env.STRIPE_SECRET_KEY, ...(await permisos(env, b.licencia)), precios: Object.fromEntries(Object.entries(PLANES).map(([k, v]) => [k, v.precio])) }); }
+  if (ruta === 'fiesta/pagar' && m === 'POST') {
+    if (!env.STRIPE_SECRET_KEY) return json({ error: 'Los pagos aún no están activados' }, 503);
+    try { return json({ url: await crearPago(env, url.origin, String((await cuerpo()).plan || '')) }); }
+    catch (e) { console.error('stripe', e.message); return json({ error: 'No se ha podido abrir el pago. Prueba otra vez.' }, 502); }
+  }
+  if (ruta === 'fiesta/canjear' && m === 'POST') {
+    if (!env.STRIPE_SECRET_KEY) return json({ error: 'Los pagos aún no están activados' }, 503);
+    try { return json(await canjearPago(env, (await cuerpo()).sesion)); }
+    catch (e) { return json({ error: e.message }, 400); }
+  }
   if (ruta === 'qr' && m === 'GET') {
     const t = String(url.searchParams.get('t') || '').slice(0, 500);
     if (!/^https?:\/\//.test(t)) return new Response('', { status: 400 });
@@ -627,10 +639,11 @@ ${tema}`;
 // ===== Fiestón =====
 async function crearFiesta(env, st, b) {
   const pack = PACKS[b.pack] ? b.pack : 'navidad';
-  const n = Math.min(Math.max(parseInt(b.rondas, 10) || 10, 4), 20);
-  const datos = String(b.datos || '').trim().slice(0, 1500);
+  const per = await permisos(env, b.licencia);
+  const n = Math.min(Math.max(parseInt(b.rondas, 10) || 10, 4), per.rondas);
+  const datos = per.ia ? String(b.datos || '').trim().slice(0, 1500) : '';
   const anfitrion = String(b.anfitrion || '').replace(/\s+/g, ' ').trim().slice(0, 40);
-  let extra = { trivial: [], probable: [] }, aviso = '';
+  let extra = { trivial: [], probable: [] }, aviso = !per.ia && String(b.datos || '').trim() ? 'Las preguntas sobre vosotros son del Pack Familia: jugaréis con el pack.' : '';
   if (datos) {
     if (!env.ANTHROPIC_API_KEY) aviso = 'Las preguntas personalizadas aún no están activadas: jugaréis con el pack.';
     else if (!(await st.usoIA(parseInt(env.AI_DAILY_LIMIT || '50', 10)))) aviso = 'Hoy ya se han hecho muchas partidas personalizadas: jugaréis con el pack.';
@@ -653,7 +666,7 @@ ${datos}
       } catch (e) { console.error('IA fiesta', e.message); aviso = 'No hemos podido personalizar las preguntas: jugaréis con el pack.'; }
     }
   }
-  const partida = { ...montarRondas(pack, n, extra), anfitrion };
+  const partida = { ...montarRondas(pack, n, extra), anfitrion, maxJugadores: per.jugadores };
   for (let i = 0; i < 8; i++) {
     const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
     const res = await juego(env, pin).crearFiesta(pin, partida);

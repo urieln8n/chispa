@@ -11,7 +11,7 @@ export function crear(self, pin, partida) {
   self.g = {
     tipo: 'fiesta', pin, quiz: { titulo: partida.titulo || 'Fiestón' }, rondas, indice: -1, estado: 'sala',
     claveHost: aleatorio(12), jugadores: new Map(), apodos: new Set(), respuestas: new Map(),
-    resultado: null, podio: null, timer: null, inicio: 0, fin: 0, ultima: Date.now(), anfitrion: partida.anfitrion || ''
+    resultado: null, podio: null, timer: null, inicio: 0, fin: 0, ultima: Date.now(), anfitrion: partida.anfitrion || '', max: Math.min(Math.max(parseInt(partida.maxJugadores, 10) || 12, 2), 50)
   };
   return { pin, claveHost: self.g.claveHost };
 }
@@ -176,7 +176,7 @@ function terminar(self) {
 function final(self) {
   const g = self.g; clearTimeout(g.timer);
   g.estado = 'podio';
-  g.podio = { top: top(g, 3), total: g.jugadores.size, ranking: top(g, 12) };
+  g.podio = { top: top(g, 3), total: g.jugadores.size, ranking: top(g, 50) };
   self.aHosts('fiesta:podio', g.podio);
   for (const p of g.jugadores.values()) self.aJugador(p, 'fiesta:podio', { ...personal(g, p), podio: g.podio });
   return { ok: true };
@@ -232,7 +232,7 @@ function entrar(self, c, d) {
   const apodo = String(d.apodo || '').replace(/\s+/g, ' ').trim().slice(0, 16);
   if (!apodo) return { error: d.token ? 'reentrar' : 'Escribe tu nombre' };
   if (g.estado !== 'sala') return { error: 'La partida ya ha empezado' };
-  if (g.jugadores.size >= 12) return { error: 'La partida está llena (máximo 12)' };
+  if (g.jugadores.size >= g.max) return { error: `La partida está llena (máximo ${g.max})` };
   if (g.apodos.has(apodo.toLowerCase())) return { error: 'Ese nombre ya está cogido, prueba otro' };
   const p = { id: aleatorio(5), token: aleatorio(12), apodo, color: COLORES[g.jugadores.size % COLORES.length], puntos: 0, racha: 0, msTotal: 0, conn: c, conectado: true, ultimo: null };
   g.jugadores.set(p.id, p); g.apodos.add(apodo.toLowerCase());

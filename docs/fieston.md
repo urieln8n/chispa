@@ -26,7 +26,13 @@ npx wrangler dev --env fiesta
 node test/fiesta.js   # partida completa con 6 bots
 ```
 
+## Cobro (Stripe)
+- Gratis: partida corta (8 rondas), sin preguntas personalizadas.
+- Pack Familia 3,99 €: hasta 16 rondas e IA, 30 días. Evento Empresa 79 €: hasta 50 jugadores, 20 rondas e IA, 30 días.
+- `src/fiesta-pagos.js`: Stripe Checkout (precios en el código, no hace falta crear productos) y licencias firmadas que se guardan en el navegador del comprador.
+- **Se activa al poner el secreto `STRIPE_SECRET_KEY`** en el worker `fieston`. Sin él, todo es gratis.
+- Prueba: `npx wrangler dev --env fiesta --var STRIPE_SECRET_KEY:sk_test_prueba` y `node test/fiesta-pagos.js`.
+
 ## Pendiente
-- Cobro (Pack Familia / Evento Empresa) con Stripe.
 - Más minijuegos: «Dibuja y adivina».
 - Packs para todo el año: Nochevieja, despedidas, bodas, empresas.

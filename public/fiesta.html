@@ -32,6 +32,14 @@
 .grupo-rondas input:focus-visible+span{outline:2px solid var(--crema);outline-offset:2px}
 textarea.campo{min-height:110px;resize:vertical}
 .entrar-codigo{margin-top:14px;text-align:center}
+.grupo-rondas input:disabled+span{opacity:.45;cursor:not-allowed}
+.planes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:14px}
+.plan{background:var(--pino2);border:1px solid var(--borde);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.plan h3{font-size:1.2rem}
+.plan .precio{font-family:var(--tit);font-weight:800;font-size:1.6rem;color:var(--oro)}
+.plan ul{margin:0;padding-left:1.1em;color:var(--claro);font-size:.92rem;line-height:1.45}
+.plan .btn{margin-top:auto}
+.activo{background:#1F4D3C;border:1px solid var(--menta);border-radius:14px;padding:10px 14px;color:var(--crema);font-weight:600}
 </style>
 </head>
 <body>
@@ -79,9 +87,26 @@ textarea.campo{min-height:110px;resize:vertical}
           <textarea class="campo" id="datos" maxlength="1500" placeholder="Ej.: La abuela Rosa es de Cali y hace los mejores buñuelos. Juan siempre llega tarde. Camila canta en un coro…"></textarea>
           <p class="ayuda">Con esto la IA crea unas cuantas preguntas sobre vosotros. Solo se usa para esta partida: no lo guardamos. Evita datos delicados.</p>
         </div>
+        <p class="activo oculto" id="plan-activo"></p>
         <button class="btn" id="btn-crear" type="submit">Crear partida</button>
         <p class="error" id="error" role="alert"></p>
       </form>
+      <section id="planes" class="oculto" aria-labelledby="tit-planes" style="margin-top:18px">
+        <h2 id="tit-planes" style="font-size:1.3rem">Gratis: una partida corta. ¿Queréis más?</h2>
+        <div class="planes">
+          <div class="plan">
+            <h3>Pack Familia</h3><span class="precio" id="precio-familia">3,99 €</span>
+            <ul><li>Partidas normales y largas, sin límite</li><li>Preguntas sobre tu familia hechas con IA</li><li>Válido 30 días (toda la Navidad)</li></ul>
+            <button class="btn" type="button" data-plan="familia">Comprar Pack Familia</button>
+          </div>
+          <div class="plan">
+            <h3>Evento Empresa</h3><span class="precio" id="precio-empresa">79 €</span>
+            <ul><li>Hasta 50 jugadores y 20 rondas</li><li>Preguntas sobre el equipo hechas con IA</li><li>Para la cena o el afterwork de Navidad</li></ul>
+            <button class="btn sec" type="button" data-plan="empresa">Comprar Evento Empresa</button>
+          </div>
+        </div>
+        <p class="pie" style="margin-top:10px">Pago seguro con Stripe. Si tenéis un código de descuento, se pone en la página de pago.</p>
+      </section>
       <p class="entrar-codigo pie">¿Ya hay una partida en marcha? <a href="fiesta-movil" id="enlace-entrar2">Entra con el código</a></p>
     </section>
   </main>
@@ -89,6 +114,39 @@ textarea.campo{min-height:110px;resize:vertical}
 </div>
 <script src="comun.js"></script>
 <script>
+let LICENCIA = ''; try { LICENCIA = localStorage.getItem('fiesta-licencia') || ''; } catch {}
+const euros = c => (c / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+async function post(ruta, body) {
+  const r = await fetch('api/fiesta/' + ruta, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body || {}) });
+  const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.error || 'Error'); return d;
+}
+function aplicarPermisos(p) {
+  if (!p.pagos) return;
+  const gratis = p.plan === 'gratis';
+  document.querySelectorAll('input[name=rondas]').forEach(i => { i.disabled = gratis && +i.value > p.rondas; });
+  if (gratis) { document.querySelector('input[name=rondas][value="8"]').checked = true; }
+  $('#datos').disabled = !p.ia;
+  $('#datos').placeholder = p.ia ? $('#datos').placeholder : 'Las preguntas sobre vosotros están en el Pack Familia.';
+  $('#planes').classList.toggle('oculto', !gratis);
+  if (p.precios) { $('#precio-familia').textContent = euros(p.precios.familia); $('#precio-empresa').textContent = euros(p.precios.empresa); }
+  const act = $('#plan-activo');
+  if (!gratis) { act.classList.remove('oculto'); act.textContent = `${p.plan === 'empresa' ? 'Evento Empresa' : 'Pack Familia'} activo hasta el ${new Date(p.caduca).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}`; }
+}
+async function cargarPermisos() { try { aplicarPermisos(await post('permisos', { licencia: LICENCIA })); } catch {} }
+(async () => {
+  const pago = new URLSearchParams(location.search).get('pago');
+  if (pago && pago.startsWith('cs_')) {
+    try { const d = await post('canjear', { sesion: pago }); LICENCIA = d.licencia; try { localStorage.setItem('fiesta-licencia', LICENCIA); } catch {} aviso('¡Pago completado! Ya tenéis el pack desbloqueado.', 5000); }
+    catch (e) { aviso(e.message, 6000); }
+    history.replaceState(null, '', location.pathname);
+  } else if (pago === 'cancelado') { aviso('Pago cancelado. Podéis seguir jugando gratis.', 4000); history.replaceState(null, '', location.pathname); }
+  cargarPermisos();
+})();
+document.querySelectorAll('[data-plan]').forEach(b => b.addEventListener('click', async () => {
+  b.disabled = true; const txt = b.textContent; b.textContent = 'Abriendo el pago…';
+  try { location.href = (await post('pagar', { plan: b.dataset.plan })).url; }
+  catch (e) { aviso(e.message, 4000); b.disabled = false; b.textContent = txt; }
+}));
 $('#crear').addEventListener('submit', async e => {
   e.preventDefault();
   const b = $('#btn-crear'), err = $('#error');
@@ -97,7 +155,7 @@ $('#crear').addEventListener('submit', async e => {
   b.disabled = true; b.textContent = datos ? 'Preparando vuestras preguntas…' : 'Creando…';
   try {
     const r = await fetch('api/fiesta/crear', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ pack: 'navidad', rondas: document.querySelector('input[name=rondas]:checked').value, datos, anfitrion: $('#anfitrion').value }) });
+      body: JSON.stringify({ pack: 'navidad', rondas: document.querySelector('input[name=rondas]:checked').value, datos, anfitrion: $('#anfitrion').value, licencia: LICENCIA }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok || !d.pin) throw new Error(d.error || 'No se ha podido crear la partida');
     try { localStorage.setItem('fiesta-host-' + d.pin, d.claveHost); if (d.aviso) sessionStorage.setItem('fiesta-aviso', d.aviso); } catch {}
