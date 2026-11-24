@@ -30,6 +30,7 @@
     // Tercera marca con el mismo motor: «Fiestón» (juegos de fiesta: la tele es el tablero, el móvil el mando). A mano: npx wrangler deploy --env fiesta
     "fiesta": {
       "name": "fieston",
+      "keep_vars": true,
       "routes": [{ "pattern": "fiesta.andresrendon.com", "custom_domain": true }],
       "durable_objects": {
         "bindings": [
