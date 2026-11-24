@@ -64,5 +64,41 @@
   "marcas": [
    "fe"
   ]
+ },
+ {
+  "archivo": "libro-mateo.json",
+  "titulo": "📖 Mateo: 15 rondas para jugar en grupo",
+  "descripcion": "Las preguntas de la sección Aprender de Mateo, en rondas de 8–10 para partidas en vivo.",
+  "n": 15,
+  "marcas": [
+   "fe"
+  ]
+ },
+ {
+  "archivo": "libro-marcos.json",
+  "titulo": "📖 Marcos: 15 rondas para jugar en grupo",
+  "descripcion": "Las preguntas de la sección Aprender de Marcos, en rondas de 8–10 para partidas en vivo.",
+  "n": 15,
+  "marcas": [
+   "fe"
+  ]
+ },
+ {
+  "archivo": "libro-lucas.json",
+  "titulo": "📖 Lucas: 15 rondas para jugar en grupo",
+  "descripcion": "Las preguntas de la sección Aprender de Lucas, en rondas de 8–10 para partidas en vivo.",
+  "n": 15,
+  "marcas": [
+   "fe"
+  ]
+ },
+ {
+  "archivo": "libro-juan.json",
+  "titulo": "📖 Juan: 15 rondas para jugar en grupo",
+  "descripcion": "Las preguntas de la sección Aprender de Juan, en rondas de 8–10 para partidas en vivo.",
+  "n": 15,
+  "marcas": [
+   "fe"
+  ]
  }
 ]

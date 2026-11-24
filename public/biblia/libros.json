@@ -13,6 +13,34 @@
 "testamento": "AT",
 "capitulos": 40,
 "preguntas": 150
+},
+{
+"id": "mateo",
+"nombre": "Mateo",
+"testamento": "NT",
+"capitulos": 28,
+"preguntas": 150
+},
+{
+"id": "marcos",
+"nombre": "Marcos",
+"testamento": "NT",
+"capitulos": 16,
+"preguntas": 150
+},
+{
+"id": "lucas",
+"nombre": "Lucas",
+"testamento": "NT",
+"capitulos": 24,
+"preguntas": 150
+},
+{
+"id": "juan",
+"nombre": "Juan",
+"testamento": "NT",
+"capitulos": 21,
+"preguntas": 150
 }
 ],
 "creditos": "Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988."

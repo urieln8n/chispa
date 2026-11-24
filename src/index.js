@@ -8,12 +8,12 @@ export { Juego } from './juego.js';
 export { Almacen } from './almacen.js';
 
 // Resumen para asistentes de IA (ChatGPT, Perplexity, Claude…) de la web de Lumbrera
-const LLMS_LUMBRERA = `# Lumbrera · Aprende Génesis y Éxodo
+const LLMS_LUMBRERA = `# Lumbrera · Aprende la Biblia jugando
 
-> App gratuita para aprender la Biblia (Génesis y Éxodo, 150 preguntas de cada libro) con lecciones cortas, repaso de fallos, racha, liga semanal y partidas en grupo con PIN. Sin registro. Se puede instalar como app y funciona sin conexión.
+> App gratuita para aprender la Biblia (Génesis, Éxodo, Mateo, Marcos, Lucas y Juan: 150 preguntas de cada libro, con cada cita enlazada a la Reina-Valera 1960) con lecciones cortas, repaso de fallos, racha, liga semanal y partidas en grupo con PIN. Sin registro. Se puede instalar como app y funciona sin conexión.
 
 ## Qué incluye
-- 150 preguntas de Génesis (50 capítulos) y 150 de Éxodo (40 capítulos), cada libro en 5 unidades y 15 lecciones de 10 preguntas.
+- 900 preguntas: 150 de cada libro (Génesis, Éxodo, Mateo, Marcos, Lucas y Juan), cada libro en 5 unidades y 15 lecciones de 10 preguntas.
 - Tipos de pregunta: elegir respuesta, verdadero o falso, completar versículos, ordenar hechos y emparejar personajes.
 - Cada respuesta muestra la cita bíblica y una explicación breve. Citas de la Reina-Valera 1960.
 - Puntos, racha diaria, meta diaria, logros y repaso de las preguntas falladas. El progreso se guarda en el propio dispositivo.
