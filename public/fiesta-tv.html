@@ -63,7 +63,7 @@ body{overflow-x:hidden}
 <body>
 <div class="pantalla">
   <div class="barra">
-    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><a class="logo" href="./">Fiestón</a><span class="sub" id="titulo">Pack Navidad</span></div>
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><a class="logo" href="./">Fiestón</a><span class="sub" id="titulo"></span></div>
     <span class="sub" id="info-ronda"></span>
   </div>
 
@@ -85,7 +85,7 @@ body{overflow-x:hidden}
       </div>
       <div class="jugadores" id="lista-sala"></div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:auto">
-        <span class="chip">Trivial navideño</span><span class="chip">¿Quién es más probable…?</span><span class="chip">Verdad o mentira</span><span class="chip" id="chip-ia">Preguntas sobre vosotros</span>
+        <span class="chip">Trivial</span><span class="chip">¿Quién es más probable…?</span><span class="chip">Verdad o mentira</span><span class="chip" id="chip-ia">Preguntas sobre vosotros</span>
       </div>
       <button class="btn" id="btn-empezar" disabled>Empezar partida</button>
       <p class="pie" style="margin:0">Hacen falta al menos 2 jugadores. También puedes pulsar la barra espaciadora.</p>
@@ -118,7 +118,7 @@ body{overflow-x:hidden}
 
   <!-- Podio -->
   <section id="v-podio" class="oculto" style="display:flex;flex-direction:column;gap:28px;flex-grow:1;justify-content:center">
-    <h1 class="pregunta-txt" style="text-align:center">¡Y el campeón de la Navidad es…!</h1>
+    <h1 class="pregunta-txt" style="text-align:center">¡Y el ganador de la noche es…!</h1>
     <div class="podio" id="podio"></div>
     <div class="acciones" style="justify-content:center">
       <a class="btn" href="./">Jugar otra partida</a>
@@ -172,7 +172,7 @@ function pintarJugadoresRonda() {
 function pintarRonda(r) {
   S.ronda = r; S.respondieron = r.respondieron || []; S.total = r.total;
   $('#info-ronda').textContent = `Ronda ${r.indice + 1} de ${r.total}`;
-  $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : r.tipo === 'mentira' ? (r.fase === 'escribir' ? 'Verdad o mentira · Escribid en el móvil una respuesta falsa que parezca de verdad' : 'Verdad o mentira · ¿Cuál es la de verdad? Votad en el móvil') : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño');
+  $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : r.tipo === 'mentira' ? (r.fase === 'escribir' ? 'Verdad o mentira · Escribid en el móvil una respuesta falsa que parezca de verdad' : 'Verdad o mentira · ¿Cuál es la de verdad? Votad en el móvil') : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial');
   $('#ronda-texto').textContent = r.texto;
   const ops = r.tipo === 'trivial' || (r.tipo === 'mentira' && r.fase === 'votar') ? r.opciones : [];
   $('#ronda-opciones').innerHTML = ops.map((o, i) => `<div class="op"><span class="letra">${LETRAS[i]}</span><span>${esc(o)}</span></div>`).join('');
@@ -200,7 +200,7 @@ function pintarResultado(res) {
   $('#info-ronda').textContent = `Ronda ${res.indice + 1} de ${res.total}`;
   let h = '';
   if (res.tipo === 'trivial') {
-    h = `<div><p class="previa">${res.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño'}</p><h1 class="pregunta-txt" style="font-size:clamp(1.8rem,3.6vw,3rem)">${esc(res.texto)}</h1></div>
+    h = `<div><p class="previa">${res.propia ? 'Pregunta sobre vosotros' : 'Trivial'}</p><h1 class="pregunta-txt" style="font-size:clamp(1.8rem,3.6vw,3rem)">${esc(res.texto)}</h1></div>
       <div class="opciones">${res.opciones.map((o, i) => `<div class="op ${i === res.correcta ? 'buena' : 'mala'}"><span class="letra">${LETRAS[i]}</span><span>${esc(o)}</span><span class="n">${res.conteo[i]}</span></div>`).join('')}</div>`;
   } else if (res.tipo === 'mentira') {
     h = `<div><p class="previa">Verdad o mentira · la respuesta era <b style="color:var(--menta)">${esc(res.verdad)}</b></p><h1 class="pregunta-txt" style="font-size:clamp(1.6rem,3vw,2.6rem)">${esc(res.texto)}</h1></div>
@@ -236,7 +236,7 @@ function iniciar() {
   socket.on('connect', () => socket.emit('host:reanudar', { claveHost: CLAVE }, r => {
     if (!r || r.error) return cargando('Esta partida ya no existe. Vuelve a la portada y crea una nueva.');
     const e = r.estado; S.jugadores = e.jugadores; S.total = e.total;
-    if (e.anfitrion) $('#titulo').textContent = 'Pack Navidad · ' + e.anfitrion;
+    $('#titulo').textContent = e.titulo + (e.anfitrion ? ' · ' + e.anfitrion : '');
     try { const a = sessionStorage.getItem('fiesta-aviso'); if (a) { aviso(a, 6000); sessionStorage.removeItem('fiesta-aviso'); } } catch {}
     if (e.estado === 'sala') { pintarSala(); ver('v-sala'); }
     else if (e.estado === 'pregunta' && e.ronda) pintarRonda(e.ronda);
@@ -255,7 +255,7 @@ function iniciar() {
   $('#btn-cerrar').onclick = siguiente;
   $('#btn-compartir').onclick = () => {
     const p = S.podio; if (!p || !p.top[0]) return;
-    compartir(`🏆 ${p.top[0].apodo} ha ganado el Fiestón de Navidad con ${p.top[0].puntos.toLocaleString('es-ES')} puntos. ¿Os atrevéis?`, location.origin + '/');
+    compartir(`🏆 ${p.top[0].apodo} ha ganado el Fiestón con ${p.top[0].puntos.toLocaleString('es-ES')} puntos. ¿Os atrevéis?`, location.origin + '/');
   };
   document.addEventListener('keydown', e => {
     if (e.code !== 'Space' || /INPUT|TEXTAREA|BUTTON/.test(document.activeElement.tagName)) return;

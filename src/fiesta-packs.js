@@ -64,6 +64,56 @@ export const PACKS = {
   }
 };
 
+PACKS.quedadas = {
+  id: 'quedadas',
+  titulo: 'Pack Quedadas',
+  trivial: [
+    { texto: '¿Cuántos corazones tiene un pulpo?', opciones: ['1', '2', '3', '8'], correcta: 2 },
+    { texto: '¿Cuál es el animal terrestre más rápido?', opciones: ['León', 'Guepardo', 'Caballo', 'Gacela'], correcta: 1 },
+    { texto: '¿Cuál es la capital de Australia?', opciones: ['Sídney', 'Melbourne', 'Canberra', 'Perth'], correcta: 2 },
+    { texto: '¿Cuántas patas tiene una araña?', opciones: ['6', '8', '10', '12'], correcta: 1 },
+    { texto: '¿De qué color es la «caja negra» de un avión?', opciones: ['Negra', 'Naranja', 'Gris', 'Roja'], correcta: 1 },
+    { texto: '¿Cuántos huesos tiene el cuerpo de una persona adulta?', opciones: ['106', '206', '306', '156'], correcta: 1 },
+    { texto: '¿Qué planeta es conocido como el planeta rojo?', opciones: ['Venus', 'Júpiter', 'Marte', 'Mercurio'], correcta: 2 },
+    { texto: '¿Qué instrumento tocaba Paco de Lucía?', opciones: ['Piano', 'Guitarra', 'Violín', 'Cajón'], correcta: 1 },
+    { texto: '¿En qué ciudad está la Sagrada Familia?', opciones: ['Madrid', 'Sevilla', 'Barcelona', 'Valencia'], correcta: 2 },
+    { texto: '¿Cuál es el océano más grande del mundo?', opciones: ['Atlántico', 'Índico', 'Pacífico', 'Ártico'], correcta: 2 },
+    { texto: '¿Qué país tiene más habitantes del mundo?', opciones: ['China', 'India', 'Estados Unidos', 'Indonesia'], correcta: 1 },
+    { texto: '¿Qué idioma tiene más hablantes nativos en el mundo?', opciones: ['Inglés', 'Español', 'Chino mandarín', 'Hindi'], correcta: 2 },
+    { texto: '¿Cuál es el ingrediente principal del guacamole?', opciones: ['Aguacate', 'Tomate', 'Lima', 'Pepino'], correcta: 0 },
+    { texto: '¿Qué pintor se cortó parte de una oreja?', opciones: ['Picasso', 'Dalí', 'Van Gogh', 'Monet'], correcta: 2 },
+    { texto: '¿En qué país están las pirámides de Guiza?', opciones: ['México', 'Egipto', 'Perú', 'Sudán'], correcta: 1 },
+    { texto: '¿Cuál es la moneda de Japón?', opciones: ['Yuan', 'Won', 'Yen', 'Rupia'], correcta: 2 },
+    { texto: '¿Cuántos minutos dura un partido de fútbol sin descuento?', opciones: ['80', '90', '100', '120'], correcta: 1 },
+    { texto: '¿Qué país tiene forma de bota en el mapa?', opciones: ['Grecia', 'Portugal', 'Italia', 'Chile'], correcta: 2 },
+    { texto: '¿Cuántos jugadores de un equipo de fútbol hay en el campo?', opciones: ['9', '10', '11', '12'], correcta: 2 },
+    { texto: '¿Cuál es el metal más caro de estos?', opciones: ['Plata', 'Oro', 'Cobre', 'Hierro'], correcta: 1 },
+    { texto: '¿Qué animal es el símbolo de la marca Ferrari?', opciones: ['Un toro', 'Un caballo', 'Un león', 'Un águila'], correcta: 1 },
+    { texto: '¿Qué gas necesitamos respirar para vivir?', opciones: ['Nitrógeno', 'Oxígeno', 'Helio', 'Dióxido de carbono'], correcta: 1 }
+  ],
+  probable: [
+    '…de llegar tarde a la quedada?', '…de quedarse dormido en el cine?', '…de perder las llaves esta semana?', '…de mandar un mensaje al grupo equivocado?',
+    '…de pedir postre después de decir que está lleno?', '…de hacerse famoso en TikTok?', '…de quedarse sin batería en el peor momento?', '…de perderse con el GPS puesto?',
+    '…de reírse en el momento menos oportuno?', '…de comprar algo que no necesita en las rebajas?', '…de sobrevivir en una isla desierta?', '…de proponer «la última» y que no sea la última?',
+    '…de quedarse el último en la fiesta?', '…de ganar un concurso de karaoke?', '…de olvidarse de un cumpleaños?', '…de tener cien pestañas abiertas en el móvil?',
+    '…de enamorarse en un viaje?', '…de contestar un mensaje tres días después?', '…de organizar el próximo viaje del grupo?', '…de pedir lo mismo que otro en el restaurante?',
+    '…de hacer de DJ sin que nadie se lo pida?', '…de decir «yo invito» y luego no encontrar la cartera?'
+  ],
+  mentira: [
+    { texto: 'Un pulpo tiene ___ corazones.', verdad: 'tres' },
+    { texto: 'El animal nacional de Escocia es el ___.', verdad: 'unicornio' },
+    { texto: 'La Torre Eiffel puede crecer unos centímetros en verano por culpa del ___.', verdad: 'calor' },
+    { texto: 'Los koalas pueden dormir hasta ___ horas al día.', verdad: '22' },
+    { texto: 'Las nutrias de mar duermen ___ para no separarse.', verdad: 'agarradas de la mano' },
+    { texto: 'Bien guardada, la miel puede durar ___.', verdad: 'miles de años' },
+    { texto: 'En los caballitos de mar, el que se queda embarazado es ___.', verdad: 'el macho' },
+    { texto: 'Una jirafa tiene en el cuello el mismo número de vértebras que ___.', verdad: 'una persona' },
+    { texto: 'Los plátanos son ligeramente ___.', verdad: 'radiactivos' },
+    { texto: 'Los flamencos son rosas por ___.', verdad: 'lo que comen' },
+    { texto: 'El corazón de una ballena azul es del tamaño de ___.', verdad: 'un coche pequeño' }
+  ]
+};
+
 function azar(n) { return crypto.getRandomValues(new Uint32Array(1))[0] % n; }
 export function barajar(a) { for (let i = a.length - 1; i > 0; i--) { const j = azar(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 

@@ -637,19 +637,35 @@ ${tema}`;
 }
 
 // ===== Fiestón =====
+// IA para las preguntas personalizadas: usa OpenAI si está OPENAI_API_KEY; si no, Anthropic.
+const hayIA = env => !!(env.OPENAI_API_KEY || env.ANTHROPIC_API_KEY);
+async function iaFiesta(env, prompt) {
+  if (!env.OPENAI_API_KEY) return llamarIA(env, prompt);
+  const pedir = async modelo => fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + env.OPENAI_API_KEY },
+    body: JSON.stringify({ model: modelo, response_format: { type: 'json_object' }, max_completion_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+  });
+  let r = await pedir(env.OPENAI_MODEL || 'gpt-5.5');
+  if (r.status === 404 || r.status === 400) { const e = await r.text(); console.error('openai modelo', e.slice(0, 300)); r = await pedir('gpt-4o-mini'); }
+  const data = await r.json();
+  if (!r.ok) throw new Error((data.error && data.error.message) || 'Error de la IA');
+  const texto = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+  return JSON.parse(texto.slice(texto.indexOf('{'), texto.lastIndexOf('}') + 1));
+}
 async function crearFiesta(env, st, b) {
   const pack = PACKS[b.pack] ? b.pack : 'navidad';
+  const modo = b.modo === 'movil' ? 'movil' : 'tele';
   const per = await permisos(env, b.licencia);
   const n = Math.min(Math.max(parseInt(b.rondas, 10) || 10, 4), per.rondas);
   const datos = per.ia ? String(b.datos || '').trim().slice(0, 1500) : '';
   const anfitrion = String(b.anfitrion || '').replace(/\s+/g, ' ').trim().slice(0, 40);
   let extra = { trivial: [], probable: [] }, aviso = !per.ia && String(b.datos || '').trim() ? 'Las preguntas sobre vosotros son del Pack Familia: jugaréis con el pack.' : '';
   if (datos) {
-    if (!env.ANTHROPIC_API_KEY) aviso = 'Las preguntas personalizadas aún no están activadas: jugaréis con el pack.';
+    if (!hayIA(env)) aviso = 'Las preguntas personalizadas aún no están activadas: jugaréis con el pack.';
     else if (!(await st.usoIA(parseInt(env.AI_DAILY_LIMIT || '50', 10)))) aviso = 'Hoy ya se han hecho muchas partidas personalizadas: jugaréis con el pack.';
     else {
       try {
-        const j = await llamarIA(env, `Eres el guionista de un juego de fiesta familiar de Navidad en español (para familias de España y Latinoamérica).
+        const j = await iaFiesta(env, `Eres el guionista de un juego de fiesta en español (para grupos de España y Latinoamérica). Ambiente: ${pack === 'navidad' ? 'reunión o cena de Navidad en familia o con amigos' : 'quedada de amigos, cena o fiesta'}.
 El anfitrión ha escrito estos datos sobre las personas que juegan. Úsalos SOLO para crear preguntas divertidas y cariñosas; nada que humille, nada de salud, dinero, política, religión ni temas íntimos. Si un dato es delicado, ignóralo.
 
 1) "trivial": 3 preguntas sobre ellos con 4 opciones cortas (una correcta, que salga de los datos; las otras inventadas pero creíbles). "correcta" es el índice 0-3.
@@ -666,7 +682,7 @@ ${datos}
       } catch (e) { console.error('IA fiesta', e.message); aviso = 'No hemos podido personalizar las preguntas: jugaréis con el pack.'; }
     }
   }
-  const partida = { ...montarRondas(pack, n, extra), anfitrion, maxJugadores: per.jugadores };
+  const partida = { ...montarRondas(pack, n, extra), anfitrion, maxJugadores: per.jugadores, modo };
   for (let i = 0; i < 8; i++) {
     const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
     const res = await juego(env, pin).crearFiesta(pin, partida);

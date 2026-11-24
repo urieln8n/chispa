@@ -21,6 +21,12 @@
 .grande{font-family:var(--tit);font-weight:800;font-size:2rem;line-height:1.1}
 .icono{width:72px;height:72px}
 .reloj{font-family:var(--tit);font-weight:800;font-size:1.2rem;color:var(--oro)}
+.mandos{position:sticky;bottom:0;margin:0 -18px calc(-20px - env(safe-area-inset-bottom));padding:12px 18px calc(14px + env(safe-area-inset-bottom));background:#0B211A;border-top:1px solid var(--pino3);display:flex;flex-direction:column;gap:10px}
+.mandos .fila{display:flex;gap:8px}
+.mandos .fila .btn{flex:1}
+.rk{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
+.rk div{display:flex;align-items:center;gap:10px;background:var(--pino2);border-radius:12px;padding:8px 12px}
+.rk .nom{flex-grow:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pin-in{font-family:var(--tit);font-weight:800;font-size:2rem;text-align:center;letter-spacing:.2em}
 </style>
 </head>
@@ -45,6 +51,11 @@
     <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="#9AD1B5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
     <p class="grande" id="espera-tit">¡Ya estás dentro!</p>
     <p style="color:var(--claro);margin:0" id="espera-txt">Mira la tele: la partida empieza enseguida.</p>
+    <div id="sala-anfitrion" class="oculto" style="width:100%;display:flex;flex-direction:column;gap:10px">
+      <p style="margin:0;color:var(--claro)">Código para entrar</p>
+      <p class="grande" id="sala-pin" style="letter-spacing:.15em;margin:0"></p>
+      <div class="rk" id="sala-lista"></div>
+    </div>
   </section>
 
   <!-- Ronda -->
@@ -65,33 +76,84 @@
     <p class="grande" id="res-tit"></p>
     <p style="color:var(--claro);margin:0" id="res-txt"></p>
     <p class="chip" id="res-puesto"></p>
+    <div class="rk" id="res-ranking"></div>
   </section>
 
   <!-- Final -->
   <section id="v-final" class="centro oculto">
     <p class="grande" id="fin-tit"></p>
     <p style="color:var(--claro);margin:0" id="fin-txt"></p>
+    <div class="rk" id="fin-ranking"></div>
     <a class="btn" href="./">Organiza tu propio Fiestón</a>
   </section>
+
+  <!-- Mandos del anfitrión (modo «solo móviles») -->
+  <div class="mandos oculto" id="mandos">
+    <div class="fila"><button class="btn sec" type="button" id="btn-invitar">Invitar por WhatsApp</button></div>
+    <div class="fila"><button class="btn" type="button" id="btn-mando">Empezar partida</button></div>
+  </div>
 </div>
 
 <script src="comun.js"></script>
 <script>
 const qs = new URLSearchParams(location.search);
 const VISTAS = ['v-entrar', 'v-espera', 'v-ronda', 'v-resultado', 'v-final'];
-const S = { pin: String(qs.get('pin') || '').replace(/\D/g, '').slice(0, 6), yo: null, ronda: null, elegido: null, enviado: false, fin: 0, inicio: 0 };
+const S = { pin: String(qs.get('pin') || '').replace(/\D/g, '').slice(0, 6), yo: null, ronda: null, elegido: null, enviado: false, fin: 0, inicio: 0, modo: 'tele' };
+const H = { socket: null, estado: 'sala', jugadores: [], ultima: false };
 let socket = null, tic = null;
+const claveAnfitrion = () => { try { return localStorage.getItem('fiesta-host-' + S.pin) || ''; } catch { return ''; } };
+const tele = () => S.modo !== 'movil';
+function rankingHtml(lista) { return (lista || []).map((p, i) => `<div><b style="width:22px">${i + 1}</b>${av(p, 28)}<span class="nom">${esc(p.apodo)}</span><b>${p.puntos.toLocaleString('es-ES')}</b></div>`).join(''); }
+
+// ---- Anfitrión desde el móvil: segunda conexión con la clave de la partida ----
+function conectarAnfitrion() {
+  const clave = claveAnfitrion(); if (!clave || H.socket) return;
+  H.socket = conectarJuego(S.pin);
+  H.socket.on('connect', () => H.socket.emit('host:reanudar', { claveHost: clave }, r => {
+    if (!r || r.error) return;
+    const e = r.estado; H.estado = e.estado; H.jugadores = e.jugadores; H.ultima = !!(e.resultado && e.resultado.ultima);
+    pintarMandos();
+  }));
+  H.socket.on('host:jugadores', l => { H.jugadores = l; pintarMandos(); });
+  H.socket.on('fiesta:ronda', () => { H.estado = 'pregunta'; pintarMandos(); });
+  H.socket.on('fiesta:resultado', r => { H.estado = 'resultado'; H.ultima = r.ultima; pintarMandos(); });
+  H.socket.on('fiesta:podio', () => { H.estado = 'podio'; pintarMandos(); });
+}
+function pintarMandos() {
+  if (!H.socket) return;
+  const m = $('#mandos'), b = $('#btn-mando');
+  m.classList.toggle('oculto', H.estado === 'podio');
+  $('#btn-invitar').parentElement.classList.toggle('oculto', H.estado !== 'sala');
+  const n = H.jugadores.length;
+  if (H.estado === 'sala') { b.textContent = n < 2 ? 'Esperando jugadores…' : `Empezar partida (${n})`; b.disabled = n < 2; b.className = 'btn'; }
+  else if (H.estado === 'pregunta') { b.textContent = 'Cerrar la ronda ya'; b.disabled = false; b.className = 'btn sec'; }
+  else if (H.estado === 'resultado') { b.textContent = H.ultima ? 'Ver el podio' : 'Siguiente ronda'; b.disabled = false; b.className = 'btn'; }
+  if (S.yo && H.estado === 'sala') {
+    $('#sala-anfitrion').classList.remove('oculto');
+    $('#sala-pin').textContent = S.pin.slice(0, 3) + ' ' + S.pin.slice(3);
+    $('#sala-lista').innerHTML = H.jugadores.map(p => `<div>${av(p, 28)}<span class="nom">${esc(p.apodo)}</span></div>`).join('');
+    $('#espera-tit').textContent = 'Tu partida está lista'; $('#espera-txt').textContent = 'Pasa el código o invita por WhatsApp. Cuando estéis todos, pulsa «Empezar».';
+  }
+}
+$('#btn-mando').onclick = () => H.socket && H.socket.emit('host:siguiente', {}, r => { if (r && r.error) aviso(r.error); });
+$('#btn-invitar').onclick = () => {
+  const url = location.origin + location.pathname + '?pin=' + S.pin;
+  compartir(`¡Vente a jugar al Fiestón! Entra desde el móvil con el código ${S.pin.slice(0, 3)} ${S.pin.slice(3)}:`, url);
+};
 function ver(id) { VISTAS.forEach(v => $('#' + v).classList.toggle('oculto', v !== id)); }
 const token = () => { try { return localStorage.getItem('fiesta-token-' + S.pin) || ''; } catch { return ''; } };
 function iniciales(n) { const w = String(n || '').trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 1)).toUpperCase(); }
 function av(p, t = 34) { return `<span class="avatar" style="width:${t}px;height:${t}px;background:${esc(p.color)};font-size:${Math.round(t * .4)}px">${esc(iniciales(p.apodo))}</span>`; }
 if (S.pin) $('#in-pin').value = S.pin;
+if (S.pin && claveAnfitrion()) { document.querySelector('#v-entrar h1').textContent = 'Tu partida está creada'; $('#btn-entrar').textContent = 'Entrar y jugar'; document.querySelector('label[for=in-nombre]').textContent = 'Tu nombre (tú también juegas)'; }
 try { $('#in-nombre').value = localStorage.getItem('fiesta-nombre') || ''; } catch {}
 
 function pintarYo() { $('#yo').innerHTML = S.yo ? `${av(S.yo, 26)}<span>${esc(S.yo.apodo)} · ${S.yo.puntos.toLocaleString('es-ES')} pts</span>` : ''; }
 
 function aplicarEstado(r) {
-  S.yo = { id: r.id, apodo: r.apodo, color: r.color, puntos: r.puntos }; pintarYo();
+  S.yo = { id: r.id, apodo: r.apodo, color: r.color, puntos: r.puntos }; S.modo = r.modo || 'tele'; pintarYo();
+  if (!tele()) $('#espera-txt').textContent = 'Esperando a que el anfitrión empiece la partida.';
+  conectarAnfitrion(); pintarMandos();
   if (r.estado === 'sala') ver('v-espera');
   else if (r.estado === 'pregunta' && r.ronda) pintarRonda(r.ronda, r.yaRespondio);
   else if (r.estado === 'resultado' && r.resultado) pintarResultado(r.resultado);
@@ -120,7 +182,7 @@ function conectar(apodo) {
 function pintarRonda(r, yaRespondio) {
   S.ronda = r; S.elegido = null; S.enviado = !!yaRespondio;
   $('#ronda-info').textContent = `Ronda ${r.indice + 1} de ${r.total}`;
-  $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : r.tipo === 'mentira' ? (r.fase === 'escribir' ? 'Verdad o mentira · invéntate una respuesta' : 'Verdad o mentira · ¿cuál es la de verdad?') : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño');
+  $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : r.tipo === 'mentira' ? (r.fase === 'escribir' ? 'Verdad o mentira · invéntate una respuesta' : 'Verdad o mentira · ¿cuál es la de verdad?') : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial');
   $('#ronda-texto').textContent = r.texto;
   const L = $('#ronda-lista');
   $('#form-mentira').classList.toggle('oculto', !(r.tipo === 'mentira' && r.fase === 'escribir'));
@@ -153,7 +215,7 @@ function pintarRonda(r, yaRespondio) {
 function enviado() {
   S.enviado = true;
   $('#ronda-lista').querySelectorAll('button').forEach(b => b.disabled = true);
-  const v = $('#btn-votar'); v.disabled = true; v.textContent = 'Enviado · mira la tele';
+  const v = $('#btn-votar'); v.disabled = true; v.textContent = tele() ? 'Enviado · mira la tele' : 'Enviado · esperando a los demás';
   if (S.ronda && (S.ronda.tipo === 'trivial' || S.ronda.tipo === 'mentira')) { v.classList.remove('oculto'); }
   $('#in-mentira').disabled = true; $('#btn-mentira').disabled = true; $('#btn-mentira').textContent = 'Enviado';
 }
@@ -185,7 +247,7 @@ function pintarResultado(r) {
   let tit, txt;
   if (r.tipo === 'trivial') {
     tit = !r.respondio ? 'Se acabó el tiempo' : r.acierto ? '¡Correcto!' : 'Uy, no era esa';
-    txt = r.acierto ? `+${r.ganados} puntos` : 'Mira en la tele cuál era la buena.';
+    txt = r.acierto ? `+${r.ganados} puntos` : `La buena era: ${r.correcta || ''}`;
   } else if (r.tipo === 'mentira') {
     tit = r.acierto ? '¡Has encontrado la verdad!' : (r.respondio ? '¡Te la han colado!' : 'No has votado');
     txt = `La verdad era: ${r.verdad || ''}. ` + (r.engañados ? `Tu mentira engañó a ${r.engañados} ${r.engañados === 1 ? 'persona' : 'personas'}. ` : '') + (r.ganados ? `+${r.ganados} puntos` : '');
@@ -195,6 +257,7 @@ function pintarResultado(r) {
   }
   $('#res-tit').textContent = tit; $('#res-txt').textContent = txt;
   $('#res-puesto').textContent = `Vas ${r.puesto}.º de ${r.total} · ${r.puntos.toLocaleString('es-ES')} puntos`;
+  $('#res-ranking').innerHTML = tele() ? '' : rankingHtml(r.ranking);
   ver('v-resultado');
   if (navigator.vibrate) navigator.vibrate(r.acierto ? [20, 40, 20] : 60);
 }
@@ -204,6 +267,7 @@ function pintarFinal(r) {
   if (S.yo) { S.yo.puntos = r.puntos; pintarYo(); }
   $('#fin-tit').textContent = r.puesto === 1 ? '¡Has ganado!' : `Has quedado ${r.puesto}.º`;
   $('#fin-txt').textContent = `${r.puntos.toLocaleString('es-ES')} puntos · ${r.podio.top[0] ? 'Ganador: ' + r.podio.top[0].apodo : ''}`;
+  $('#fin-ranking').innerHTML = rankingHtml(r.podio.ranking);
   ver('v-final'); if (r.puesto === 1) confeti(120);
 }
 

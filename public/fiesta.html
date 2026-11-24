@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Fiestón · Juegos de Navidad para jugar en familia con el móvil</title>
-<meta name="description" content="El juego de fiesta en español para las cenas de Navidad: la tele es el tablero y cada uno juega desde su móvil. Trivial navideño y «¿Quién es más probable…?», con preguntas sobre tu familia hechas con IA.">
+<title>Fiestón · Juegos de fiesta para jugar en grupo con el móvil</title>
+<meta name="description" content="El juego de fiesta en español para cenas, quedadas y Navidad: cada uno juega desde su móvil, con o sin tele. Trivial, «¿Quién es más probable…?» y «Verdad o mentira», con preguntas sobre vosotros hechas con IA.">
 <meta name="theme-color" content="#0F2A22">
-<meta property="og:title" content="Fiestón · El juego para tu cena de Navidad">
-<meta property="og:description" content="La tele es el tablero, tu móvil el mando. Sin instalar nada.">
+<meta property="og:title" content="Fiestón · El juego para vuestras cenas y quedadas">
+<meta property="og:description" content="Cada uno juega desde su móvil, con o sin tele. Sin instalar nada.">
 <link rel="stylesheet" href="fiesta.css">
 <style>
 .envoltura{max-width:1080px;margin:0 auto;padding:28px 20px 48px}
@@ -51,19 +51,19 @@ textarea.campo{min-height:110px;resize:vertical}
 
   <main class="heroe">
     <section class="txt">
-      <span class="chip">Pack Navidad</span>
-      <h1 style="margin-top:14px">El juego para tu cena de Navidad. La tele es el tablero, tu móvil el mando.</h1>
-      <p class="lead">Trivial navideño, «¿Quién es más probable…?» y «Verdad o mentira» para jugar en familia o con amigos. Cada uno juega desde su móvil, sin instalar nada. Y si quieres, la IA prepara preguntas sobre vosotros.</p>
+      <span class="chip">Navidad, cenas, quedadas y afterworks</span>
+      <h1 style="margin-top:14px">El juego para vuestras cenas y quedadas. Cada uno juega desde su móvil.</h1>
+      <p class="lead">Trivial, «¿Quién es más probable…?» y «Verdad o mentira» para jugar en familia, con amigos o con el equipo del trabajo. Con la tele de tablero o solo con los móviles, sin instalar nada. Y si quieres, la IA prepara preguntas sobre vosotros.</p>
       <div class="pasos">
-        <div class="paso"><b>1</b><span>Abre esta web en la tele o el portátil y crea la partida.</span></div>
-        <div class="paso"><b>2</b><span>Cada invitado entra desde su móvil con el código de la pantalla.</span></div>
+        <div class="paso"><b>1</b><span>Crea la partida: en la tele o el portátil, o directamente en tu móvil.</span></div>
+        <div class="paso"><b>2</b><span>Los demás entran desde su móvil con el código (o el enlace por WhatsApp).</span></div>
         <div class="paso"><b>3</b><span>Contestad, votad y reíos. Gana quien más puntos tenga.</span></div>
       </div>
       <div class="juegos">
-        <span class="chip">Trivial navideño</span>
+        <span class="chip">Trivial</span>
         <span class="chip">¿Quién es más probable…?</span>
         <span class="chip">Verdad o mentira</span>
-        <span class="chip">Preguntas sobre tu familia (IA)</span>
+        <span class="chip">Preguntas sobre vosotros (IA)</span>
       </div>
     </section>
 
@@ -72,8 +72,23 @@ textarea.campo{min-height:110px;resize:vertical}
         <h2 style="font-size:1.6rem">Crear partida</h2>
         <div>
           <label for="anfitrion">Nombre de la partida (opcional)</label>
-          <input class="campo" id="anfitrion" maxlength="40" placeholder="Ej.: Familia Rendón">
+          <input class="campo" id="anfitrion" maxlength="40" placeholder="Ej.: Cena de los viernes">
         </div>
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend style="font-weight:600;margin-bottom:.4em">¿Cómo vais a jugar?</legend>
+          <div class="grupo-rondas">
+            <label><input type="radio" name="modo" value="tele" checked><span>Con tele o portátil</span></label>
+            <label><input type="radio" name="modo" value="movil"><span>Solo con móviles</span></label>
+          </div>
+          <p class="ayuda" id="ayuda-modo">Esta pantalla hace de tablero y los demás juegan con el móvil.</p>
+        </fieldset>
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend style="font-weight:600;margin-bottom:.4em">Preguntas</legend>
+          <div class="grupo-rondas">
+            <label><input type="radio" name="pack" value="navidad" checked><span>Navidad</span></label>
+            <label><input type="radio" name="pack" value="quedadas"><span>Quedadas</span></label>
+          </div>
+        </fieldset>
         <fieldset style="border:0;padding:0;margin:0">
           <legend style="font-weight:600;margin-bottom:.4em">Duración</legend>
           <div class="grupo-rondas">
@@ -96,7 +111,7 @@ textarea.campo{min-height:110px;resize:vertical}
         <div class="planes">
           <div class="plan">
             <h3>Pack Familia</h3><span class="precio" id="precio-familia">3,99 €</span>
-            <ul><li>Partidas normales y largas, sin límite</li><li>Preguntas sobre tu familia hechas con IA</li><li>Válido 30 días (toda la Navidad)</li></ul>
+            <ul><li>Partidas normales y largas, sin límite</li><li>Preguntas sobre vosotros hechas con IA</li><li>Válido 30 días</li></ul>
             <button class="btn" type="button" data-plan="familia">Comprar Pack Familia</button>
           </div>
           <div class="plan">
@@ -147,6 +162,9 @@ document.querySelectorAll('[data-plan]').forEach(b => b.addEventListener('click'
   try { location.href = (await post('pagar', { plan: b.dataset.plan })).url; }
   catch (e) { aviso(e.message, 4000); b.disabled = false; b.textContent = txt; }
 }));
+document.querySelectorAll('input[name=modo]').forEach(i => i.addEventListener('change', () => {
+  $('#ayuda-modo').textContent = i.value === 'movil' && i.checked ? 'Tú también juegas y llevas los mandos desde tu móvil. Los demás entran con el código o el enlace.' : 'Esta pantalla hace de tablero y los demás juegan con el móvil.';
+}));
 $('#crear').addEventListener('submit', async e => {
   e.preventDefault();
   const b = $('#btn-crear'), err = $('#error');
@@ -155,11 +173,12 @@ $('#crear').addEventListener('submit', async e => {
   b.disabled = true; b.textContent = datos ? 'Preparando vuestras preguntas…' : 'Creando…';
   try {
     const r = await fetch('api/fiesta/crear', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ pack: 'navidad', rondas: document.querySelector('input[name=rondas]:checked').value, datos, anfitrion: $('#anfitrion').value, licencia: LICENCIA }) });
+      body: JSON.stringify({ pack: document.querySelector('input[name=pack]:checked').value, modo: document.querySelector('input[name=modo]:checked').value, rondas: document.querySelector('input[name=rondas]:checked').value, datos, anfitrion: $('#anfitrion').value, licencia: LICENCIA }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok || !d.pin) throw new Error(d.error || 'No se ha podido crear la partida');
     try { localStorage.setItem('fiesta-host-' + d.pin, d.claveHost); if (d.aviso) sessionStorage.setItem('fiesta-aviso', d.aviso); } catch {}
-    location.href = 'fiesta-tv?pin=' + d.pin;
+    const modo = document.querySelector('input[name=modo]:checked').value;
+    location.href = (modo === 'movil' ? 'fiesta-movil?anfitrion=1&pin=' : 'fiesta-tv?pin=') + d.pin;
   } catch (x) {
     err.textContent = x.message; b.disabled = false; b.textContent = 'Crear partida';
   }

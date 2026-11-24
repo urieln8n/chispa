@@ -18,6 +18,9 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   ok(c.pin && c.claveHost, 'crear ' + JSON.stringify(c));
   const { pin, claveHost } = c;
   const info = await (await fetch(U + '/api/partidas/' + pin)).json(); ok(info.tipo === 'fiesta', 'info');
+  const cm = await (await fetch(U + '/api/fiesta/crear', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ rondas: 8, modo: 'movil', pack: 'quedadas' }) })).json();
+  const hm = await conectar(cm.pin); const em = await hm.emit('host:reanudar', { claveHost: cm.claveHost }); ok(em.estado.modo === 'movil' && em.estado.titulo === 'Pack Quedadas', 'modo móvil ' + JSON.stringify(em.estado));
+  const jm = await (await conectar(cm.pin)).emit('jugador:entrar', { apodo: 'Ana' }); ok(jm.modo === 'movil', 'jugador ve el modo');
   const host = await conectar(pin);
   const est = await host.emit('host:reanudar', { claveHost }); ok(est.estado && est.estado.total === 9, 'reanudar ' + JSON.stringify(est));
   ok((await host.emit('host:siguiente')).error, 'no debería empezar con 0 jugadores');
@@ -43,6 +46,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
     const a = await b.emit('fiesta:responder', d); ok(a.ok, 'responder ' + JSON.stringify(a));
     const a2 = await b.emit('fiesta:responder', d); ok(a2.error, 'responder dos veces debería fallar');
   }));
+  bots.forEach(b => b.on('fiesta:resultado', r => { ok(r.ranking && r.ranking.length && r.texto, 'resultado para el móvil ' + JSON.stringify(r)); if (r.tipo === 'trivial') ok(r.correcta, 'falta la respuesta correcta'); }));
   let ultimoRes = null; host.on('fiesta:resultado', r => { ultimoRes = r; resultados++; });
   for (let k = 0; k < 9; k++) {
     const antes = resultados;

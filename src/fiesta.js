@@ -11,7 +11,7 @@ export function crear(self, pin, partida) {
   self.g = {
     tipo: 'fiesta', pin, quiz: { titulo: partida.titulo || 'Fiestón' }, rondas, indice: -1, estado: 'sala',
     claveHost: aleatorio(12), jugadores: new Map(), apodos: new Set(), respuestas: new Map(),
-    resultado: null, podio: null, timer: null, inicio: 0, fin: 0, ultima: Date.now(), anfitrion: partida.anfitrion || '', max: Math.min(Math.max(parseInt(partida.maxJugadores, 10) || 12, 2), 50)
+    resultado: null, podio: null, timer: null, inicio: 0, fin: 0, ultima: Date.now(), anfitrion: partida.anfitrion || '', max: Math.min(Math.max(parseInt(partida.maxJugadores, 10) || 12, 2), 50), modo: partida.modo === 'movil' ? 'movil' : 'tele'
   };
   return { pin, claveHost: self.g.claveHost };
 }
@@ -38,7 +38,7 @@ function datosRonda(g, paraJugador = false) {
 }
 
 function estadoHost(g) {
-  return { tipo: 'fiesta', pin: g.pin, titulo: g.quiz.titulo, estado: g.estado, indice: g.indice, total: g.rondas.length,
+  return { tipo: 'fiesta', modo: g.modo, pin: g.pin, titulo: g.quiz.titulo, estado: g.estado, indice: g.indice, total: g.rondas.length,
     jugadores: publicos(g), ronda: g.estado === 'pregunta' ? datosRonda(g) : null,
     resultado: g.estado === 'resultado' ? g.resultado : null, podio: g.estado === 'podio' ? g.podio : null, anfitrion: g.anfitrion };
 }
@@ -48,13 +48,20 @@ function personal(g, p) {
   return { ...u, puntos: p.puntos, puesto: i + 1, total: rk.length };
 }
 
+// Lo que el móvil necesita para enseñar el resultado sin tele
+function paraMovil(g) {
+  const r = ronda(g), res = g.resultado || {};
+  return { texto: r.texto, tipo: r.tipo, elegidos: res.elegidos || null, verdad: r.verdad || null,
+    correcta: r.tipo === 'trivial' ? r.opciones[r.correcta] : null, ranking: res.ranking || top(g), ultima: !!res.ultima };
+}
+
 function estadoJugador(g, p) {
-  const r = { id: p.id, token: p.token, apodo: p.apodo, color: p.color, estado: g.estado, titulo: g.quiz.titulo, puntos: p.puntos, total: g.rondas.length };
+  const r = { id: p.id, token: p.token, apodo: p.apodo, color: p.color, estado: g.estado, titulo: g.quiz.titulo, puntos: p.puntos, total: g.rondas.length, modo: g.modo };
   if (g.estado === 'pregunta') {
     r.ronda = datosRonda(g, true); r.yaRespondio = g.fase === 'escribir' ? g.mentiras.has(p.id) : g.respuestas.has(p.id);
     if (g.fase === 'votar') r.ronda.mia = suya(g, p.id);
   }
-  if (g.estado === 'resultado') r.resultado = { ...personal(g, p), texto: ronda(g).texto, tipo: ronda(g).tipo };
+  if (g.estado === 'resultado') r.resultado = { ...personal(g, p), ...paraMovil(g) };
   if (g.estado === 'podio') r.final = { ...personal(g, p), podio: g.podio };
   return r;
 }
@@ -169,7 +176,7 @@ function terminar(self) {
   res.ranking = top(g);
   g.resultado = res;
   self.aHosts('fiesta:resultado', res);
-  for (const p of jug) self.aJugador(p, 'fiesta:resultado', { ...personal(g, p), texto: r.texto, tipo: r.tipo, elegidos: res.elegidos || null, verdad: r.verdad || null });
+  for (const p of jug) self.aJugador(p, 'fiesta:resultado', { ...personal(g, p), ...paraMovil(g) });
   return { ok: true };
 }
 

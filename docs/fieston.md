@@ -12,6 +12,14 @@ Tercera marca del mismo motor (después de Pulsazo y Lumbrera). La tele es el ta
 ## Direcciones (entorno `fiesta`)
 - `/` portada · `/jugar` entrar desde el móvil · `/fiesta-tv?pin=…` pantalla (la abre la portada al crear la partida).
 
+## Modos y packs
+- **Con tele**: la portada abre la pantalla de la tele (`/fiesta-tv`) y los demás juegan con el móvil.
+- **Solo con móviles**: quien crea la partida entra en `/jugar` como jugador y lleva los mandos (empezar, cerrar ronda, siguiente) desde su móvil; cada móvil enseña la respuesta correcta y la clasificación.
+- Packs: **Navidad** y **Quedadas** (para cualquier cena o reunión del año).
+
+## IA
+- Si existe el secreto `OPENAI_API_KEY`, las preguntas personalizadas se hacen con OpenAI (modelo `OPENAI_MODEL`, por defecto `gpt-5.5`; si falla el modelo, prueba `gpt-4o-mini`). Si no, usa `ANTHROPIC_API_KEY`.
+
 ## Publicar
 ```bash
 npx wrangler deploy --env fiesta
