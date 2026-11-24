@@ -192,6 +192,14 @@ async function api(req, env, url, ruta) {
       sumar(modo === 'leccion' ? 'lecciones' : modo === 'repaso' ? 'repasos' : 'partidas_libres', true, true);
       if (b.perfecta === true && modo === 'leccion') sumar('perfectas', true, true);
     } else if (b.e === 'compartir') sumar('compartidos', true, true);
+    else if (b.e === 'embudo') {
+      if (!['bienvenida_vista', 'bienvenida_fin', 'primera_leccion', 'racha_2'].includes(b.paso)) return json({ error: 'Paso desconocido' }, 400);
+      sumar('emb_' + b.paso, true, true);
+    } else if (b.e === 'perfil') { // respuestas de la bienvenida: solo valores de la lista, sin nada personal
+      if (['instagram', 'tiktok', 'whatsapp', 'youtube', 'iglesia', 'amigo', 'google', 'otro'].includes(b.origen)) sumar('origen_' + b.origen, true, true);
+      if (['conocer', 'grupo', 'familia', 'repasar', 'curiosidad'].includes(b.motivo)) sumar('motivo_' + b.motivo, true, true);
+      if ([1, 2, 3].includes(b.meta)) sumar('meta_' + b.meta, true, true);
+    }
     else return json({ error: 'Evento desconocido' }, 400);
     await st.metricaSumar(pares);
     return json({ ok: true });

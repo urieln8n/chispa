@@ -38,6 +38,45 @@
   .anillo{--p:0;width:58px;height:58px;border-radius:50%;background:conic-gradient(var(--ambar) calc(var(--p)*1%),#332B6E 0);display:grid;place-items:center;flex:none}
   .anillo span{width:44px;height:44px;border-radius:50%;background:var(--noche2);display:grid;place-items:center;font-weight:800;font-size:.85rem}
   .libros-p{grid-template-columns:1fr 1fr}
+  /* Bienvenida guiada (primera visita) */
+  .bv{min-height:100dvh;display:flex;flex-direction:column;padding:12px 0 0}
+  .bv-sup{display:flex;align-items:center;gap:12px;min-height:44px}
+  .bv-atras{background:none;border:0;color:var(--suave);font-size:1.6rem;cursor:pointer;padding:0 .3rem;line-height:1}
+  .bv-prog{flex:1;height:14px;border-radius:99px;background:#332B6E;overflow:hidden}
+  .bv-prog i{display:block;height:100%;background:var(--ambar);border-radius:99px;transition:width .35s ease}
+  .bv-cuerpo{flex:1;padding:18px 0 120px}
+  .bv-guia{display:flex;align-items:flex-start;gap:12px;margin:8px 0 20px}
+  .bv-guia .lamp{flex:none;width:64px;height:64px}
+  .bv-bocadillo{position:relative;background:var(--noche2);border:2px solid #433a86;border-radius:16px;padding:.7rem .9rem;font-family:var(--tit);font-weight:800;font-size:1.25rem;line-height:1.2}
+  .bv-bocadillo::before{content:'';position:absolute;left:-9px;top:20px;border:8px solid transparent;border-right-color:#433a86;border-left:0}
+  .bv-ops{display:flex;flex-direction:column;gap:10px}
+  .bv-ops.rejilla{display:grid;grid-template-columns:1fr 1fr}
+  .bv-op{display:flex;align-items:center;gap:.8rem;text-align:left;width:100%;background:transparent;color:var(--texto);border:2px solid #433a86;border-bottom-width:4px;border-radius:16px;padding:.85rem 1rem;font:inherit;font-weight:800;font-size:1.02rem;cursor:pointer}
+  .bv-op .e{font-size:1.5rem;flex:none;width:1.8rem;text-align:center}
+  .bv-op small{display:block;font-weight:600;color:var(--suave);font-size:.85rem}
+  .bv-op.sel{border-color:var(--ambar);background:rgba(242,196,107,.12)}
+  .bv-ops.rejilla .bv-op{flex-direction:column;text-align:center;padding:1.2rem .6rem}
+  .bv-ops.rejilla .bv-op .e{font-size:2.2rem;width:auto}
+  .bv-pie{position:fixed;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--noche) 30%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:5}
+  .bv-pie .btn{width:100%;max-width:560px;font-size:1.1rem;padding:1em}
+  .bv-pie .btn:disabled{opacity:.45;cursor:default;box-shadow:none}
+  .bv-pie .enlace{background:none;border:0;color:var(--suave);font-weight:800;cursor:pointer;font:inherit;text-decoration:underline}
+  .bv-portada{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 0 150px}
+  .bv-portada .lamp{width:120px;height:120px;margin-bottom:18px;filter:drop-shadow(0 10px 30px rgba(242,196,107,.35))}
+  .bv-portada h1{font-size:clamp(2rem,8vw,2.8rem);line-height:1.08;margin-bottom:.6rem}
+  .bv-portada h1 em{font-style:normal;color:var(--ambar)}
+  .bv-portada p{color:var(--suave);font-size:1.08rem;max-width:26em;margin:0 auto}
+  .bv-sellos{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:1.2rem}
+  .bv-sellos span{background:var(--noche3);border-radius:99px;padding:.35em .85em;font-weight:800;font-size:.85rem}
+  .bv-lec{background:linear-gradient(135deg,#E85D75,#b9435a);border-radius:20px;padding:1.2rem;color:#fff;margin-top:.4rem;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+  .bv-lec small{opacity:.9;font-weight:800}.bv-lec b{display:block;font-family:var(--tit);font-size:1.35rem;margin:.2rem 0}
+  /* Portada: continuar y líderes */
+  .continuar{display:flex;align-items:center;gap:1rem;width:100%;text-align:left;background:linear-gradient(135deg,#F2C46B,#e7a93c);color:#1B1640;border:0;border-radius:20px;padding:1rem 1.1rem;margin:.4rem 0 1rem;cursor:pointer;box-shadow:0 5px 0 #a9802f;font:inherit}
+  .continuar .ico{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#1B1640;color:#F2C46B;font-size:1.4rem}
+  .continuar small{display:block;font-weight:800;opacity:.75;font-size:.82rem}
+  .continuar b{display:block;font-family:var(--tit);font-size:1.3rem;line-height:1.15}
+  .lider-t{background:rgba(46,196,182,.12);border:1px solid #2EC4B6;border-radius:18px;padding:1rem 1.1rem;margin:0 0 1rem}
+  .lider-t b{display:block;margin-bottom:.2rem}.lider-t .dos-btn{margin-top:.7rem}
   .libp{border:2px solid #433a86;background:transparent;color:var(--texto);border-radius:12px;padding:.6em 0;font-weight:800;font-size:1rem;cursor:pointer}
   .libp.sel{background:var(--ambar);border-color:var(--ambar);color:var(--noche)}
   .tema-claro .libp{border-color:#E3D6BC}
@@ -284,6 +323,7 @@ function sumarXP(n) {
     E.racha = E.ultimoDia === ayer ? E.racha + 1 : 1; E.ultimoDia = hoy;
   }
   E.mejorRacha = Math.max(E.mejorRacha || 0, E.racha);
+  if (E.racha >= 2 && E.bv && !E.emb2) { E.emb2 = 1; enviarMetrica({ e: 'embudo', paso: 'racha_2' }); }
   if (E.liga && E.liga.token) { const sem = semanaLocal(); if (E.liga.semPend !== sem) { E.liga.semPend = sem; E.liga.pendiente = 0; } E.liga.pendiente = (E.liga.pendiente || 0) + n; }
   guardarE();
   ligaEnviar();
@@ -434,7 +474,9 @@ function cabecera(extra = '') {
 async function inicio() {
   delete APP.dataset.vista;
   history.replaceState(null, '', location.pathname.endsWith('aprender') ? 'aprender' : './');
+  if (necesitaBienvenida()) return bienvenida();
   const cat = await catalogo();
+  const cont = await tarjetaContinuar(cat);
   const libP = () => cat.libros.find(b => b.id === LIBRO_P && b.preguntas) || cat.libros[0];
   const pct = Math.min(100, Math.round(100 * xpHoy() / E.meta));
   const tarjeta = b => {
@@ -447,6 +489,8 @@ async function inicio() {
     ${AJ.nombre ? `<p class="saludo">Hola, ${esc(AJ.nombre)} 👋</p>` : ''}
     <h1 class="t">Aprende la Biblia</h1>
     <p class="sub">Empieza por Génesis y sigue con Éxodo, en lecciones de 10 preguntas. Unos minutos al día bastan.</p>
+    ${cont ? cont.html : ''}
+    ${E.bv && E.bv.motivo === 'grupo' ? `<div class="lider-t"><b>👥 Para tu grupo</b><span class="pie" style="opacity:1">Partidas con PIN en la pantalla y liga semanal de tu grupo.</span><div class="dos-btn"><button class="btn peq" id="b-lider-partida">Crear partida</button><a class="btn sec peq" href="grupos">Guía para líderes</a></div></div>` : ''}
     <div class="meta"><div class="anillo" style="--p:${pct}"><span>${pct}%</span></div>
       <div><b>Meta de hoy: ${E.meta} puntos</b><div class="pie" style="opacity:1">${xpHoy() >= E.meta ? '¡Cumplida! Vuelve mañana para mantener la racha.' : `Llevas ${xpHoy()}. Una lección son unos 100.`}</div></div></div>
     <div class="meta" style="display:block;margin-top:-.6rem"><b>🔥 Racha: ${rachaViva()} ${rachaViva() === 1 ? 'día' : 'días'}</b>${(E.protectores || 0) ? ` · 🛡️ ${E.protectores} protector${E.protectores === 1 ? '' : 'es'}` : ''}${semanaHTML()}</div>
@@ -475,6 +519,8 @@ async function inicio() {
   APP.querySelectorAll('.libp').forEach(b => b.onclick = () => { LIBRO_P = b.dataset.lp; APP.querySelectorAll('.libp').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); document.getElementById('txt-partida').textContent = `Elige cuántas preguntas de ${libP().nombre} quieres jugar, al azar entre las ${libP().preguntas}.`; });
   APP.querySelectorAll('.tiem').forEach(b => b.onclick = () => { TIEMPO = +b.dataset.t; APP.querySelectorAll('.tiem').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); });
   document.getElementById('b-grupo').onclick = () => crearGrupo(CANT, TIEMPO, libP().id);
+  const bc = document.getElementById('b-continuar'); if (bc) bc.onclick = () => empezar(cont.L, cont.ui, cont.li);
+  const bl = document.getElementById('b-lider-partida'); if (bl) bl.onclick = () => document.getElementById('grupo').scrollIntoView({ behavior: 'smooth', block: 'center' });
   // carga en segundo plano los libros disponibles para mostrar su progreso
   for (const b of cat.libros.filter(x => x.preguntas && !LIBROS[x.id])) { await libro(b.id); }
   if (!APP.dataset.vista) { inicioRefresco(); pintarMisiones(); pintarExtra(); pintarLigaTarjeta(); }
@@ -599,6 +645,7 @@ function claveLecAnterior(L, ui, li) { if (li > 0) return claveLec(L.id, ui, li 
 // ===================== Lección =====================
 let LEC = null;
 function empezar(L, ui, li) {
+  if (E.ultLibro !== L.id) { E.ultLibro = L.id; guardarE(); }
   const preguntas = L.unidades[ui].lecciones[li].preguntas.map(q => ({ ...q, libro: L.id }));
   LEC = { L, ui, li, cola: [...preguntas], total: preguntas.length, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'leccion', combo: 0, mejorCombo: 0 };
   pintarPregunta();
@@ -771,6 +818,7 @@ function terminar() {
     <button class="btn grande" id="b-fin">Continuar</button>
     <button class="btn sec grande" id="b-compartir-fin">📤 Compartir</button></div>`;
   E.talentos = (E.talentos || 0) + talentosLec; guardarE();
+  if (LEC.modo === 'leccion' && !E.emb1) { E.emb1 = 1; guardarE(); enviarMetrica({ e: 'embudo', paso: 'primera_leccion' }); }
   enviarMetrica({ e: 'leccion', modo: LEC.libre ? 'libre' : LEC.modo === 'repaso' ? 'repaso' : 'leccion', perfecta });
   avisoHecho();
   const datosTarjeta = { libro: nombreLibro, racha: rachaViva(), subioRacha, perfecta, precision, puntos: total, estrellas, libre: LEC.libre, repaso: LEC.modo === 'repaso', nombre: AJ.nombre || '' };
@@ -842,6 +890,86 @@ function bloqueAvisos() {
   return AJ.avisos
     ? `<p class="pie" style="opacity:1;margin:0 0 .6rem">🔔 Avisos activados: te escribimos a la hora elegida solo si ese día aún no has hecho tu lección.</p><div class="dos-btn"><button class="btn sec" id="b-av-probar">Enviar aviso de prueba</button><button class="btn sec" id="b-av-off">Desactivar</button></div>`
     : `<p class="pie" style="opacity:1;margin:0 0 .6rem">Te avisamos en este dispositivo a la hora elegida, solo si ese día aún no has hecho tu lección.</p><button class="btn" id="b-av-on" style="width:100%">🔔 Activar avisos</button>`;
+}
+
+// ===================== Bienvenida guiada (primera visita) =====================
+// Un visitante nuevo responde 4 preguntas rápidas y entra directo en su primera lección (sin registro).
+const BV_MOTIVOS = [['conocer', '📖', 'Conocer mejor la Biblia'], ['grupo', '👥', 'Preparar mi grupo o clase'], ['familia', '🏡', 'Aprender en familia'], ['repasar', '🔁', 'Repasar lo que ya sé'], ['curiosidad', '✨', 'Por curiosidad']];
+const BV_ORIGENES = [['instagram', '📸', 'Instagram'], ['tiktok', '🎵', 'TikTok'], ['whatsapp', '💬', 'WhatsApp'], ['youtube', '▶️', 'YouTube'], ['iglesia', '⛪', 'Mi iglesia o grupo'], ['amigo', '🤝', 'Un amigo o familiar'], ['google', '🔎', 'Google'], ['otro', '➕', 'Otro']];
+const BV_METAS = [[1, '🌱', '1 lección al día', 'Tranquilo · unos 3 minutos'], [2, '🔥', '2 lecciones al día', 'Constante · unos 6 minutos'], [3, '🚀', '3 lecciones al día', 'A fondo · unos 10 minutos']];
+const LAMPARA = '<svg class="lamp" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#F2C46B"/><path d="M16 6c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 12.5 13 10 16 6z" fill="#1B1640"/><path d="M9 22h14l-1.5 4h-11z" fill="#1B1640"/></svg>';
+let BV = null;
+function necesitaBienvenida() { return !E.bv && !E.xp && !Object.keys(E.lecciones).length && !IR_GRUPO && !LIGA_INV; }
+function pasosBV() { return ['portada', 'libro', 'motivo', 'origen', 'meta', ...(BV.motivo === 'grupo' ? ['lider'] : []), 'listo']; }
+async function bienvenida() {
+  APP.dataset.vista = 'bienvenida';
+  if (!BV) { BV = { paso: 0, libro: null, motivo: null, origen: null, meta: null }; if (!E.bvVista) { E.bvVista = 1; guardarE(); enviarMetrica({ e: 'embudo', paso: 'bienvenida_vista' }); } }
+  const cat = await catalogo(), pasos = pasosBV(), paso = pasos[BV.paso];
+  const op = (campo, [v, e, t, sub]) => `<button class="bv-op${BV[campo] === v ? ' sel' : ''}" data-c="${campo}" data-v="${v}"><span class="e">${e}</span><span>${esc(t)}${sub ? `<small>${esc(sub)}</small>` : ''}</span></button>`;
+  const guia = t => `<div class="bv-guia">${LAMPARA}<div class="bv-bocadillo">${t}</div></div>`;
+  let cuerpo = '', boton = 'Continuar', listo = true, extra = '';
+  if (paso === 'portada') {
+    APP.innerHTML = `<div class="bv"><div class="bv-portada">${LAMPARA}<h1>Aprende la Biblia <em>jugando</em></h1><p>Lecciones de 10 preguntas, cada una con su versículo. Unos minutos al día bastan.</p>
+      <div class="bv-sellos"><span>Gratis</span><span>Sin registro</span><span>Reina-Valera 1960</span><span>Funciona sin conexión</span></div></div>
+      <div class="bv-pie"><button class="btn" id="bv-sig">Empezar</button><button class="enlace" id="bv-pin">Tengo un PIN de partida</button></div></div>`;
+    document.getElementById('bv-sig').onclick = () => { BV.paso++; bienvenida(); };
+    document.getElementById('bv-pin').onclick = () => { location.href = BASE + 'jugar'; };
+    return;
+  }
+  if (paso === 'libro') { cuerpo = guia('¿Qué quieres aprender?') + `<div class="bv-ops rejilla">${cat.libros.filter(b => b.preguntas).map(b => op('libro', [b.id, b.id === 'exodo' ? '🌊' : '🌍', b.nombre, `${b.preguntas / 10} lecciones`])).join('')}</div>`; listo = !!BV.libro; }
+  if (paso === 'motivo') { cuerpo = guia('¿Para qué quieres aprender?') + `<div class="bv-ops">${BV_MOTIVOS.map(m => op('motivo', m)).join('')}</div>`; listo = !!BV.motivo; }
+  if (paso === 'origen') { cuerpo = guia('¿Cómo conociste Lumbrera?') + `<div class="bv-ops">${BV_ORIGENES.map(m => op('origen', m)).join('')}</div>`; listo = !!BV.origen; }
+  if (paso === 'meta') { cuerpo = guia('¿Cuál es tu meta diaria?') + `<div class="bv-ops">${BV_METAS.map(m => op('meta', m)).join('')}</div><p class="pie" style="opacity:1;margin-top:1rem">Puedes cambiarla cuando quieras. Lo importante es volver cada día.</p>`; listo = !!BV.meta; }
+  if (paso === 'lider') {
+    cuerpo = guia('¡Genial! Lumbrera también es para tu grupo') + `<div class="bv-ops">
+      <div class="bv-op" style="cursor:default"><span class="e">📺</span><span>Partidas con PIN<small>Pones la pantalla y cada uno responde desde su móvil, sin instalar nada.</small></span></div>
+      <div class="bv-op" style="cursor:default"><span class="e">🏆</span><span>Liga de tu grupo<small>Inventa un código y competid toda la semana con las lecciones de casa.</small></span></div></div>`;
+    boton = 'Primero quiero probar yo'; extra = `<button class="enlace" id="bv-guia">Ver la guía para grupos</button>`;
+  }
+  if (paso === 'listo') {
+    const L = await libro(BV.libro), u = L.unidades[0];
+    cuerpo = guia('¡Todo listo! Esta es tu primera lección') + `<div class="bv-lec"><small>${esc(L.nombre)} · Unidad 1</small><b>${esc(u.titulo)}</b><span>10 preguntas · unos 2 minutos · ${esc(u.capitulos)}</span></div>
+      <p class="pie" style="opacity:1;margin-top:1rem">Tu meta: ${BV.meta} ${BV.meta === 1 ? 'lección' : 'lecciones'} al día. Hoy empieza tu racha 🔥</p>`;
+    boton = 'Empezar lección';
+  }
+  APP.innerHTML = `<div class="bv"><div class="bv-sup"><button class="bv-atras" id="bv-atras" aria-label="Volver">←</button><div class="bv-prog"><i style="width:${Math.round(100 * BV.paso / (pasos.length - 1))}%"></i></div></div>
+    <div class="bv-cuerpo">${cuerpo}</div><div class="bv-pie"><button class="btn" id="bv-sig"${listo ? '' : ' disabled'}>${boton}</button>${extra}</div></div>`;
+  window.scrollTo(0, 0);
+  document.getElementById('bv-atras').onclick = () => { BV.paso = Math.max(0, BV.paso - 1); bienvenida(); };
+  APP.querySelectorAll('.bv-op[data-c]').forEach(b => b.onclick = () => {
+    const c = b.dataset.c; BV[c] = c === 'meta' ? Number(b.dataset.v) : b.dataset.v;
+    APP.querySelectorAll(`.bv-op[data-c="${c}"]`).forEach(x => x.classList.toggle('sel', x === b));
+    document.getElementById('bv-sig').disabled = false;
+    try { sonido('tic'); } catch {}
+  });
+  const g = document.getElementById('bv-guia'); if (g) g.onclick = () => { terminarBienvenida(); location.href = BASE + 'grupos'; };
+  document.getElementById('bv-sig').onclick = async () => {
+    if (paso !== 'listo') { BV.paso++; return bienvenida(); }
+    terminarBienvenida();
+    delete APP.dataset.vista;
+    empezar(await libro(BV.libro), 0, 0);
+  };
+}
+function terminarBienvenida() {
+  if (E.bv) return;
+  E.bv = { libro: BV.libro, motivo: BV.motivo, origen: BV.origen, meta: BV.meta, fecha: hoyISO() };
+  E.meta = (BV.meta || 1) * 100; E.ultLibro = BV.libro; guardarE();
+  enviarMetrica({ e: 'embudo', paso: 'bienvenida_fin' });
+  enviarMetrica({ e: 'perfil', origen: BV.origen, motivo: BV.motivo, meta: BV.meta });
+}
+// Siguiente lección sin hacer de un libro (o null si está completo)
+function siguienteLeccion(L) {
+  for (let ui = 0; ui < L.unidades.length; ui++) for (let li = 0; li < L.unidades[ui].lecciones.length; li++) if (!E.lecciones[claveLec(L.id, ui, li)]) return { ui, li, n: ui * L.unidades[0].lecciones.length + li + 1 };
+  return null;
+}
+async function tarjetaContinuar(cat) {
+  const ids = cat.libros.filter(b => b.preguntas).map(b => b.id);
+  const orden = [E.ultLibro, ...ids].filter((x, i, a) => x && ids.includes(x) && a.indexOf(x) === i);
+  for (const id of orden) {
+    const L = await libro(id), sig = siguienteLeccion(L);
+    if (sig) return { L, ...sig, html: `<button class="continuar" id="b-continuar"><span class="ico">▶</span><span><small>${esc(L.nombre)} · Unidad ${sig.ui + 1}: ${esc(L.unidades[sig.ui].titulo)}</small><b>${Object.keys(E.lecciones).length ? 'Continuar' : 'Empezar'}: lección ${sig.n} de ${progresoLibro(L).total}</b></span></button>` };
+  }
+  return null;
 }
 
 // ===================== Partida en grupo abierta =====================

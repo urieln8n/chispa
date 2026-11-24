@@ -30,6 +30,13 @@
   .ejes{display:flex;justify-content:space-between;color:var(--suave);font-size:.75rem;margin-top:6px}
   .max{position:absolute;left:0;top:-2px;color:var(--suave);font-size:.75rem}
   .linea-max{position:absolute;left:0;right:0;top:0;border-top:1px dashed rgba(185,178,217,.25)}
+  .filas{display:flex;flex-direction:column;gap:8px}
+  .fila{display:grid;grid-template-columns:minmax(120px,190px) 1fr 70px;align-items:center;gap:10px;font-size:.9rem}
+  .fila .et{font-weight:800}.fila .val{text-align:right;color:var(--suave)}.fila .val b{color:var(--texto)}
+  .fila .pista{height:22px;background:#2a2366;border-radius:4px;overflow:hidden}
+  .fila .pista i{display:block;height:100%;background:#F2C46B;border-radius:0 4px 4px 0;min-width:2px}
+  .dos-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.dos-col{grid-template-columns:1fr}}
   .tip{position:fixed;pointer-events:none;background:#0d0a26;border:1px solid #5a4fb0;border-radius:10px;padding:.45em .7em;font-size:.85rem;z-index:20;display:none;white-space:nowrap}
   .tip b{color:var(--texto)}
   table{width:100%;border-collapse:collapse;font-size:.88rem}
@@ -92,6 +99,10 @@ function pintar(d) {
       ${tile(fmt(suma7('grupo_partidas')), 'Partidas en grupo (7 días)', fmt(suma7('grupo_jugadores')) + ' personas jugando')}
       ${tile(fmt(d.liga), 'En la liga esta semana', fmt(d.ligaGrupos) + (d.ligaGrupos === 1 ? ' grupo' : ' grupos') + ' · ' + fmt(suma7('compartidos')) + ' compartidos (7 días) · ' + app7 + '% desde la app')}
     </div>
+    <h2>Embudo de personas nuevas</h2><p class="nota">Últimos 30 días · de cada 100 que llegan, cuántas siguen en cada paso</p>
+    ${embudo(dias, v)}
+    <div class="dos-col"><div><h2>¿Cómo nos conocieron?</h2><p class="nota">Últimos 30 días · respuestas de la bienvenida</p>${barras(dias, v, 'origen_', ORIGENES)}</div>
+    <div><h2>¿Para qué aprenden?</h2><p class="nota">Últimos 30 días</p>${barras(dias, v, 'motivo_', MOTIVOS)}</div></div>
     <h2>Personas activas por día</h2><p class="nota">Últimos 30 días</p>${grafico(dias, x => v(x, 'activos'), 'activas')}
     <h2>Lecciones terminadas por día</h2><p class="nota">Últimos 30 días · solo lecciones del camino (sin repasos ni partidas)</p>${grafico(dias, x => v(x, 'lecciones'), 'lecciones')}
     <details><summary>Ver la tabla día a día</summary><div class="tabla-wrap"><table>
@@ -103,6 +114,22 @@ function pintar(d) {
     b.onmousemove = e => { tip.innerHTML = `<b>${fmt(b.dataset.v)}</b> ${b.dataset.u} · ${b.dataset.f}`; tip.style.display = 'block'; tip.style.left = Math.min(e.clientX + 12, innerWidth - 200) + 'px'; tip.style.top = (e.clientY - 40) + 'px'; };
     b.onmouseleave = () => { tip.style.display = 'none'; };
   });
+}
+const ORIGENES = { instagram: '📸 Instagram', tiktok: '🎵 TikTok', whatsapp: '💬 WhatsApp', youtube: '▶️ YouTube', iglesia: '⛪ Iglesia o grupo', amigo: '🤝 Amigo o familiar', google: '🔎 Google', otro: '➕ Otro' };
+const MOTIVOS = { conocer: '📖 Conocer la Biblia', grupo: '👥 Su grupo o clase', familia: '🏡 En familia', repasar: '🔁 Repasar', curiosidad: '✨ Curiosidad' };
+const suma30 = (dias, v, k) => dias.reduce((a, x) => a + v(x, k), 0);
+function filas(items, max) {
+  if (!items.some(i => i.n)) return '<p class="nota">Todavía no hay datos.</p>';
+  return `<div class="filas">${items.map(i => `<div class="fila"><span class="et">${esc(i.t)}</span><span class="pista"><i style="width:${max ? 100 * i.n / max : 0}%"></i></span><span class="val"><b>${fmt(i.n)}</b>${i.extra || ''}</span></div>`).join('')}</div>`;
+}
+function embudo(dias, v) {
+  const pasos = [['emb_bienvenida_vista', 'Llegan por primera vez'], ['emb_bienvenida_fin', 'Completan la bienvenida'], ['emb_primera_leccion', 'Terminan su 1ª lección'], ['emb_racha_2', 'Vuelven al día siguiente']];
+  const ns = pasos.map(([k]) => suma30(dias, v, k)), base = ns[0] || 0;
+  return filas(pasos.map(([, t], i) => ({ t, n: ns[i], extra: base && i ? ` · ${Math.round(100 * ns[i] / base)}%` : '' })), Math.max(...ns));
+}
+function barras(dias, v, pref, nombres) {
+  const items = Object.entries(nombres).map(([k, t]) => ({ t, n: suma30(dias, v, pref + k) })).sort((a, b) => b.n - a.n);
+  return filas(items, Math.max(...items.map(i => i.n)));
 }
 function fechaCorta(iso) { return new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
 function grafico(dias, valor, unidad) {
