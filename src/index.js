@@ -63,6 +63,8 @@ export default {
       }
       if (ruta.startsWith('/api/')) return await api(req, env, url, ruta.slice(5));
       if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /estadisticas\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+      // Verificación de Google Search Console (Lumbrera)
+      if (env.MARCA === 'fe' && ruta === '/google4d510a5713a71d14.html') return new Response('google-site-verification: google4d510a5713a71d14.html', { headers: { 'content-type': 'text/html; charset=utf-8' } });
       // Libros publicados de Lumbrera (para el sitemap y llms.txt: se actualizan solos al añadir un libro)
       const librosFe = async () => { try { return (await env.ASSETS.fetch(new Request(new URL('/biblia/libros.json', url))).then(r => r.json())).libros.filter(b => b.preguntas); } catch { return []; } };
       if (ruta === '/llms.txt' && env.MARCA === 'fe') {
