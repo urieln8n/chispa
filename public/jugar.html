@@ -61,6 +61,11 @@
   <div id="area" class="centro" style="min-height:auto;flex:1"></div>
 </section>
 
+<div id="mando" class="oculto" style="position:fixed;left:0;right:0;bottom:0;z-index:50;padding:.7rem 1rem calc(.8rem + env(safe-area-inset-bottom));background:rgba(11,20,34,.96);border-top:1px solid #2a4369;display:flex;flex-direction:column;gap:.5rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;font-size:.9rem"><b>Tú llevas la partida</b>
+    <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer"><input type="checkbox" id="mando-auto" checked> Automático <span id="mando-cd" style="min-width:1.6em;font-weight:800"></span></label></div>
+  <button class="btn" id="mando-btn" type="button">Empezar</button>
+</div>
 <script src="comun.js"></script>
 <script>
 $('#marca1').innerHTML = marca(); $('#marca2').innerHTML = marca();
@@ -95,6 +100,7 @@ function entrar(apodo, token) {
       $('#e-apodo').textContent = r.error; return;
     }
     yo = { id: r.id, token: r.token, apodo: r.apodo }; guardar();
+    iniciarMando();
     $('#yo').textContent = r.apodo; $('#mis-pts').textContent = r.puntos;
     ver('v-juego');
     if (r.pregunta) mostrarPregunta(r.pregunta);
@@ -103,9 +109,49 @@ function entrar(apodo, token) {
     else esperar();
   });
 }
+// ===== Mando: si este móvil creó la partida, desde aquí se empieza y se pasa de pregunta =====
+// (así no hace falta volver a la pantalla del presentador después de invitar por WhatsApp)
+const MANDO = { socket: null, estado: 'sala', jugadores: 0, ultima: false, timer: null };
+function claveDeEstaPartida() {
+  for (const k of ['chispa-host']) { try { const s = JSON.parse(sessionStorage.getItem(k) || 'null'); if (s && s.pin === PIN) return s.claveHost; } catch {} }
+  try { const l = JSON.parse(localStorage.getItem('chispa-host-activa') || 'null'); if (l && l.pin === PIN && Date.now() - (l.t || 0) < 3 * 3600e3) return l.claveHost; } catch {}
+  return '';
+}
+function iniciarMando() {
+  const clave = claveDeEstaPartida(); if (!clave || MANDO.socket) return;
+  const hs = MANDO.socket = conectarJuego(PIN);
+  hs.on('connect', () => hs.emit('host:reanudar', { claveHost: clave }, r => {
+    if (!r || r.error) { $('#mando').classList.add('oculto'); return; }
+    MANDO.estado = r.estado.estado; MANDO.jugadores = r.estado.jugadores.length; pintarMando();
+  }));
+  hs.on('host:jugadores', l => { MANDO.jugadores = l.length; pintarMando(); });
+  hs.on('host:pregunta', () => { MANDO.estado = 'pregunta'; pararCd(); pintarMando(); });
+  hs.on('host:resultado', d => { MANDO.estado = 'resultado'; MANDO.ultima = d.ultima; pintarMando(); autoSiguiente(7); });
+  hs.on('host:ranking', () => { MANDO.estado = 'ranking'; pintarMando(); autoSiguiente(5); });
+  hs.on('host:podio', () => { MANDO.estado = 'podio'; pararCd(); pintarMando(); });
+  document.body.style.paddingBottom = '7.5rem';
+}
+function pintarMando() {
+  const m = $('#mando'), b = $('#mando-btn');
+  m.classList.toggle('oculto', MANDO.estado === 'podio');
+  b.disabled = MANDO.estado === 'sala' && MANDO.jugadores < 1;
+  b.textContent = MANDO.estado === 'sala' ? `▶ Empezar la partida (${MANDO.jugadores} ${MANDO.jugadores === 1 ? 'jugador' : 'jugadores'})`
+    : MANDO.estado === 'pregunta' ? 'Cerrar la pregunta ya' : MANDO.estado === 'resultado' ? (MANDO.ultima ? 'Ver el podio 🏆' : 'Ver la clasificación') : 'Siguiente pregunta ▶';
+}
+function pararCd() { clearInterval(MANDO.timer); MANDO.timer = null; $('#mando-cd').textContent = ''; }
+function autoSiguiente(seg) {
+  pararCd(); if (!$('#mando-auto').checked) return;
+  let s = seg; $('#mando-cd').textContent = s;
+  MANDO.timer = setInterval(() => { s--; $('#mando-cd').textContent = s > 0 ? s : ''; if (s <= 0) { pararCd(); mandoSiguiente(); } }, 1000);
+}
+function mandoSiguiente() { pararCd(); if (MANDO.socket) MANDO.socket.emit('host:siguiente', { claveHost: claveDeEstaPartida() }, r => { if (r && r.error) aviso(r.error); }); }
+$('#mando-btn').onclick = mandoSiguiente;
+$('#mando-auto').onchange = () => { if (!$('#mando-auto').checked) pararCd(); else if (MANDO.estado === 'resultado') autoSiguiente(7); else if (MANDO.estado === 'ranking') autoSiguiente(5); };
+
 function esperar() {
   const enlace = new URL(BASE + 'jugar?pin=' + PIN, location.href).href;
-  area(`<div class="pop" style="display:grid;gap:.8rem;justify-items:center;max-width:420px"><div class="grande">🎉</div><h2>¡Estás dentro!</h2><p style="margin:0">¿Ves tu apodo en la pantalla? En cuanto empiece, aquí salen las respuestas.</p>
+  const soyAnfitrion = !!claveDeEstaPartida();
+  area(`<div class="pop" style="display:grid;gap:.8rem;justify-items:center;max-width:420px"><div class="grande">🎉</div><h2>¡Estás dentro!</h2><p style="margin:0">${soyAnfitrion ? 'Cuando estéis todos, pulsa «Empezar la partida» abajo. Las preguntas salen aquí.' : 'En cuanto quien creó la partida pulse «Empezar», aquí salen las preguntas.'}</p>
     <p class="pie" style="opacity:1;font-weight:800;margin:.6rem 0 0">¿Quieres que juegue alguien más?</p>
     ${barraCompartir(`🎮 ¡Únete a la partida de ${MARCA.nombre}! PIN ${PIN}:`, enlace, 'Invitar')}</div>`);
 }
