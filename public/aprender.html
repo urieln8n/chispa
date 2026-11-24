@@ -505,7 +505,7 @@ async function inicio() {
     <h1 class="t">Aprende la Biblia</h1>
     <p class="sub">Génesis, Éxodo y los cuatro Evangelios, en lecciones de 10 preguntas. Unos minutos al día bastan.</p>
     ${cont ? cont.html : ''}
-    ${E.bv && E.bv.motivo === 'grupo' ? `<div class="lider-t"><b>👥 Para tu grupo</b><span class="pie" style="opacity:1">Partidas con PIN en la pantalla y liga semanal de tu grupo.</span><div class="dos-btn"><button class="btn peq" id="b-lider-partida">Crear partida</button><a class="btn sec peq" href="grupos">Guía para líderes</a></div></div>` : ''}
+    ${E.bv && E.bv.motivo === 'grupo' ? `<div class="lider-t"><b>👥 Para tu grupo</b><span class="pie" style="opacity:1">Partidas con PIN en la pantalla y liga semanal de tu grupo.</span><div class="dos-btn"><button class="btn peq" id="b-lider-partida">Crear partida</button><a class="btn sec peq" href="lider">Panel del líder</a></div></div>` : ''}
     <div class="meta"><div class="anillo" style="--p:${pct}"><span>${pct}%</span></div>
       <div><b>Meta de hoy: ${E.meta} puntos</b><div class="pie" style="opacity:1">${xpHoy() >= E.meta ? '¡Cumplida! Vuelve mañana para mantener la racha.' : `Llevas ${xpHoy()}. Una lección son unos 100.`}</div></div></div>
     <div class="meta" style="display:block;margin-top:-.6rem"><b>🔥 Racha: ${rachaViva()} ${rachaViva() === 1 ? 'día' : 'días'}</b>${(E.protectores || 0) ? ` · 🛡️ ${E.protectores} protector${E.protectores === 1 ? '' : 'es'}` : ''}${semanaHTML()}</div>
@@ -816,6 +816,7 @@ function terminar() {
     guardarE();
   }
   const precision = Math.round(100 * LEC.total / (LEC.total + LEC.errores));
+  if (LEC.modo === 'leccion' && E.liga && E.liga.token && E.liga.grupo) { try { fetch(BASE + 'api/grupo/leccion', { method: 'POST', headers: { 'content-type': 'application/json' }, keepalive: true, body: JSON.stringify({ token: E.liga.token, grupo: E.liga.grupo, libro: LEC.L.id, unidad: LEC.ui, preguntas: LEC.total, errores: LEC.errores }) }).catch(() => {}); } catch {} }
   confeti(perfecta ? 140 : 80); sonido('fin');
   const subioRacha = rachaViva() > rachaAntes;
   const nuevosLogros = revisarLogros();

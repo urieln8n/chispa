@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1B1640">
+<title>Panel del líder · Lumbrera para grupos</title>
+<meta name="description" content="Registra tu grupo de jóvenes, célula o escuela dominical en Lumbrera: mira quién practica cada semana, qué temas cuestan más y crea tus propias preguntas para jugar en grupo. 30 días gratis.">
+<link rel="canonical" href="https://genesis.andresrendon.com/lider">
+<link rel="icon" href="/app/icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/app/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lumbrera">
+<meta property="og:url" content="https://genesis.andresrendon.com/lider">
+<meta property="og:title" content="Panel del líder · Lumbrera">
+<meta property="og:description" content="Mira quién de tu grupo practica la Biblia cada semana y crea tus propias preguntas para jugar juntos. 30 días gratis.">
+<meta property="og:image" content="https://genesis.andresrendon.com/app/og-lumbrera.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{min-height:100vh;line-height:1.5}
+  .envoltura{max-width:980px;margin:0 auto;padding:0 18px 60px}
+  header.sup{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:16px 0}
+  @media (max-width:560px){header.sup .marca-lema{display:none}}
+  .marca{display:flex;align-items:center;gap:.5rem;text-decoration:none;color:var(--texto);font-family:var(--tit);font-weight:800;font-size:1.4rem}
+  .marca svg{width:34px;height:34px}
+  h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.12;margin:.4rem 0 .6rem}
+  h2{font-size:1.2rem;margin:0 0 .3rem}
+  .sub{color:var(--suave);margin:0 0 1.2rem}
+  .tarjeta{background:rgba(36,30,82,.6);border:1px solid #3d3580;border-radius:20px;padding:20px;margin:0 0 16px}
+  .dos{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.dos{grid-template-columns:1fr}}
+  label{display:block;font-weight:800;font-size:.9rem;margin:.8rem 0 .35rem}
+  label small{font-weight:600;color:var(--suave)}
+  .error{color:#FF8A8F;font-weight:700;min-height:1.3em;margin:.6rem 0 0}
+  .ok-msg{color:#6EE7A8;font-weight:700}
+  .clave{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.35rem;letter-spacing:1px;background:#0f0c26;border:2px dashed var(--ambar);border-radius:14px;padding:.7em .9em;word-break:break-all;margin:.6rem 0}
+  .fila{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .insignia{display:inline-block;border-radius:99px;padding:.25em .8em;font-weight:800;font-size:.82rem;background:var(--noche3);color:var(--ambar)}
+  .insignia.fin{background:#5b1f2a;color:#FFC2C5}
+  .insignia.activo{background:#14532d;color:#86EFAC}
+  .cifras{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 16px}
+  @media (max-width:700px){.cifras{grid-template-columns:1fr 1fr}}
+  .cifra{background:rgba(36,30,82,.6);border:1px solid #3d3580;border-radius:16px;padding:14px}
+  .cifra b{display:block;font-family:var(--tit);font-size:1.8rem;line-height:1.1}
+  .cifra span{color:var(--suave);font-size:.85rem;font-weight:700}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th{text-align:left;color:var(--suave);font-size:.78rem;text-transform:uppercase;letter-spacing:.4px;padding:.5em .4em;border-bottom:1px solid #3d3580}
+  td{padding:.6em .4em;border-bottom:1px solid rgba(61,53,128,.5)}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  tr.inactivo td{color:var(--suave)}
+  .tabla-env{overflow-x:auto}
+  .tema{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:.7em 0;border-bottom:1px solid rgba(61,53,128,.5)}
+  .tema:last-child{border-bottom:0}
+  .barra{height:8px;border-radius:9px;background:#332B6E;overflow:hidden;width:110px;flex:none}
+  .barra i{display:block;height:100%;background:#FF8A8F;border-radius:9px}
+  .preg{padding:.8em 0;border-bottom:1px solid rgba(61,53,128,.5);display:flex;gap:12px;justify-content:space-between;align-items:flex-start}
+  .preg:last-child{border-bottom:0}
+  .preg .q{font-weight:800}
+  .preg .r{color:var(--suave);font-size:.88rem}
+  .preg .r b{color:#6EE7A8}
+  .x{background:none;border:1px solid #3d3580;color:var(--suave);border-radius:10px;padding:.3em .6em;cursor:pointer;font-weight:800}
+  select.campo{appearance:auto}
+  .vacio{color:var(--suave);font-style:italic}
+  .enlace{background:none;border:0;color:var(--ambar);font-weight:800;cursor:pointer;padding:0;text-decoration:underline}
+  .ventajas{margin:.6rem 0 0;padding-left:1.2em;color:var(--suave)}
+  .ventajas li{margin:.3em 0}
+  footer{color:var(--suave);font-size:.85rem;text-align:center;margin-top:40px}
+  footer a{color:var(--suave)}
+</style>
+</head>
+<body class="tema-fe">
+<div class="envoltura">
+  <header class="sup">
+    <a class="marca" href="/"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#F2C46B"/><path d="M16 6c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 12.5 13 10 16 6z" fill="#1B1640"/><path d="M9 22h14l-1.5 4h-11z" fill="#1B1640"/></svg><span class="marca-txt"><span>Lumbrera</span><span class="marca-lema">Lámpara es a mis pies tu palabra (Salmo 119:105)</span></span></a>
+    <a class="btn sec peq" href="/grupos">Guía para líderes</a>
+  </header>
+  <main id="app"><p class="sub">Cargando…</p></main>
+  <footer>Hecho por Andrés Rendón · <a href="/privacidad">Privacidad</a> · <a href="/">Lumbrera</a></footer>
+</div>
+<script>
+const APP = document.getElementById('app');
+const LS = 'lumbrera-lider';
+const CONTACTO = 'mailto:fa.andres18@hotmail.com?subject=' + encodeURIComponent('Activar Plan Grupo de Lumbrera');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = n => Number(n || 0).toLocaleString('es-ES');
+const sesion = () => { try { return JSON.parse(localStorage.getItem(LS) || 'null'); } catch { return null; } };
+const guardar = s => { try { s ? localStorage.setItem(LS, JSON.stringify(s)) : localStorage.removeItem(LS); } catch {} };
+const api = (ruta, datos) => fetch('/api/' + ruta, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(datos) }).then(async r => ({ status: r.status, ...(await r.json().catch(() => ({ error: 'Error de conexión' }))) }));
+const enlaceInvitar = c => location.origin + '/?liga=' + encodeURIComponent(c);
+function copiar(texto, boton) {
+  const hecho = () => { if (boton) { const t = boton.textContent; boton.textContent = '¡Copiado!'; setTimeout(() => boton.textContent = t, 1600); } };
+  (navigator.clipboard ? navigator.clipboard.writeText(texto) : Promise.reject()).then(hecho).catch(() => { prompt('Copia este texto:', texto); });
+}
+const hace = ms => { if (!ms) return '—'; const d = Math.floor((Date.now() - ms) / 864e5); return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días`; };
+
+// ---------- Entrada: crear grupo o entrar con código y clave ----------
+function portada(msg = '') {
+  APP.innerHTML = `
+  <span class="insignia">Plan Grupo · 30 días gratis</span>
+  <h1>El panel de tu grupo</h1>
+  <p class="sub">Para líderes de jóvenes, células y escuela dominical. Sin email ni contraseña que recordar: recibes un código para tu grupo y una clave para tu panel.</p>
+  <div class="dos">
+    <section class="tarjeta">
+      <h2>Registrar mi grupo</h2>
+      <ul class="ventajas">
+        <li>Mira quién practica cada semana y quién se ha quedado atrás.</li>
+        <li>Descubre qué temas le cuestan más a tu grupo.</li>
+        <li>Crea tus propias preguntas (la predicación del domingo, el estudio de la semana) y jugadlas en la pantalla.</li>
+      </ul>
+      <label for="c-nombre">Nombre del grupo o iglesia</label>
+      <input class="campo" id="c-nombre" maxlength="60" placeholder="Jóvenes Betel">
+      <label for="c-codigo">Código del grupo <small>· lo escribirán tus miembros en la liga</small></label>
+      <input class="campo" id="c-codigo" maxlength="20" placeholder="jovenes-betel" autocapitalize="none" spellcheck="false">
+      <p class="error" id="c-err"></p>
+      <button class="btn" id="b-crear" style="width:100%">Empezar 30 días gratis</button>
+    </section>
+    <section class="tarjeta">
+      <h2>Ya tengo un grupo</h2>
+      <p class="sub" style="margin:.4rem 0 0">Entra con el código de tu grupo y tu clave de líder.</p>
+      <label for="e-codigo">Código del grupo</label>
+      <input class="campo" id="e-codigo" maxlength="20" autocapitalize="none" spellcheck="false">
+      <label for="e-clave">Clave de líder</label>
+      <input class="campo" id="e-clave" maxlength="40" autocapitalize="none" spellcheck="false" autocomplete="off">
+      <p class="error" id="e-err">${esc(msg)}</p>
+      <button class="btn sec" id="b-entrar" style="width:100%">Entrar a mi panel</button>
+    </section>
+  </div>`;
+  const nombre = document.getElementById('c-nombre'), codigo = document.getElementById('c-codigo');
+  let tocado = false;
+  codigo.oninput = () => { tocado = true; };
+  nombre.oninput = () => { if (!tocado) codigo.value = nombre.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 20); };
+  document.getElementById('b-crear').onclick = async e => {
+    const err = document.getElementById('c-err'); err.textContent = ''; e.target.disabled = true;
+    const r = await api('grupo/crear', { nombre: nombre.value, codigo: codigo.value });
+    e.target.disabled = false;
+    if (!r.ok) { err.textContent = r.error || 'No se ha podido crear el grupo'; return; }
+    guardar({ codigo: r.codigo, clave: r.clave, nombre: r.nombre });
+    recienCreado(r);
+  };
+  document.getElementById('b-entrar').onclick = () => {
+    const c = document.getElementById('e-codigo').value.trim().toLowerCase(), k = document.getElementById('e-clave').value.trim();
+    if (!c || !k) { document.getElementById('e-err').textContent = 'Escribe el código y la clave'; return; }
+    guardar({ codigo: c, clave: k }); panel();
+  };
+  document.getElementById('e-clave').onkeydown = e => { if (e.key === 'Enter') document.getElementById('b-entrar').click(); };
+}
+
+function recienCreado(r) {
+  const invitar = enlaceInvitar(r.codigo);
+  APP.innerHTML = `
+  <span class="insignia activo">¡Grupo registrado!</span>
+  <h1>${esc(r.nombre)}</h1>
+  <section class="tarjeta">
+    <h2>🔑 Guarda tu clave de líder</h2>
+    <p class="sub" style="margin:.3rem 0 0">Con ella entras a tu panel desde cualquier móvil u ordenador. <b>Solo se muestra ahora</b>: cópiala en tus notas o mándatela por WhatsApp.</p>
+    <div class="clave" id="v-clave">Código: ${esc(r.codigo)}<br>Clave: ${esc(r.clave)}</div>
+    <div class="fila"><button class="btn peq" id="b-copiar-clave">Copiar código y clave</button></div>
+  </section>
+  <section class="tarjeta">
+    <h2>👥 Invita a tu grupo</h2>
+    <p class="sub" style="margin:.3rem 0 .8rem">Comparte este enlace. Al abrirlo, cada persona se une a la liga con el código <b>${esc(r.codigo)}</b> y su progreso aparece en tu panel.</p>
+    <div class="fila"><button class="btn peq" id="b-wa">Enviar por WhatsApp</button><button class="btn sec peq" id="b-copiar-inv">Copiar enlace</button></div>
+  </section>
+  <button class="btn" id="b-ir" style="width:100%">Ir a mi panel</button>`;
+  document.getElementById('b-copiar-clave').onclick = e => copiar(`Lumbrera · Panel de ${r.nombre}\n${location.origin}/lider\nCódigo: ${r.codigo}\nClave: ${r.clave}`, e.target);
+  document.getElementById('b-wa').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(textoInvitacion(r.nombre, invitar)), '_blank', 'noopener');
+  document.getElementById('b-copiar-inv').onclick = e => copiar(invitar, e.target);
+  document.getElementById('b-ir').onclick = () => panel();
+}
+const textoInvitacion = (nombre, url) => `📖 ${nombre} está aprendiendo la Biblia con Lumbrera: lecciones de 3 minutos y una liga semanal de nuestro grupo. Entra aquí y únete con un toque:\n${url}`;
+
+// ---------- Panel ----------
+let D = null;
+async function panel() {
+  const s = sesion(); if (!s) return portada();
+  APP.innerHTML = '<p class="sub">Cargando tu grupo…</p>';
+  const r = await api('grupo/panel', { codigo: s.codigo, clave: s.clave });
+  if (r.status === 401) { guardar(null); return portada(r.error); }
+  if (r.error) { APP.innerHTML = `<p class="error">${esc(r.error)}</p><button class="btn sec" onclick="panel()">Reintentar</button>`; return; }
+  D = r; guardar({ ...s, nombre: r.grupo.nombre });
+  pintarPanel();
+}
+
+function pintarPanel() {
+  const g = D.grupo, [esta, pasada] = D.semanas;
+  const dias = Math.ceil((g.hasta - Date.now()) / 864e5);
+  const estado = !g.activo ? `<span class="insignia fin">Prueba terminada</span>` : g.plan === 'prueba' ? `<span class="insignia">Prueba gratis · ${dias} ${dias === 1 ? 'día' : 'días'}</span>` : `<span class="insignia activo">Plan ${g.plan === 'iglesia' ? 'Iglesia' : 'Grupo'} activo</span>`;
+  const M = D.miembros.map(x => ({ ...x, xpEsta: x.xp[esta] || 0, xpPasada: x.xp[pasada] || 0, lecEsta: x.lecciones[esta] || 0, prec: x.preguntas ? Math.round(100 * x.preguntas / (x.preguntas + x.errores)) : null }))
+    .sort((a, b) => b.xpEsta - a.xpEsta || b.xpPasada - a.xpPasada);
+  const activos = M.filter(x => x.xpEsta > 0 || x.lecEsta > 0).length;
+  const lecSem = M.reduce((a, x) => a + x.lecEsta, 0), xpSem = M.reduce((a, x) => a + x.xpEsta, 0);
+  const totP = M.reduce((a, x) => a + x.preguntas, 0), totE = M.reduce((a, x) => a + x.errores, 0);
+  const temas = D.temas.filter(t => t.preguntas >= 10).map(t => ({ ...t, fallo: t.errores / (t.preguntas + t.errores) })).sort((a, b) => b.fallo - a.fallo).slice(0, 5);
+  const invitar = enlaceInvitar(g.codigo);
+
+  APP.innerHTML = `
+  <div class="fila" style="justify-content:space-between">${estado}<button class="enlace" id="b-salir">Salir del panel</button></div>
+  <h1>${esc(g.nombre)}</h1>
+  <p class="sub">Código del grupo: <b>${esc(g.codigo)}</b></p>
+  ${!g.activo ? `<section class="tarjeta" style="border-color:#a9802f"><h2>Activa el Plan Grupo</h2><p class="sub" style="margin:.3rem 0 .8rem">Tus miembros pueden seguir jugando gratis. Para volver a ver su progreso y jugar con tus preguntas, activa el Plan Grupo (20 €/mes).</p><a class="btn" href="${CONTACTO}%20${encodeURIComponent('(' + g.codigo + ')')}">Quiero activarlo</a></section>`
+    : g.plan === 'prueba' && dias <= 7 ? `<section class="tarjeta"><b>Tu prueba termina en ${dias} ${dias === 1 ? 'día' : 'días'}.</b> <a href="${CONTACTO}%20${encodeURIComponent('(' + g.codigo + ')')}" style="color:var(--ambar)">Escríbeme para activar el Plan Grupo</a> y no perder el seguimiento.</section>` : ''}
+
+  <div class="cifras">
+    <div class="cifra"><b>${fmt(activos)}</b><span>de ${fmt(M.length)} practican esta semana</span></div>
+    <div class="cifra"><b>${fmt(lecSem)}</b><span>lecciones esta semana</span></div>
+    <div class="cifra"><b>${fmt(xpSem)}</b><span>puntos esta semana</span></div>
+    <div class="cifra"><b>${totP ? Math.round(100 * totP / (totP + totE)) + '%' : '—'}</b><span>aciertos (4 semanas)</span></div>
+  </div>
+
+  ${g.activo ? '' : '<div style="opacity:.45;pointer-events:none;filter:blur(2px)" aria-hidden="true">'}
+  <section class="tarjeta">
+    <h2>👥 Tu grupo</h2>
+    ${M.length ? `<div class="tabla-env"><table>
+      <thead><tr><th>Miembro</th><th class="n">Puntos</th><th class="n">Lecciones</th><th class="n">Sem. pasada</th><th class="n">Aciertos</th><th>Última vez</th></tr></thead>
+      <tbody>${M.map(x => `<tr class="${x.xpEsta || x.lecEsta ? '' : 'inactivo'}"><td><b>${esc(x.apodo)}</b></td><td class="n">${fmt(x.xpEsta)}</td><td class="n">${fmt(x.lecEsta)}</td><td class="n">${fmt(x.xpPasada)}</td><td class="n">${x.prec === null ? '—' : x.prec + '%'}</td><td>${hace(x.ultimo)}</td></tr>`).join('')}</tbody>
+    </table></div>` : `<p class="vacio">Todavía no hay nadie. Comparte el enlace de invitación: cuando alguien se una a la liga con vuestro código y haga una lección, aparecerá aquí.</p>`}
+    <div class="fila" style="margin-top:14px"><button class="btn peq" id="b-wa">Invitar por WhatsApp</button><button class="btn sec peq" id="b-copiar-inv">Copiar enlace de invitación</button></div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>📌 Temas a reforzar</h2>
+    <p class="sub" style="margin:.2rem 0 .4rem">Las unidades donde tu grupo falla más (últimas 4 semanas).</p>
+    ${temas.length ? temas.map(t => `<div class="tema"><div><b>${esc(t.nombre)}</b> · ${esc(t.tema)}<div class="r" style="color:var(--suave);font-size:.85rem">${Math.round(100 * t.fallo)}% de fallos · ${t.personas} ${t.personas === 1 ? 'persona' : 'personas'} · <a href="/aprender?libro=${esc(t.libro)}" style="color:var(--ambar)">Repasarlo en grupo</a></div></div><div class="barra" aria-hidden="true"><i style="width:${Math.round(100 * t.fallo)}%"></i></div></div>`).join('')
+      : `<p class="vacio">Aparecerán cuando tu grupo haya hecho algunas lecciones.</p>`}
+  </section>
+  ${g.activo ? '' : '</div>'}
+
+  <section class="tarjeta" id="propias">
+    <h2>✍️ Tus preguntas</h2>
+    <p class="sub" style="margin:.2rem 0 .6rem">Escribe preguntas sobre la predicación del domingo o el estudio de la semana y jugadlas en la pantalla, con PIN, como una partida normal.</p>
+    <div id="lista-preg">${D.preguntas.length ? D.preguntas.map(p => `<div class="preg"><div><div class="q">${esc(p.q)}</div><div class="r"><b>✓ ${esc(p.ok)}</b> · ✗ ${p.malas.map(esc).join(' · ✗ ')}${p.ref ? ' · ' + esc(p.ref) : ''}</div></div><button class="x" data-borrar="${esc(p.id)}" aria-label="Borrar pregunta">✕</button></div>`).join('') : '<p class="vacio">Aún no has escrito ninguna.</p>'}</div>
+    ${g.activo ? `
+    <div class="dos" style="margin-top:12px">
+      <div>
+        <label for="p-q">Pregunta</label><input class="campo" id="p-q" maxlength="200" placeholder="¿Quién le preguntó a Jesús cómo podía nacer de nuevo?">
+        <label for="p-ok">Respuesta correcta</label><input class="campo" id="p-ok" maxlength="90" placeholder="Nicodemo">
+        <label for="p-m1">Respuestas incorrectas <small>· al menos una</small></label>
+        <input class="campo" id="p-m1" maxlength="90" placeholder="Pedro"><input class="campo" id="p-m2" maxlength="90" placeholder="Zaqueo" style="margin-top:8px"><input class="campo" id="p-m3" maxlength="90" placeholder="José de Arimatea" style="margin-top:8px">
+      </div>
+      <div>
+        <label for="p-ref">Cita <small>· opcional</small></label><input class="campo" id="p-ref" maxlength="40" placeholder="Juan 3:4">
+        <label for="p-exp">Explicación tras responder <small>· opcional</small></label><textarea class="campo" id="p-exp" maxlength="240" rows="4" placeholder="Nicodemo, fariseo y principal entre los judíos, vino a Jesús de noche."></textarea>
+        <p class="error" id="p-err"></p>
+        <button class="btn" id="b-anadir" style="width:100%">Añadir pregunta</button>
+      </div>
+    </div>
+    ${D.preguntas.length >= 3 ? `<div class="tarjeta" style="margin:18px 0 0;background:rgba(15,12,38,.6)">
+      <h2>🎮 Jugar mis preguntas en grupo</h2>
+      <div class="fila" style="margin-top:.6rem">
+        <select class="campo" id="j-n" style="width:auto">${[...new Set([5, 10, 15, 20, D.preguntas.length].filter(n => n <= D.preguntas.length))].sort((a, b) => a - b).map(n => `<option value="${n}" ${n === Math.min(10, D.preguntas.length) ? 'selected' : ''}>${n} preguntas</option>`).join('')}</select>
+        <select class="campo" id="j-t" style="width:auto">${[10, 15, 20, 30, 45, 60].map(t => `<option value="${t}" ${t === 20 ? 'selected' : ''}>${t} s por pregunta</option>`).join('')}</select>
+        <button class="btn" id="b-jugar">Abrir en la pantalla</button>
+      </div>
+      <p class="error" id="j-err"></p>
+    </div>` : `<p class="sub" style="margin:14px 0 0">Con 3 preguntas o más podrás jugarlas en grupo.</p>`}` : ''}
+  </section>
+
+  <section class="tarjeta">
+    <h2>🔑 Acceso</h2>
+    <p class="sub" style="margin:.2rem 0 .6rem">Para entrar desde otro dispositivo necesitas el código <b>${esc(g.codigo)}</b> y tu clave de líder.</p>
+    <button class="btn sec peq" id="b-copiar-clave">Copiar código y clave</button>
+  </section>`;
+
+  const s = sesion();
+  document.getElementById('b-salir').onclick = () => { if (confirm('¿Salir del panel en este dispositivo? Para volver necesitarás tu clave.')) { guardar(null); portada(); } };
+  document.getElementById('b-wa').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(textoInvitacion(g.nombre, invitar)), '_blank', 'noopener');
+  document.getElementById('b-copiar-inv').onclick = e => copiar(invitar, e.target);
+  document.getElementById('b-copiar-clave').onclick = e => copiar(`Lumbrera · Panel de ${g.nombre}\n${location.origin}/lider\nCódigo: ${g.codigo}\nClave: ${s.clave}`, e.target);
+  APP.querySelectorAll('[data-borrar]').forEach(b => b.onclick = async () => {
+    if (!confirm('¿Borrar esta pregunta?')) return;
+    await api('grupo/pregunta', { codigo: s.codigo, clave: s.clave, accion: 'borrar', id: b.dataset.borrar });
+    D.preguntas = D.preguntas.filter(p => p.id !== b.dataset.borrar); pintarPanel();
+  });
+  const bA = document.getElementById('b-anadir');
+  if (bA) bA.onclick = async () => {
+    const v = id => document.getElementById(id).value;
+    const pregunta = { q: v('p-q'), ok: v('p-ok'), malas: [v('p-m1'), v('p-m2'), v('p-m3')], ref: v('p-ref'), exp: v('p-exp') };
+    bA.disabled = true;
+    const r = await api('grupo/pregunta', { codigo: s.codigo, clave: s.clave, pregunta });
+    bA.disabled = false;
+    if (!r.ok) { document.getElementById('p-err').textContent = r.error || 'No se ha podido guardar'; return; }
+    D.preguntas.push({ id: r.id, ...pregunta, malas: pregunta.malas.map(x => x.trim()).filter(Boolean) });
+    pintarPanel();
+    document.getElementById('propias').scrollIntoView({ block: 'start' });
+    const q = document.getElementById('p-q'); if (q) q.focus();
+  };
+  const bJ = document.getElementById('b-jugar');
+  if (bJ) bJ.onclick = async () => {
+    bJ.disabled = true; bJ.textContent = 'Preparando…';
+    const r = await api('grupo/partida', { codigo: s.codigo, clave: s.clave, n: +document.getElementById('j-n').value, tiempo: +document.getElementById('j-t').value });
+    if (!r.pin) { bJ.disabled = false; bJ.textContent = 'Abrir en la pantalla'; document.getElementById('j-err').textContent = r.error || 'No se ha podido crear la partida'; return; }
+    try { sessionStorage.setItem('chispa-host', JSON.stringify({ pin: r.pin, claveHost: r.claveHost, volver: 'lider' })); } catch {}
+    location.href = '/presentar?pin=' + r.pin;
+  };
+}
+
+panel();
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "e0ce934667604de6846373325dd96382"}'></script>
+</body>
+</html>

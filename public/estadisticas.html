@@ -74,6 +74,29 @@ async function cargar() {
   catch { app.innerHTML = '<p class="sub">Sin conexión.</p>'; return; }
   if (r.status === 401) return login('Contraseña incorrecta');
   pintar(await r.json());
+  pintarGrupos();
+}
+
+// Plan Grupo: grupos registrados, activar o ampliar el plan y dar una clave nueva
+async function pintarGrupos() {
+  let d; try { d = await fetch(BASE + 'api/grupos', { headers: { 'x-chispa-clave': clave() } }).then(r => r.json()); } catch { return; }
+  if (!d.grupos) return;
+  const caja = document.createElement('section'); caja.id = 'grupos-admin';
+  const fecha = ms => new Date(ms).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+  caja.innerHTML = `<h2>👥 Grupos (Plan Grupo) · ${fmt(d.grupos.length)}</h2><p class="nota">Tras recibir el pago, pulsa «+30 días» (mensual) o «+1 año». «Nueva clave» genera otra clave de líder para quien perdió la suya.</p>
+    ${d.grupos.length ? `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.9rem">
+      <thead><tr style="color:var(--suave);text-align:left"><th>Grupo</th><th>Plan</th><th>Hasta</th><th>Miembros</th><th>Lecciones</th><th>Propias</th><th></th></tr></thead>
+      <tbody>${d.grupos.map(g => `<tr style="border-top:1px solid #362e74"><td style="padding:.5em .3em"><b>${esc(g.nombre)}</b><br><span style="color:var(--suave)">${esc(g.codigo)} · ${fecha(g.creado)}</span></td><td>${esc(g.plan)}</td><td style="color:${g.hasta < Date.now() ? '#FF8A8F' : 'inherit'}">${fecha(g.hasta)}</td><td>${fmt(g.miembros)}</td><td>${fmt(g.lecciones)}</td><td>${fmt(g.propias)}</td>
+        <td style="white-space:nowrap"><button class="btn peq" data-c="${esc(g.codigo)}" data-d="30">+30 días</button> <button class="btn sec peq" data-c="${esc(g.codigo)}" data-d="365">+1 año</button> <button class="btn sec peq" data-c="${esc(g.codigo)}" data-k="1">Nueva clave</button></td></tr>`).join('')}</tbody></table></div>` : '<p class="nota">Aún no hay grupos registrados.</p>'}`;
+  const prev = document.getElementById('grupos-admin'); prev ? prev.replaceWith(caja) : app.appendChild(caja);
+  caja.querySelectorAll('button[data-c]').forEach(b => b.onclick = async () => {
+    const k = !!b.dataset.k;
+    if (!confirm(k ? `¿Generar una clave nueva para «${b.dataset.c}»? La anterior dejará de funcionar.` : `¿Ampliar «${b.dataset.c}» ${b.dataset.d} días con el Plan Grupo?`)) return;
+    const r = await fetch(BASE + 'api/grupos', { method: 'POST', headers: { 'content-type': 'application/json', 'x-chispa-clave': clave() }, body: JSON.stringify(k ? { codigo: b.dataset.c, nuevaClave: true } : { codigo: b.dataset.c, dias: +b.dataset.d, plan: 'grupo' }) }).then(x => x.json());
+    if (r.error) return alert(r.error);
+    if (k) prompt('Nueva clave de líder (cópiala y envíasela):', r.clave);
+    pintarGrupos();
+  });
 }
 
 function pintar(d) {

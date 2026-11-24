@@ -1,6 +1,6 @@
 // Chispa en Cloudflare: el Worker sirve la web, la API y reparte cada partida a su Durable Object.
 import QRCode from 'qrcode';
-import { json, iguales, limpiarCuestionario, normalizarLugar, huella, marcaDe } from './comun.js';
+import { json, iguales, aleatorio, limpiarCuestionario, normalizarLugar, huella, marcaDe } from './comun.js';
 import { semanaLiga, diaLiga, jugadorDe, apodoValido, grupoValido, LIGA_MAX_ENVIO } from './liga.js';
 import { endpointValido, horaValida, zonaValida } from './push.js';
 const CONTACTO_PUSH = 'https://genesis.andresrendon.com/privacidad'; // contacto VAPID (la página de privacidad tiene el email)
@@ -73,7 +73,7 @@ export default {
         return new Response(LLMS_LUMBRERA.replaceAll('{{ORIGEN}}', url.origin) + extra, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
       }
       if (ruta === '/sitemap.xml') {
-        const urls = env.MARCA === 'fe' ? ['/', '/grupos', '/preguntas', ...(await librosFe()).map(b => '/preguntas/' + b.id), '/jugar', '/privacidad'] : ['/', '/privacidad'];
+        const urls = env.MARCA === 'fe' ? ['/', '/grupos', '/lider', '/preguntas', ...(await librosFe()).map(b => '/preguntas/' + b.id), '/jugar', '/privacidad'] : ['/', '/privacidad'];
         return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u => `<url><loc>${url.origin}${u}</loc></url>`).join('')}</urlset>`, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
       }
       // Las páginas de preguntas son solo de Lumbrera
@@ -84,7 +84,7 @@ export default {
         if (url.searchParams.get('pin')) return Response.redirect(url.origin + '/jugar' + url.search, 302);
         return env.ASSETS.fetch(new Request(new URL('/aprender', url), req));
       }
-      if (env.MARCA !== 'fe' && (ruta === '/aprender' || ruta === '/aprender.html' || ruta === '/grupos' || ruta === '/grupos.html')) return Response.redirect(url.origin + '/', 302);
+      if (env.MARCA !== 'fe' && (ruta === '/aprender' || ruta === '/aprender.html' || ruta === '/grupos' || ruta === '/grupos.html' || ruta === '/lider' || ruta === '/lider.html')) return Response.redirect(url.origin + '/', 302);
       if (env.MARCA !== 'fe' && (ruta === '/privacidad-lumbrera' || ruta === '/privacidad-lumbrera.html')) return Response.redirect(url.origin + '/privacidad', 302);
       // Lumbrera: /favicon.ico es su lámpara (los navegadores y Google lo piden aunque haya otros iconos)
       if (env.MARCA === 'fe' && ruta === '/favicon.ico') { const r = await env.ASSETS.fetch(new Request(new URL('/app/icono-192.png', url), req)); return new Response(r.body, { headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=86400' } }); }
@@ -188,6 +188,66 @@ async function api(req, env, url, ruta) {
     const r = await st.ligaSumar({ semana, anterior: anteriorL(), dia: diaLiga(), jugador, apodo: a.apodo, grupo: g.grupo, xp: caducado ? 0 : xp });
     return json({ semana, apodo: a.apodo, grupo: g.grupo, caducado, ...r });
   }
+  // ---- Lumbrera · Plan Grupo: el líder registra su código de grupo y entra a su panel con una clave secreta ----
+  if (ruta.startsWith('grupo/') && env.MARCA !== 'fe') return json({ error: 'No disponible' }, 404);
+  const semanasPanel = () => [semanaL(), ...[1, 2, 3].map(k => semanaLiga(Date.now() - k * 7 * 864e5))];
+  const entrarGrupo = async b => { const g = grupoValido(b.codigo); if (g.error || !g.grupo) return null; return st.grupoEntrar(g.grupo, String(b.clave || '').trim()); };
+  if (ruta === 'grupo/crear' && m === 'POST') {
+    const b = await cuerpo();
+    const g = grupoValido(b.codigo); if (g.error) return json(g, 400); if (!g.grupo) return json({ error: 'Escribe un código para tu grupo' }, 400);
+    const nombre = String(b.nombre || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    if (nombre.length < 3) return json({ error: 'Escribe el nombre de tu grupo o iglesia' }, 400);
+    const clave = aleatorio(12);
+    const r = await st.grupoCrear({ codigo: g.grupo, nombre, clave, dias: PRUEBA_GRUPO_DIAS });
+    if (r.error) return json(r, 409);
+    try { const d = diaLiga(); await st.metricaSumar([[d, 'grupos_creados', 1], ['S:' + semanaLiga(), 'grupos_creados', 1], ['M:' + d.slice(0, 7), 'grupos_creados', 1], ['total', 'grupos_creados', 1]]); } catch {}
+    return json({ ok: true, codigo: g.grupo, nombre, clave, hasta: r.hasta });
+  }
+  if (ruta === 'grupo/panel' && m === 'POST') {
+    const b = await cuerpo(); const g = await entrarGrupo(b);
+    if (!g) return json({ error: 'El código o la clave no son correctos' }, 401);
+    const semanas = semanasPanel();
+    const p = await st.grupoPanel(g.codigo, semanas);
+    if (!g.activo) { p.temas = []; p.miembros = p.miembros.map(x => ({ ...x, apodo: '•••' })); }
+    // Nombre de cada tema flojo (libro y unidad) desde los libros publicados
+    const ids = [...new Set(p.temas.map(t => t.libro))], titulos = {};
+    await Promise.all(ids.map(async id => { if (!/^[a-z0-9-]{2,20}$/.test(id)) return; try { const L = await env.ASSETS.fetch(new Request(new URL(`/biblia/${id}.json`, url))).then(r => r.json()); titulos[id] = { nombre: L.nombre, unidades: L.unidades.map(u => `${u.titulo} (${u.capitulos})`) }; } catch {} }));
+    p.temas = p.temas.filter(t => titulos[t.libro] && titulos[t.libro].unidades[t.unidad]).map(t => ({ ...t, nombre: titulos[t.libro].nombre, tema: titulos[t.libro].unidades[t.unidad] }));
+    return json({ grupo: g, semanas, ...p }, 200, { 'cache-control': 'no-store' });
+  }
+  if (ruta === 'grupo/leccion' && m === 'POST') {
+    const b = await cuerpo();
+    const jugador = await jugadorDe(b.token); if (!jugador) return json({ ok: false });
+    const g = grupoValido(b.grupo); if (g.error || !g.grupo) return json({ ok: false });
+    const libro = String(b.libro || ''); if (!/^[a-z0-9-]{2,20}$/.test(libro)) return json({ ok: false });
+    const unidad = Math.max(0, Math.min(20, parseInt(b.unidad, 10) || 0));
+    const preguntas = Math.max(1, Math.min(30, parseInt(b.preguntas, 10) || 10)), errores = Math.max(0, Math.min(60, parseInt(b.errores, 10) || 0));
+    return json(await st.grupoLeccion({ codigo: g.grupo, semana: semanaL(), jugador, libro, unidad, preguntas, errores }));
+  }
+  if (ruta === 'grupo/pregunta' && m === 'POST') {
+    const b = await cuerpo(); const g = await entrarGrupo(b);
+    if (!g) return json({ error: 'El código o la clave no son correctos' }, 401);
+    if (b.accion === 'borrar') return json(await st.grupoPreguntaBorrar(g.codigo, b.id));
+    if (!g.activo) return json({ error: 'La prueba de tu grupo ha terminado. Activa el Plan Grupo para seguir creando preguntas.' }, 402);
+    const p = preguntaPropia(b.pregunta); if (p.error) return json(p, 400);
+    return json(await st.grupoPreguntaPoner(g.codigo, p));
+  }
+  if (ruta === 'grupo/partida' && m === 'POST') {
+    const b = await cuerpo(); const g = await entrarGrupo(b);
+    if (!g) return json({ error: 'El código o la clave no son correctos' }, 401);
+    if (!g.activo) return json({ error: 'La prueba de tu grupo ha terminado. Activa el Plan Grupo para jugar con tus preguntas.' }, 402);
+    const propias = await st.grupoPreguntas(g.codigo);
+    if (propias.length < 3) return json({ error: 'Añade al menos 3 preguntas para jugar' }, 400);
+    const n = Math.max(3, Math.min(propias.length, parseInt(b.n, 10) || propias.length));
+    const tiempo = Math.max(5, Math.min(120, parseInt(b.tiempo, 10) || 0)) || null;
+    const quiz = limpiarCuestionario({ titulo: `${g.nombre} · ${n} preguntas`, preguntas: barajar(propias).slice(0, n).map(preguntaEnVivo).map(p => tiempo ? { ...p, tiempo } : p) });
+    for (let i = 0; i < 8; i++) {
+      const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
+      const res = await juego(env, pin).crear(pin, { titulo: quiz.titulo, preguntas: quiz.preguntas, cierre: null });
+      if (!res.ocupado) { const d = diaLiga(); try { await st.metricaSumar([[d, 'grupo_partidas', 1], [d, 'partidas_propias', 1], ['S:' + semanaLiga(), 'grupo_partidas', 1], ['M:' + d.slice(0, 7), 'grupo_partidas', 1]]); } catch {} return json({ ...res, n: quiz.preguntas.length }); }
+    }
+    return json({ error: 'No se ha podido crear la partida, prueba otra vez' }, 503);
+  }
   // Lumbrera: contadores anónimos de uso (sin identificadores ni datos personales)
   if (ruta === 'm' && m === 'POST') {
     if (env.MARCA !== 'fe') return json({ ok: true });
@@ -285,6 +345,15 @@ async function api(req, env, url, ruta) {
   // --- A partir de aquí, solo presentador ---
   if (!(await autorizado(req, env))) return json({ error: 'Contraseña de presentador incorrecta' }, 401);
 
+  // Plan Grupo: lista de grupos, ampliar el plan o dar una clave nueva a un líder que la perdió
+  if (ruta === 'grupos' && m === 'GET') return json({ grupos: await st.grupoLista() }, 200, { 'cache-control': 'no-store' });
+  if (ruta === 'grupos' && m === 'POST') {
+    const b = await cuerpo(); const g = grupoValido(b.codigo); if (g.error || !g.grupo) return json({ error: 'Código no válido' }, 400);
+    if (b.nuevaClave) { const clave = aleatorio(12); const r = await st.grupoNuevaClave(g.grupo, clave); return json(r.error ? r : { ok: true, clave }, r.error ? 404 : 200); }
+    const dias = Math.max(1, Math.min(400, parseInt(b.dias, 10) || 30));
+    const plan = ['prueba', 'grupo', 'iglesia'].includes(b.plan) ? b.plan : 'grupo';
+    return json(await st.grupoAmpliar(g.grupo, dias, plan));
+  }
   if (ruta === 'metricas' && m === 'GET') {
     const desde = diaLiga(Date.now() - 34 * 864e5);
     return json({ hoy: diaLiga(), semana: semanaLiga(), ...(await st.metricas({ desdeDia: desde, semana: semanaLiga() })) }, 200, { 'cache-control': 'no-store' });
@@ -411,6 +480,19 @@ function preguntaEnVivo(q) {
     return conOpciones(`¿Qué corresponde a «${a}»?${ref}`, b, q.pares.filter(p => p[1] !== b).map(p => p[1]), 20);
   }
   return conOpciones(`${String(q.q).replace('___', '_____')}${ref}`, q.ok, q.malas, 20);
+}
+
+// Pregunta escrita por un líder: enunciado, respuesta correcta, de 1 a 3 incorrectas, cita y explicación opcionales
+const PRUEBA_GRUPO_DIAS = 30;
+function preguntaPropia(p) {
+  const t = (v, max) => String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
+  if (!p || typeof p !== 'object') return { error: 'Falta la pregunta' };
+  const q = t(p.q, 200), ok = t(p.ok, 90), malas = (Array.isArray(p.malas) ? p.malas : []).map(x => t(x, 90)).filter(Boolean).slice(0, 3);
+  if (q.length < 5) return { error: 'Escribe la pregunta' };
+  if (!ok) return { error: 'Escribe la respuesta correcta' };
+  if (!malas.length) return { error: 'Escribe al menos una respuesta incorrecta' };
+  if (malas.some(x => x.toLowerCase() === ok.toLowerCase()) || new Set(malas.map(x => x.toLowerCase())).size !== malas.length) return { error: 'Las respuestas no pueden repetirse' };
+  return { t: 'opcion', q, ok, malas, ref: t(p.ref, 40), exp: t(p.exp, 240) };
 }
 
 function barajar(a) {

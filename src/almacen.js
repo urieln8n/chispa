@@ -159,6 +159,95 @@ export class Almacen extends DurableObject {
   }
   // «Salir de la liga»: borra todas las filas de ese jugador
   async ligaBorrar(jugador) { const sql = this.ligaTabla(); sql.exec('DELETE FROM liga WHERE jugador = ?', jugador); sql.exec('DELETE FROM liga_div WHERE jugador = ?', jugador); }
+  // ---- Plan Grupo de Lumbrera: el líder registra un código de grupo y recibe una clave secreta para su panel ----
+  grupoTablas() {
+    if (this.grupoListo) return this.ctx.storage.sql;
+    const sql = this.ligaTabla();
+    sql.exec(`CREATE TABLE IF NOT EXISTS grupos (codigo TEXT PRIMARY KEY, nombre TEXT NOT NULL, sal TEXT NOT NULL, hash TEXT NOT NULL,
+      creado INTEGER NOT NULL, hasta INTEGER NOT NULL, plan TEXT NOT NULL DEFAULT 'prueba')`);
+    sql.exec(`CREATE TABLE IF NOT EXISTS grupo_lec (codigo TEXT NOT NULL, semana TEXT NOT NULL, jugador TEXT NOT NULL, libro TEXT NOT NULL, unidad INTEGER NOT NULL,
+      lecciones INTEGER NOT NULL DEFAULT 0, preguntas INTEGER NOT NULL DEFAULT 0, errores INTEGER NOT NULL DEFAULT 0, act INTEGER NOT NULL,
+      PRIMARY KEY (codigo, semana, jugador, libro, unidad))`);
+    sql.exec(`CREATE TABLE IF NOT EXISTS grupo_preg (codigo TEXT NOT NULL, id TEXT NOT NULL, datos TEXT NOT NULL, creado INTEGER NOT NULL, PRIMARY KEY (codigo, id))`);
+    this.grupoListo = true;
+    return sql;
+  }
+  async grupoCrear({ codigo, nombre, clave, dias }) {
+    const sql = this.grupoTablas();
+    if (sql.exec('SELECT 1 FROM grupos WHERE codigo = ?', codigo).toArray().length) return { error: 'Ese código ya está registrado por otro líder. Elige otro.' };
+    const hoyN = sql.exec('SELECT COUNT(*) AS n FROM grupos WHERE creado > ?', Date.now() - 864e5).one().n;
+    if (hoyN >= 300) return { error: 'Hoy se han creado demasiados grupos. Prueba mañana.' };
+    const sal = idCorto(), ahora = Date.now();
+    sql.exec('INSERT INTO grupos (codigo, nombre, sal, hash, creado, hasta) VALUES (?, ?, ?, ?, ?, ?)', codigo, nombre, sal, await sha256(sal + clave), ahora, ahora + dias * 864e5);
+    return { ok: true, hasta: ahora + dias * 864e5 };
+  }
+  async grupoEntrar(codigo, clave) {
+    const sql = this.grupoTablas();
+    const g = sql.exec('SELECT * FROM grupos WHERE codigo = ?', codigo).toArray()[0];
+    if (!g || !clave || (await sha256(g.sal + clave)) !== g.hash) return null;
+    return { codigo: g.codigo, nombre: g.nombre, creado: g.creado, hasta: g.hasta, plan: g.plan, activo: g.hasta > Date.now() };
+  }
+  // Una lección hecha por un miembro (solo cuenta si el grupo está registrado)
+  async grupoLeccion({ codigo, semana, jugador, libro, unidad, preguntas, errores }) {
+    const sql = this.grupoTablas();
+    if (!sql.exec('SELECT 1 FROM grupos WHERE codigo = ?', codigo).toArray().length) return { ok: false };
+    sql.exec(`INSERT INTO grupo_lec (codigo, semana, jugador, libro, unidad, lecciones, preguntas, errores, act) VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)
+      ON CONFLICT (codigo, semana, jugador, libro, unidad) DO UPDATE SET lecciones = lecciones + 1, preguntas = preguntas + excluded.preguntas,
+      errores = errores + excluded.errores, act = excluded.act`, codigo, semana, jugador, libro, unidad, preguntas, errores, Date.now());
+    if (Math.random() < 0.02) sql.exec('DELETE FROM grupo_lec WHERE semana < ?', semanaAntigua(semana));
+    return { ok: true };
+  }
+  // Todo lo que ve el líder: miembros (de la liga, con su código), lecciones, temas flojos y preguntas propias
+  grupoPanel(codigo, semanas) {
+    const sql = this.grupoTablas();
+    const qs = semanas.map(() => '?').join(',');
+    const liga = sql.exec(`SELECT jugador, apodo, semana, xp, act FROM liga WHERE grupo = ? AND semana IN (${qs})`, codigo, ...semanas).toArray();
+    const lec = sql.exec(`SELECT jugador, semana, libro, unidad, lecciones, preguntas, errores, act FROM grupo_lec WHERE codigo = ? AND semana IN (${qs})`, codigo, ...semanas).toArray();
+    const miembros = {};
+    const m = j => (miembros[j] = miembros[j] || { apodo: null, xp: {}, lecciones: {}, preguntas: 0, errores: 0, ultimo: 0 });
+    liga.forEach(f => { const x = m(f.jugador); if (!x.apodo || f.semana === semanas[0]) x.apodo = f.apodo; x.xp[f.semana] = f.xp; x.ultimo = Math.max(x.ultimo, f.act || 0); });
+    lec.forEach(f => { const x = m(f.jugador); x.lecciones[f.semana] = (x.lecciones[f.semana] || 0) + f.lecciones; x.preguntas += f.preguntas; x.errores += f.errores; x.ultimo = Math.max(x.ultimo, f.act); });
+    const temas = {};
+    lec.forEach(f => { const k = f.libro + ':' + f.unidad; const t = (temas[k] = temas[k] || { libro: f.libro, unidad: f.unidad, preguntas: 0, errores: 0, personas: new Set() }); t.preguntas += f.preguntas; t.errores += f.errores; t.personas.add(f.jugador); });
+    const preg = sql.exec('SELECT id, datos FROM grupo_preg WHERE codigo = ? ORDER BY creado', codigo).toArray().map(r => ({ id: r.id, ...JSON.parse(r.datos) }));
+    return {
+      miembros: Object.values(miembros).filter(x => x.apodo || Object.keys(x.lecciones).length).map((x, i) => ({ ...x, apodo: x.apodo || `Miembro ${i + 1}` })),
+      temas: Object.values(temas).map(t => ({ libro: t.libro, unidad: t.unidad, preguntas: t.preguntas, errores: t.errores, personas: t.personas.size })),
+      preguntas: preg,
+    };
+  }
+  grupoPreguntas(codigo) { return this.grupoTablas().exec('SELECT id, datos FROM grupo_preg WHERE codigo = ? ORDER BY creado', codigo).toArray().map(r => ({ id: r.id, ...JSON.parse(r.datos) })); }
+  grupoPreguntaPoner(codigo, p) {
+    const sql = this.grupoTablas();
+    if (sql.exec('SELECT COUNT(*) AS n FROM grupo_preg WHERE codigo = ?', codigo).one().n >= 300) return { error: 'Has llegado al máximo de 300 preguntas propias' };
+    const id = idCorto();
+    sql.exec('INSERT INTO grupo_preg (codigo, id, datos, creado) VALUES (?, ?, ?, ?)', codigo, id, JSON.stringify(p), Date.now());
+    return { ok: true, id };
+  }
+  grupoPreguntaBorrar(codigo, id) { this.grupoTablas().exec('DELETE FROM grupo_preg WHERE codigo = ? AND id = ?', codigo, String(id)); return { ok: true }; }
+  // Para Andrés (con la contraseña del panel): lista de grupos y activar o ampliar un plan
+  grupoLista() {
+    const sql = this.grupoTablas();
+    return sql.exec(`SELECT g.codigo, g.nombre, g.creado, g.hasta, g.plan,
+      (SELECT COUNT(DISTINCT jugador) FROM grupo_lec l WHERE l.codigo = g.codigo) AS miembros,
+      (SELECT COALESCE(SUM(lecciones), 0) FROM grupo_lec l WHERE l.codigo = g.codigo) AS lecciones,
+      (SELECT COUNT(*) FROM grupo_preg p WHERE p.codigo = g.codigo) AS propias FROM grupos g ORDER BY g.creado DESC LIMIT 500`).toArray();
+  }
+  grupoAmpliar(codigo, dias, plan) {
+    const sql = this.grupoTablas();
+    const g = sql.exec('SELECT hasta FROM grupos WHERE codigo = ?', codigo).toArray()[0];
+    if (!g) return { error: 'Ese grupo no existe' };
+    const hasta = Math.max(g.hasta, Date.now()) + dias * 864e5;
+    sql.exec('UPDATE grupos SET hasta = ?, plan = ? WHERE codigo = ?', hasta, plan, codigo);
+    return { ok: true, hasta };
+  }
+  async grupoNuevaClave(codigo, clave) {
+    const sql = this.grupoTablas();
+    if (!sql.exec('SELECT 1 FROM grupos WHERE codigo = ?', codigo).toArray().length) return { error: 'Ese grupo no existe' };
+    const sal = idCorto(); sql.exec('UPDATE grupos SET sal = ?, hash = ? WHERE codigo = ?', sal, await sha256(sal + clave), codigo);
+    return { ok: true };
+  }
+
   // Clasificación de la semana: top 50 (global o de un grupo) y tu puesto
   async ligaClasificacion({ semana, anterior, jugador, grupo, vista }) {
     const sql = this.ligaTabla();
