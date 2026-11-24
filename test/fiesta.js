@@ -13,13 +13,13 @@ function conectar(pin) {
 const espera = ms => new Promise(r => setTimeout(r, ms));
 (async () => {
   for (const p of ['/', '/jugar', '/tv', '/fiesta-tv', '/fiesta.css']) { const r = await fetch(U + p, { redirect: 'manual' }); ok(r.status === 200, 'página ' + p + ' → ' + r.status); }
-  const r1 = await fetch(U + '/panel', { redirect: 'manual' }); ok(r1.status === 302, '/panel debería redirigir');
-  const c = await (await fetch(U + '/api/fiesta/crear', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ rondas: 8, anfitrion: 'Familia Prueba' }) })).json();
+  const r0 = await fetch(U + '/panel', { redirect: 'manual' }); ok(r0.status === 302, '/panel debería redirigir');
+  const c = await (await fetch(U + '/api/fiesta/crear', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ rondas: 9, anfitrion: 'Familia Prueba' }) })).json();
   ok(c.pin && c.claveHost, 'crear ' + JSON.stringify(c));
   const { pin, claveHost } = c;
   const info = await (await fetch(U + '/api/partidas/' + pin)).json(); ok(info.tipo === 'fiesta', 'info');
   const host = await conectar(pin);
-  const est = await host.emit('host:reanudar', { claveHost }); ok(est.estado && est.estado.total === 8, 'reanudar ' + JSON.stringify(est));
+  const est = await host.emit('host:reanudar', { claveHost }); ok(est.estado && est.estado.total === 9, 'reanudar ' + JSON.stringify(est));
   ok((await host.emit('host:siguiente')).error, 'no debería empezar con 0 jugadores');
   const bots = [];
   for (let i = 0; i < N; i++) {
@@ -31,27 +31,31 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
   const re = await (await conectar(pin)).emit('jugador:entrar', { token: bots[2].yo.token }); ok(re.id === bots[2].yo.id, 'reentrar con token');
   bots[2] = await conectar(pin); const re2 = await bots[2].emit('jugador:entrar', { token: re.token }); bots[2].yo = re2;
 
-  let resultados = 0, podio = null, tipos = { trivial: 0, probable: 0 };
+  let resultados = 0, podio = null, tipos = { trivial: 0, probable: 0, mentira: 0 };
   host.on('fiesta:podio', p => { podio = p; });
   bots.forEach((b, i) => b.on('fiesta:ronda', async r => {
-    tipos[r.tipo] += i === 0 ? 1 : 0;
+    tipos[r.tipo] += i === 0 && r.fase !== 'votar' ? 1 : 0;
     await espera(r.empiezaEn + 50 + i * 30);
-    const d = r.tipo === 'trivial' ? { opcion: i % r.opciones.length } : { voto: r.opciones[i % 2].id }; // los votos se reparten entre dos
+    let d;
+    if (r.tipo === 'mentira' && r.fase === 'escribir') { if (i === 0) { const v = await b.emit('fiesta:responder', { texto: 'KFC' }); /* puede que no sea esta ronda */ if (v.ok) return; } d = { texto: 'Mentira ' + i }; }
+    else if (r.tipo === 'mentira') { ok(r.opciones.length >= 3, 'opciones de mentira'); d = { opcion: r.mia === 0 ? 1 : 0 }; const mal = r.mia >= 0 ? await b.emit('fiesta:responder', { opcion: r.mia }) : { error: 'x' }; ok(mal.error, 'no se puede votar la propia mentira'); }
+    else d = r.tipo === 'trivial' ? { opcion: i % r.opciones.length } : { voto: r.opciones[i % 2].id }; // los votos se reparten entre dos
     const a = await b.emit('fiesta:responder', d); ok(a.ok, 'responder ' + JSON.stringify(a));
     const a2 = await b.emit('fiesta:responder', d); ok(a2.error, 'responder dos veces debería fallar');
   }));
   let ultimoRes = null; host.on('fiesta:resultado', r => { ultimoRes = r; resultados++; });
-  for (let k = 0; k < 8; k++) {
+  for (let k = 0; k < 9; k++) {
     const antes = resultados;
     ok(!(await host.emit('host:siguiente')).error, 'siguiente ronda ' + k);
-    for (let t = 0; t < 80 && resultados === antes; t++) await espera(100); // se cierra sola cuando todos responden
+    for (let t = 0; t < 120 && resultados === antes; t++) await espera(100); // se cierra sola cuando todos responden
     ok(resultados === antes + 1, 'la ronda ' + k + ' no se cerró sola');
-    if (ultimoRes.tipo === 'probable') ok(ultimoRes.elegidos.length >= 1 && ultimoRes.votos.length >= 1, 'votos ' + JSON.stringify(ultimoRes));
+    if (ultimoRes.tipo === 'mentira') ok(ultimoRes.opciones.some(o => o.verdad) && ultimoRes.opciones.reduce((a, o) => a + o.votantes.length, 0) === N, 'mentira ' + JSON.stringify(ultimoRes));
+    else if (ultimoRes.tipo === 'probable') ok(ultimoRes.elegidos.length >= 1 && ultimoRes.votos.length >= 1, 'votos ' + JSON.stringify(ultimoRes));
     else ok(ultimoRes.conteo.reduce((a, b) => a + b, 0) === N, 'conteo trivial');
   }
   ok(!(await host.emit('host:siguiente')).error, 'ir al podio');
   await espera(200);
   ok(podio && podio.top.length === 3 && podio.total === N, 'podio ' + JSON.stringify(podio));
-  console.log(`✔ Partida completa: ${N} jugadores, 8 rondas (trivial ${tipos.trivial}, más probable ${tipos.probable}). Ganador: ${podio.top[0].apodo} con ${podio.top[0].puntos} puntos`);
+  console.log(`✔ Partida completa: ${N} jugadores, 9 rondas (trivial ${tipos.trivial}, más probable ${tipos.probable}, verdad o mentira ${tipos.mentira}). Ganador: ${podio.top[0].apodo} con ${podio.top[0].puntos} puntos`);
   process.exit(0);
 })().catch(e => { console.error(e); process.exit(1); });

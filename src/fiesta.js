@@ -28,8 +28,12 @@ function datosRonda(g, paraJugador = false) {
   const d = { indice: g.indice, total: g.rondas.length, tipo: r.tipo, texto: r.texto, tiempo: r.tiempo, propia: !!r.propia,
     empiezaEn: Math.max(0, g.inicio - Date.now()), restante: Math.max(0, g.fin - Date.now()) };
   if (r.tipo === 'trivial') d.opciones = r.opciones;
-  else d.opciones = publicos(g).map(p => ({ id: p.id, apodo: p.apodo, color: p.color }));
-  if (!paraJugador) d.respondieron = [...g.respuestas.keys()];
+  else if (r.tipo === 'probable') d.opciones = publicos(g).map(p => ({ id: p.id, apodo: p.apodo, color: p.color }));
+  else {
+    d.fase = g.fase;
+    if (g.fase === 'votar') { d.opciones = g.opcionesMentira.map(o => o.texto); d.tiempo = r.tiempoVoto; }
+  }
+  if (!paraJugador) d.respondieron = g.fase === 'escribir' ? [...g.mentiras.keys()] : [...g.respuestas.keys()];
   return d;
 }
 
@@ -46,7 +50,10 @@ function personal(g, p) {
 
 function estadoJugador(g, p) {
   const r = { id: p.id, token: p.token, apodo: p.apodo, color: p.color, estado: g.estado, titulo: g.quiz.titulo, puntos: p.puntos, total: g.rondas.length };
-  if (g.estado === 'pregunta') { r.ronda = datosRonda(g, true); r.yaRespondio = g.respuestas.has(p.id); }
+  if (g.estado === 'pregunta') {
+    r.ronda = datosRonda(g, true); r.yaRespondio = g.fase === 'escribir' ? g.mentiras.has(p.id) : g.respuestas.has(p.id);
+    if (g.fase === 'votar') r.ronda.mia = suya(g, p.id);
+  }
   if (g.estado === 'resultado') r.resultado = { ...personal(g, p), texto: ronda(g).texto, tipo: ronda(g).tipo };
   if (g.estado === 'podio') r.final = { ...personal(g, p), podio: g.podio };
   return r;
@@ -55,7 +62,7 @@ function estadoJugador(g, p) {
 // ---------- flujo ----------
 function siguiente(self) {
   const g = self.g;
-  if (g.estado === 'pregunta') return terminar(self);
+  if (g.estado === 'pregunta') { if (g.fase === 'escribir') { empezarVoto(self); return { ok: true }; } return terminar(self); }
   if (g.estado === 'podio') return { error: 'La partida ha terminado' };
   if (g.estado === 'sala' && g.jugadores.size < 2) return { error: 'Hacen falta al menos 2 jugadores' };
   if (g.indice + 1 >= g.rondas.length) return final(self);
@@ -66,12 +73,46 @@ function siguiente(self) {
 function empezar(self) {
   const g = self.g, r = ronda(g);
   g.estado = 'pregunta'; g.respuestas = new Map(); g.resultado = null;
+  g.fase = r.tipo === 'mentira' ? 'escribir' : null; g.mentiras = new Map(); g.opcionesMentira = [];
   g.inicio = Date.now() + 3000; g.fin = g.inicio + r.tiempo * 1000;
-  self.aHosts('fiesta:ronda', datosRonda(g));
-  for (const p of g.jugadores.values()) self.aJugador(p, 'fiesta:ronda', datosRonda(g, true));
+  anunciar(self);
   clearTimeout(g.timer);
+  g.timer = setTimeout(() => r.tipo === 'mentira' ? empezarVoto(self) : terminar(self), g.fin - Date.now() + 300);
+}
+
+function anunciar(self) {
+  const g = self.g;
+  self.aHosts('fiesta:ronda', datosRonda(g));
+  for (const p of g.jugadores.values()) {
+    const d = datosRonda(g, true);
+    if (g.fase === 'votar') d.mia = suya(g, p.id);
+    self.aJugador(p, 'fiesta:ronda', d);
+  }
+}
+
+// «Verdad o mentira»
+const normal = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9ñ ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const suya = (g, id) => g.opcionesMentira.findIndex(o => o.autores.includes(id));
+
+function empezarVoto(self) {
+  const g = self.g, r = ronda(g);
+  if (!g || g.estado !== 'pregunta' || g.fase !== 'escribir') return;
+  clearTimeout(g.timer);
+  const ops = [{ texto: r.verdad, autores: [], verdad: true }];
+  for (const [id, texto] of g.mentiras) {
+    const o = ops.find(x => normal(x.texto) === normal(texto));
+    if (o && !o.verdad) o.autores.push(id); else if (!o) ops.push({ texto, autores: [id], verdad: false });
+  }
+  // con muy pocas mentiras, el juego añade alguna de relleno para que no sea obvio
+  const relleno = ['bufandas', 'calcetines', 'castañas', 'campanas', 'velas', 'sombreros', 'mandarinas'];
+  for (const x of barajarLocal(relleno)) { if (ops.length >= 3) break; if (!ops.some(o => normal(o.texto) === normal(x))) ops.push({ texto: x, autores: [], verdad: false, casa: true }); }
+  g.opcionesMentira = barajarLocal(ops);
+  g.fase = 'votar'; g.respuestas = new Map();
+  g.inicio = Date.now() + 1500; g.fin = g.inicio + r.tiempoVoto * 1000;
+  anunciar(self);
   g.timer = setTimeout(() => terminar(self), g.fin - Date.now() + 300);
 }
+function barajarLocal(a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 function terminar(self) {
   const g = self.g;
@@ -96,6 +137,18 @@ function terminar(self) {
       p.ultimo = { respondio: !!x, acierto, ganados };
     }
     res = { tipo: 'trivial', texto: r.texto, opciones: r.opciones, correcta: r.correcta, conteo, propia: !!r.propia };
+  } else if (r.tipo === 'mentira') {
+    const ops = g.opcionesMentira, nombre = id => (g.jugadores.get(id) || {}).apodo || '';
+    const votantes = ops.map(() => []);
+    for (const p of jug) p.ultimo = { respondio: g.respuestas.has(p.id), acierto: false, ganados: 0, engañados: 0 };
+    for (const [id, x] of g.respuestas) {
+      const o = ops[x.opcion], p = g.jugadores.get(id); if (!o || !p) continue;
+      votantes[x.opcion].push(nombre(id));
+      if (o.verdad) { p.puntos += 1000; p.ultimo.acierto = true; p.ultimo.ganados += 1000; }
+      else for (const a of o.autores) { const au = g.jugadores.get(a); if (au && a !== id) { au.puntos += 500; au.ultimo.ganados += 500; au.ultimo.engañados++; } }
+    }
+    res = { tipo: 'mentira', texto: r.texto, verdad: r.verdad,
+      opciones: ops.map((o, i) => ({ texto: o.texto, verdad: !!o.verdad, casa: !!o.casa, autores: o.autores.map(nombre), votantes: votantes[i] })) };
   } else {
     const votos = new Map();
     for (const x of g.respuestas.values()) votos.set(x.voto, (votos.get(x.voto) || 0) + 1);
@@ -116,7 +169,7 @@ function terminar(self) {
   res.ranking = top(g);
   g.resultado = res;
   self.aHosts('fiesta:resultado', res);
-  for (const p of jug) self.aJugador(p, 'fiesta:resultado', { ...personal(g, p), texto: r.texto, tipo: r.tipo, elegidos: res.elegidos || null });
+  for (const p of jug) self.aJugador(p, 'fiesta:resultado', { ...personal(g, p), texto: r.texto, tipo: r.tipo, elegidos: res.elegidos || null, verdad: r.verdad || null });
   return { ok: true };
 }
 
@@ -136,11 +189,24 @@ function responder(self, c, d) {
   if (g.estado !== 'pregunta') return { error: 'Ahora no se puede responder' };
   const ahora = Date.now();
   if (ahora < g.inicio - 200 || ahora > g.fin + 500) return { error: 'Fuera de tiempo' };
-  if (g.respuestas.has(p.id)) return { error: 'Ya has respondido' };
+  if (g.fase !== 'escribir' && g.respuestas.has(p.id)) return { error: 'Ya has respondido' };
   const r = ronda(g), ms = Math.max(0, Math.min(ahora - g.inicio, g.fin - g.inicio));
-  if (r.tipo === 'trivial') {
+  if (r.tipo === 'mentira' && g.fase === 'escribir') {
+    if (g.mentiras.has(p.id)) return { error: 'Ya has escrito tu respuesta' };
+    const texto = String(d.texto || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+    if (!texto) return { error: 'Escribe una respuesta' };
+    if (normal(texto) === normal(r.verdad)) return { error: '¡Esa es la respuesta de verdad! Invéntate otra' };
+    g.mentiras.set(p.id, texto);
+    self.aHosts('fiesta:respuestas', { respondieron: [...g.mentiras.keys()], jugadores: g.jugadores.size });
+    const conectados = [...g.jugadores.values()].filter(x => x.conectado).length;
+    if (g.mentiras.size >= conectados) queueMicrotask(() => empezarVoto(self));
+    return { ok: true };
+  }
+  if (r.tipo === 'trivial' || r.tipo === 'mentira') {
     const opcion = parseInt(d.opcion, 10);
-    if (!(opcion >= 0 && opcion < r.opciones.length)) return { error: 'Opción no válida' };
+    const n = r.tipo === 'trivial' ? r.opciones.length : g.opcionesMentira.length;
+    if (!(opcion >= 0 && opcion < n)) return { error: 'Opción no válida' };
+    if (r.tipo === 'mentira' && g.opcionesMentira[opcion].autores.includes(p.id)) return { error: 'No puedes votar tu propia mentira' };
     g.respuestas.set(p.id, { opcion, ms });
   } else {
     if (!g.jugadores.has(String(d.voto || ''))) return { error: 'Esa persona no está en la partida' };

@@ -133,6 +133,7 @@ body{overflow-x:hidden}
 const PIN = String(new URLSearchParams(location.search).get('pin') || '').replace(/\D/g, '');
 let CLAVE = ''; try { CLAVE = localStorage.getItem('fiesta-host-' + PIN) || ''; } catch {}
 const VISTAS = ['v-cargando', 'v-sala', 'v-ronda', 'v-resultado', 'v-podio'];
+const LETRAS = 'ABCDEFGHIJKLMNOP';
 const S = { estado: '', jugadores: [], ronda: null, respondieron: [], fin: 0, inicio: 0, total: 0 };
 let tic = null;
 function ver(id) { VISTAS.forEach(v => $('#' + v).classList.toggle('oculto', v !== id)); }
@@ -162,17 +163,20 @@ function pintarSala() {
 function pintarJugadoresRonda() {
   const hechos = new Set(S.respondieron);
   const r = S.ronda;
-  $('#ronda-jugadores').innerHTML = S.jugadores.map(p => `<div class="jug ${p.conectado ? '' : 'off'}">${av(p, 34)}<span class="nom">${esc(p.apodo)}</span><span class="estado ${hechos.has(p.id) ? 'ok' : ''}">${hechos.has(p.id) ? (r && r.tipo === 'probable' ? 'Votó' : 'Respondió') : 'Pensando…'}</span></div>`).join('');
-  $('#ronda-cuenta').textContent = `${hechos.size} de ${S.jugadores.length} ${r && r.tipo === 'probable' ? 'han votado' : 'han respondido'}`;
+  const escribe = r && r.tipo === 'mentira' && r.fase === 'escribir', vota = r && (r.tipo === 'probable' || (r.tipo === 'mentira' && r.fase === 'votar'));
+  const hecho = escribe ? 'Escribió' : vota ? 'Votó' : 'Respondió';
+  $('#ronda-jugadores').innerHTML = S.jugadores.map(p => `<div class="jug ${p.conectado ? '' : 'off'}">${av(p, 34)}<span class="nom">${esc(p.apodo)}</span><span class="estado ${hechos.has(p.id) ? 'ok' : ''}">${hechos.has(p.id) ? hecho : 'Pensando…'}</span></div>`).join('');
+  $('#ronda-cuenta').textContent = `${hechos.size} de ${S.jugadores.length} ${escribe ? 'han escrito' : vota ? 'han votado' : 'han respondido'}`;
 }
 
 function pintarRonda(r) {
   S.ronda = r; S.respondieron = r.respondieron || []; S.total = r.total;
   $('#info-ronda').textContent = `Ronda ${r.indice + 1} de ${r.total}`;
-  $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño');
+  $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : r.tipo === 'mentira' ? (r.fase === 'escribir' ? 'Verdad o mentira · Escribid en el móvil una respuesta falsa que parezca de verdad' : 'Verdad o mentira · ¿Cuál es la de verdad? Votad en el móvil') : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño');
   $('#ronda-texto').textContent = r.texto;
-  $('#ronda-opciones').innerHTML = r.tipo === 'trivial' ? r.opciones.map((o, i) => `<div class="op"><span class="letra">${'ABCD'[i]}</span><span>${esc(o)}</span></div>`).join('') : '';
-  $('#ronda-opciones').classList.toggle('oculto', r.tipo !== 'trivial');
+  const ops = r.tipo === 'trivial' || (r.tipo === 'mentira' && r.fase === 'votar') ? r.opciones : [];
+  $('#ronda-opciones').innerHTML = ops.map((o, i) => `<div class="op"><span class="letra">${LETRAS[i]}</span><span>${esc(o)}</span></div>`).join('');
+  $('#ronda-opciones').classList.toggle('oculto', !ops.length);
   pintarJugadoresRonda();
   ver('v-ronda');
   const ahora = Date.now();
@@ -197,7 +201,11 @@ function pintarResultado(res) {
   let h = '';
   if (res.tipo === 'trivial') {
     h = `<div><p class="previa">${res.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño'}</p><h1 class="pregunta-txt" style="font-size:clamp(1.8rem,3.6vw,3rem)">${esc(res.texto)}</h1></div>
-      <div class="opciones">${res.opciones.map((o, i) => `<div class="op ${i === res.correcta ? 'buena' : 'mala'}"><span class="letra">${'ABCD'[i]}</span><span>${esc(o)}</span><span class="n">${res.conteo[i]}</span></div>`).join('')}</div>`;
+      <div class="opciones">${res.opciones.map((o, i) => `<div class="op ${i === res.correcta ? 'buena' : 'mala'}"><span class="letra">${LETRAS[i]}</span><span>${esc(o)}</span><span class="n">${res.conteo[i]}</span></div>`).join('')}</div>`;
+  } else if (res.tipo === 'mentira') {
+    h = `<div><p class="previa">Verdad o mentira · la respuesta era <b style="color:var(--menta)">${esc(res.verdad)}</b></p><h1 class="pregunta-txt" style="font-size:clamp(1.6rem,3vw,2.6rem)">${esc(res.texto)}</h1></div>
+      <div class="opciones">${res.opciones.map((o, i) => `<div class="op ${o.verdad ? 'buena' : ''}" style="flex-wrap:wrap"><span class="letra">${LETRAS[i]}</span><span>${esc(o.texto)}</span><span class="n">${o.votantes.length}</span>
+        <span class="sub" style="flex-basis:100%;font-size:.95rem;font-weight:400">${o.verdad ? 'La verdad' : o.casa ? 'Trampa del juego' : 'Mentira de ' + o.autores.map(esc).join(' y ')}${o.votantes.length ? ' · la eligió ' + o.votantes.map(esc).join(', ') : ''}</span></div>`).join('')}</div>`;
   } else {
     const ganadores = res.votos.filter(v => v.elegido);
     const max = Math.max(1, ...res.votos.map(v => v.votos));

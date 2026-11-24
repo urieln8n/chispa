@@ -4,7 +4,7 @@ Tercera marca del mismo motor (después de Pulsazo y Lumbrera). La tele es el ta
 
 ## Qué hay
 - `src/fiesta.js`: la lógica de la partida (rondas de trivial y de «¿Quién es más probable…?», puntos, podio). Vive en el mismo Durable Object `Juego`.
-- `src/fiesta-packs.js`: el Pack Navidad (26 preguntas de trivial y 30 de «más probable») y el montaje de cada partida.
+- `src/fiesta-packs.js`: el Pack Navidad (26 de trivial, 30 de «más probable» y 13 de «Verdad o mentira») y el montaje de cada partida.
 - `public/fiesta.html` (portada y crear partida), `public/fiesta-tv.html` (pantalla de la tele), `public/fiesta-movil.html` (mando del móvil), `public/fiesta.css`.
 - API: `POST /api/fiesta/crear` `{ pack, rondas, datos, anfitrion }`. Si hay `datos` y la IA está activada, crea hasta 6 preguntas personalizadas (los datos no se guardan).
 - En el entorno `fiesta` solo se expone lo del juego: el panel, el editor y el resto de la API de Pulsazo devuelven 404 o redirigen a la portada.
@@ -28,5 +28,5 @@ node test/fiesta.js   # partida completa con 6 bots
 
 ## Pendiente
 - Cobro (Pack Familia / Evento Empresa) con Stripe.
-- Más minijuegos: «Verdad o mentira familiar» y «Dibuja y adivina».
+- Más minijuegos: «Dibuja y adivina».
 - Packs para todo el año: Nochevieja, despedidas, bodas, empresas.

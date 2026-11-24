@@ -44,6 +44,22 @@ export const PACKS = {
       '…de hacerse el dormido para no fregar?', '…de ponerse el jersey navideño más feo?', '…de esconder los mejores bombones para él o ella?',
       '…de llamar a alguien por el nombre equivocado esta noche?', '…de prometer ir al gimnasio en enero… y no ir?', '…de acabar contando la misma anécdota de todos los años?',
       '…de comerse las uvas antes de tiempo?', '…de quedarse con el mejor sitio del sofá?', '…de pedir la receta y no hacerla nunca?'
+    ],
+    // «Verdad o mentira»: cada jugador se inventa una respuesta falsa y luego todos intentan encontrar la verdadera
+    mentira: [
+      { texto: 'En Japón, muchas familias celebran la Navidad cenando comida de ___.', verdad: 'KFC' },
+      { texto: 'En Noruega, en Nochebuena se esconden todas las ___ de la casa para que no las roben las brujas.', verdad: 'escobas' },
+      { texto: 'En Ucrania es tradición decorar el árbol de Navidad con adornos en forma de ___.', verdad: 'telarañas' },
+      { texto: 'En Caracas, la gente va a las misas de aguinaldo de madrugada en ___.', verdad: 'patines' },
+      { texto: 'En Islandia, según la leyenda, un gato gigante se come a quien no estrena ___ en Navidad.', verdad: 'ropa nueva' },
+      { texto: 'En Guatemala, el 7 de diciembre se celebra la «Quema del ___».', verdad: 'diablo' },
+      { texto: 'En la ciudad sueca de Gävle, cada año alguien intenta ___ la cabra gigante de paja.', verdad: 'quemar' },
+      { texto: 'En Italia, los regalos del 6 de enero los trae una bruja llamada ___.', verdad: 'la Befana' },
+      { texto: 'En Polonia, en la cena de Nochebuena se deja un ___ libre para el invitado inesperado.', verdad: 'sitio en la mesa' },
+      { texto: 'En Filipinas, la temporada de Navidad empieza oficialmente en ___.', verdad: 'septiembre' },
+      { texto: 'En la República Checa, las chicas solteras lanzan un ___ por encima del hombro para saber si se casarán.', verdad: 'zapato' },
+      { texto: 'En Perú, en Nochebuena es típico tomar chocolate caliente con ___.', verdad: 'panetón' },
+      { texto: 'En Austria, un demonio con cuernos llamado ___ asusta a los niños que se han portado mal.', verdad: 'Krampus' }
     ]
   }
 };
@@ -58,13 +74,16 @@ export function montarRondas(packId = 'navidad', n = 10, extra = { trivial: [], 
   const triv = [...(extra.trivial || []).map(q => ({ ...q, propia: true })), ...barajar(pack.trivial.map(q => ({ ...q })))];
   const prob = [...(extra.probable || []).map(t => ({ texto: t, propia: true })), ...barajar(pack.probable.map(t => ({ texto: t })))];
   // las personalizadas primero en cada montón, pero barajadas entre sí y dentro de la partida
-  const nTriv = Math.ceil(n / 2), nProb = n - nTriv;
-  const t = barajar(triv.slice(0, nTriv)), p = barajar(prob.slice(0, nProb));
+  // reparto: trivial, más probable y verdad o mentira, en ese orden repetido
+  const nMent = pack.mentira ? Math.floor(n / 3) : 0, nTriv = Math.ceil((n - nMent) / 2), nProb = n - nMent - nTriv;
+  const t = barajar(triv.slice(0, nTriv)), p = barajar(prob.slice(0, nProb)), m = barajar((pack.mentira || []).map(q => ({ ...q, mentira: true }))).slice(0, nMent);
   const rondas = [];
-  for (let i = 0; i < n; i++) {
-    const q = i % 2 === 0 ? (t.shift() || p.shift()) : (p.shift() || t.shift());
-    if (!q) break;
-    if (q.opciones) {
+  const ciclo = [t, p, m];
+  for (let i = 0; rondas.length < n && i < n * 3; i++) {
+    const q = ciclo[i % 3].shift();
+    if (!q) continue;
+    if (q.mentira) rondas.push({ tipo: 'mentira', texto: q.texto, verdad: q.verdad, tiempo: 45, tiempoVoto: 25 });
+    else if (q.opciones) {
       // baraja las opciones manteniendo la correcta
       const orden = barajar([0, 1, 2, 3].slice(0, q.opciones.length));
       rondas.push({ tipo: 'trivial', texto: q.texto, opciones: orden.map(k => q.opciones[k]), correcta: orden.indexOf(q.correcta), tiempo: 20, propia: !!q.propia });
