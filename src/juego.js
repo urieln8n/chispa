@@ -10,11 +10,19 @@ export class Juego extends DurableObject {
     super(ctx, env);
     this.g = null;          // estado de la partida (en memoria)
     this.conns = new Set(); // conexiones abiertas
+    // Fiestón guarda su partida en el almacenamiento del objeto: sobrevive aunque todos cierren la página un rato
+    ctx.blockConcurrencyWhile(async () => {
+      try {
+        const s = await ctx.storage.get('fiesta');
+        if (s && Date.now() - s.ultima < 6 * 3600e3) { this.g = F.restaurar(s); F.reanudar(this); }
+      } catch (e) { console.error('restaurar fiesta', e); }
+    });
   }
 
   // ---------- llamadas desde el Worker ----------
   async crear(pin, quiz) {
     if (this.g && Date.now() - this.g.ultima < 3 * 3600e3) return { ocupado: true };
+    this.ctx.storage.delete('fiesta');
     this.g = {
       pin, quiz, claveHost: aleatorio(12), estado: 'sala', indice: -1,
       jugadores: new Map(), apodos: new Set(), respuestas: new Map(), timer: null, ultima: Date.now(), informe: null
@@ -23,6 +31,7 @@ export class Juego extends DurableObject {
   }
   async crearBingo(pin, lista, opciones) {
     if (this.g && Date.now() - this.g.ultima < 3 * 3600e3) return { ocupado: true };
+    this.ctx.storage.delete('fiesta');
     const r = B.crear(this, pin, lista, opciones);
     if (r.error) this.g = null;
     return r;
@@ -30,7 +39,7 @@ export class Juego extends DurableObject {
   async crearFiesta(pin, partida) {
     if (this.g && Date.now() - this.g.ultima < 3 * 3600e3) return { ocupado: true };
     const r = F.crear(this, pin, partida);
-    if (r.error) this.g = null;
+    if (r.error) this.g = null; else F.guardar(this);
     return r;
   }
   async info() {
@@ -83,7 +92,7 @@ export class Juego extends DurableObject {
     if (!g) return ok({ error: 'Esta partida ya no existe' });
     g.ultima = Date.now();
     if (g.tipo === 'bingo') return B.mensaje(this, c, m, d, ok);
-    if (g.tipo === 'fiesta') return F.mensaje(this, c, m, d, ok);
+    if (g.tipo === 'fiesta') return F.mensaje(this, c, m, d, r => { ok(r); F.guardar(this); });
     const esHost = c.rol === 'host';
     switch (m.t) {
       case 'host:reanudar':

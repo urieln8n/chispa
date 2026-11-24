@@ -86,6 +86,7 @@ function empezar(self) {
   anunciar(self);
   clearTimeout(g.timer);
   g.timer = setTimeout(() => r.tipo === 'mentira' ? empezarVoto(self) : terminar(self), g.fin - Date.now() + 300);
+  guardar(self);
 }
 
 function anunciar(self) {
@@ -119,6 +120,7 @@ function empezarVoto(self) {
   g.inicio = Date.now() + 1500; g.fin = g.inicio + r.tiempoVoto * 1000;
   anunciar(self);
   g.timer = setTimeout(() => terminar(self), g.fin - Date.now() + 300);
+  guardar(self);
 }
 function barajarLocal(a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
@@ -178,6 +180,7 @@ function terminar(self) {
   res.autoEn = g.auto ? ESPERA_AUTO : 0;
   g.resultado = res;
   programarSiguiente(self);
+  guardar(self);
   self.aHosts('fiesta:resultado', res);
   for (const p of jug) self.aJugador(p, 'fiesta:resultado', { ...personal(g, p), ...paraMovil(g) });
   return { ok: true };
@@ -197,6 +200,7 @@ function final(self) {
   g.estado = 'podio';
   g.podio = { top: top(g, 3), total: g.jugadores.size, ranking: top(g, 50) };
   self.aHosts('fiesta:podio', g.podio);
+  guardar(self);
   for (const p of g.jugadores.values()) self.aJugador(p, 'fiesta:podio', { ...personal(g, p), podio: g.podio });
   return { ok: true };
 }
@@ -290,4 +294,27 @@ function avisarJugadores(self) {
   const g = self.g, l = publicos(g);
   self.aHosts('host:jugadores', l);
   const a = g.jugadores.get(g.anfitrionId); if (a) self.aJugador(a, 'host:jugadores', l);
+}
+
+// ---------- guardar y recuperar la partida (almacenamiento del Durable Object) ----------
+export function guardar(self) {
+  const g = self.g; if (!g || g.tipo !== 'fiesta') return;
+  const s = { ...g, timer: null,
+    jugadores: [...g.jugadores.values()].map(p => ({ ...p, conn: null, conectado: false })),
+    apodos: [...g.apodos], respuestas: [...(g.respuestas || new Map())], mentiras: [...(g.mentiras || new Map())] };
+  self.ctx.storage.put('fiesta', s).catch(e => console.error('guardar fiesta', e));
+}
+export function restaurar(s) {
+  return { ...s, timer: null, jugadores: new Map(s.jugadores.map(p => [p.id, p])), apodos: new Set(s.apodos),
+    respuestas: new Map(s.respuestas), mentiras: new Map(s.mentiras) };
+}
+// Vuelve a poner en marcha los relojes tras despertar
+export function reanudar(self) {
+  const g = self.g; if (!g) return;
+  const r = g.rondas[g.indice];
+  if (g.estado === 'pregunta' && r) {
+    const falta = g.fin - Date.now();
+    const cerrar = () => g.fase === 'escribir' ? empezarVoto(self) : terminar(self);
+    if (falta <= 0) cerrar(); else g.timer = setTimeout(cerrar, falta + 300);
+  } else if (g.estado === 'resultado') programarSiguiente(self);
 }
