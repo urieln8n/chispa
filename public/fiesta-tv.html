@@ -70,6 +70,23 @@ body{overflow-x:hidden}
   <!-- Cargando / error -->
   <section id="v-cargando" class="dos"><div class="a"><p class="sub" id="msg-cargando">Conectando con la partida…</p></div></section>
 
+  <!-- Emparejar: la tele enseña un código corto -->
+  <section id="v-emparejar" class="dos oculto">
+    <div class="a">
+      <p class="previa" style="margin:0">Para poner el juego en esta pantalla, en tu móvil:</p>
+      <ol style="font-size:clamp(1.2rem,2.2vw,1.7rem);line-height:1.5;margin:0;padding-left:1.2em;color:var(--claro)">
+        <li>Entra en <b style="color:var(--crema)" id="emp-url"></b> y crea la partida</li>
+        <li>Elige «Con tele» y escribe este código:</li>
+      </ol>
+      <div class="pin" id="emp-codigo"></div>
+      <p class="sub" id="emp-estado">Esperando al móvil…</p>
+    </div>
+    <div class="b" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+      <img id="emp-qr" alt="Código QR para abrir el juego en el móvil" style="width:220px;height:220px;border-radius:16px;background:#fff;padding:10px">
+      <span class="sub">Escanéalo con el móvil para ir directo</span>
+    </div>
+  </section>
+
   <!-- Sala de espera -->
   <section id="v-sala" class="dos oculto">
     <div class="a">
@@ -132,7 +149,7 @@ body{overflow-x:hidden}
 <script>
 const PIN = String(new URLSearchParams(location.search).get('pin') || '').replace(/\D/g, '');
 let CLAVE = ''; try { CLAVE = localStorage.getItem('fiesta-host-' + PIN) || ''; } catch {}
-const VISTAS = ['v-cargando', 'v-sala', 'v-ronda', 'v-resultado', 'v-podio'];
+const VISTAS = ['v-emparejar', 'v-cargando', 'v-sala', 'v-ronda', 'v-resultado', 'v-podio'];
 const LETRAS = 'ABCDEFGHIJKLMNOP';
 const S = { estado: '', jugadores: [], ronda: null, respondieron: [], fin: 0, inicio: 0, total: 0 };
 let tic = null;
@@ -141,8 +158,34 @@ function av(p, tam = 40) { return `<span class="avatar" style="width:${tam}px;he
 function iniciales(n) { const w = String(n || '').trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 1)).toUpperCase(); }
 function cargando(msg) { $('#msg-cargando').textContent = msg; ver('v-cargando'); }
 
-if (!/^\d{6}$/.test(PIN) || !CLAVE) cargando('No encontramos esta partida en este dispositivo. Vuelve a la portada y crea una nueva.');
+if (!/^\d{6}$/.test(PIN)) emparejar();
+else if (!CLAVE) cargando('No encontramos esta partida en este dispositivo. Vuelve a la portada y crea una nueva.');
 else iniciar();
+
+// Modo emparejar: código corto y espera a que un móvil le envíe la partida
+function emparejar() {
+  const ABC = 'ACDEFHJKMNPRTUVWXY3479';
+  let codigo = ''; try { codigo = sessionStorage.getItem('fiesta-tele') || ''; } catch {}
+  if (!/^[A-Z0-9]{4}$/.test(codigo)) { const a = crypto.getRandomValues(new Uint32Array(4)); codigo = [...a].map(x => ABC[x % ABC.length]).join(''); try { sessionStorage.setItem('fiesta-tele', codigo); } catch {} }
+  $('#emp-url').textContent = location.host;
+  $('#emp-qr').src = 'api/qr?t=' + encodeURIComponent(location.origin + '/');
+  $('#emp-codigo').innerHTML = codigo.split('').map(c => `<span>${c}</span>`).join('');
+  ver('v-emparejar');
+  let intentos = 0;
+  const abrir = () => {
+    const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws-tele?codigo=${codigo}`);
+    ws.onopen = () => { intentos = 0; ws.send(JSON.stringify({ t: 'tele:esperar', d: {}, id: 1 })); $('#emp-estado').textContent = 'Esperando al móvil…'; };
+    ws.onmessage = ev => {
+      let m; try { m = JSON.parse(ev.data); } catch { return; }
+      if (m.t !== 'tele:abrir') return;
+      try { localStorage.setItem('fiesta-host-' + m.d.pin, m.d.claveHost); } catch {}
+      location.href = location.pathname + '?pin=' + m.d.pin;
+    };
+    ws.onclose = () => { $('#emp-estado').textContent = 'Reconectando…'; setTimeout(abrir, Math.min(5000, 500 * 2 ** intentos++)); };
+  };
+  abrir();
+  setInterval(() => {}, 25000);
+}
 
 function enlaceJugar() {
   const corto = (MARCA && MARCA.id === 'fiesta') ? '/jugar' : '/fiesta-movil';

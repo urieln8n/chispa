@@ -106,6 +106,21 @@ textarea.campo{min-height:110px;resize:vertical}
         <button class="btn" id="btn-crear" type="submit">Crear partida</button>
         <p class="error" id="error" role="alert"></p>
       </form>
+      <section id="tele" class="tarjeta oculto" aria-labelledby="tit-tele" style="display:flex;flex-direction:column;gap:14px">
+        <h2 id="tit-tele" style="font-size:1.6rem">Pon la partida en la tele</h2>
+        <ol style="margin:0;padding-left:1.2em;color:var(--claro);line-height:1.6">
+          <li>En la tele, abre <b style="color:var(--crema)" id="tele-url"></b></li>
+          <li>Escribe aquí el código de 4 letras que sale en la pantalla</li>
+        </ol>
+        <form id="form-tele" style="display:flex;gap:8px">
+          <label for="in-tele" class="oculto">Código de la tele</label>
+          <input class="campo" id="in-tele" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD" style="font-family:var(--tit);font-weight:800;font-size:1.6rem;text-transform:uppercase;letter-spacing:.2em;text-align:center">
+          <button class="btn" type="submit" id="btn-tele">Enviar</button>
+        </form>
+        <p class="error" id="error-tele" role="alert"></p>
+        <a class="btn sec" id="tele-aqui" href="#">Esta pantalla es la tele: abrir aquí</a>
+        <a class="btn sec" id="tele-saltar" href="#">Seguir sin tele</a>
+      </section>
       <section id="planes" class="oculto" aria-labelledby="tit-planes" style="margin-top:18px">
         <h2 id="tit-planes" style="font-size:1.3rem">Gratis: una partida corta. ¿Queréis más?</h2>
         <div class="planes">
@@ -129,6 +144,27 @@ textarea.campo{min-height:110px;resize:vertical}
 </div>
 <script src="comun.js"></script>
 <script>
+let PARTIDA = null;
+$('#form-tele').addEventListener('submit', e => {
+  e.preventDefault();
+  const codigo = $('#in-tele').value.trim().toUpperCase(), err = $('#error-tele');
+  err.textContent = '';
+  if (!/^[A-Z0-9]{4}$/.test(codigo)) { err.textContent = 'El código tiene 4 letras o números'; return; }
+  const bt = $('#btn-tele'); bt.disabled = true; bt.textContent = 'Enviando…';
+  const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws-tele?codigo=${codigo}`);
+  const fin = msg => { bt.disabled = false; bt.textContent = 'Enviar'; if (msg) err.textContent = msg; try { ws.close(); } catch {} };
+  const t = setTimeout(() => fin('La tele no responde. Revisa el código.'), 8000);
+  ws.onopen = () => ws.send(JSON.stringify({ t: 'tele:enviar', d: { pin: PARTIDA.pin, claveHost: PARTIDA.claveHost }, id: 1 }));
+  ws.onmessage = ev => {
+    let m; try { m = JSON.parse(ev.data); } catch { return; }
+    if (m.t !== 'ack') return;
+    clearTimeout(t);
+    if (m.d && m.d.error) return fin(m.d.error);
+    fin(); aviso('¡Listo! La partida ya está en la tele.', 2500);
+    setTimeout(() => { location.href = 'fiesta-movil?anfitrion=1&pin=' + PARTIDA.pin; }, 1200);
+  };
+  ws.onerror = () => { clearTimeout(t); fin('No se ha podido conectar. Prueba otra vez.'); };
+});
 let LICENCIA = ''; try { LICENCIA = localStorage.getItem('fiesta-licencia') || ''; } catch {}
 const euros = c => (c / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 async function post(ruta, body) {
@@ -178,7 +214,15 @@ $('#crear').addEventListener('submit', async e => {
     if (!r.ok || !d.pin) throw new Error(d.error || 'No se ha podido crear la partida');
     try { localStorage.setItem('fiesta-host-' + d.pin, d.claveHost); if (d.aviso) sessionStorage.setItem('fiesta-aviso', d.aviso); } catch {}
     const modo = document.querySelector('input[name=modo]:checked').value;
-    location.href = (modo === 'movil' ? 'fiesta-movil?anfitrion=1&pin=' : 'fiesta-tv?pin=') + d.pin;
+    if (modo === 'movil') { location.href = 'fiesta-movil?anfitrion=1&pin=' + d.pin; return; }
+    // Con tele: desde un móvil se envía a la tele con su código; desde un portátil se puede abrir aquí mismo
+    PARTIDA = d;
+    $('#crear').classList.add('oculto'); $('#planes').classList.add('oculto'); $('#tele').classList.remove('oculto');
+    $('#tele-url').textContent = location.host + '/tv';
+    $('#tele-aqui').href = 'fiesta-tv?pin=' + d.pin;
+    $('#tele-saltar').href = 'fiesta-movil?anfitrion=1&pin=' + d.pin;
+    $('#tele').scrollIntoView({ behavior: 'smooth', block: 'start' }); $('#in-tele').focus({ preventScroll: true });
+    b.disabled = false; b.textContent = 'Crear partida';
   } catch (x) {
     err.textContent = x.message; b.disabled = false; b.textContent = 'Crear partida';
   }

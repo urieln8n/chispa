@@ -72,6 +72,14 @@ export class Juego extends DurableObject {
     let m; try { m = JSON.parse(raw); } catch { return; }
     if (m.t === 'ping') return;
     const g = this.g, d = m.d || {}, ok = r => this.responder(c, m.id, r);
+    // Emparejar una tele (Fiestón): este objeto solo hace de buzón entre el móvil y la tele
+    if (m.t === 'tele:esperar') { c.rol = 'tele'; return ok({ ok: true }); }
+    if (m.t === 'tele:enviar') {
+      if (!/^\d{6}$/.test(String(d.pin || '')) || !/^[\w-]{8,40}$/.test(String(d.claveHost || ''))) return ok({ error: 'Partida no válida' });
+      let n = 0;
+      for (const x of this.conns) if (x.rol === 'tele') { this.enviar(x, 'tele:abrir', { pin: String(d.pin), claveHost: String(d.claveHost) }); n++; }
+      return ok(n ? { ok: true } : { error: 'No encontramos esa tele. Revisa el código que sale en la pantalla.' });
+    }
     if (!g) return ok({ error: 'Esta partida ya no existe' });
     g.ultima = Date.now();
     if (g.tipo === 'bingo') return B.mensaje(this, c, m, d, ok);

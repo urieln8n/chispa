@@ -67,6 +67,12 @@ export default {
         if (!/^\d{6}$/.test(pin)) return new Response('PIN no válido', { status: 400 });
         return juego(env, pin).fetch(req);
       }
+      // Fiestón: emparejar la tele con un código corto (la tele espera, el móvil le envía la partida)
+      if (ruta === '/ws-tele') {
+        const codigo = String(url.searchParams.get('codigo') || '').toUpperCase();
+        if (!/^[A-Z0-9]{4}$/.test(codigo)) return new Response('Código no válido', { status: 400 });
+        return env.JUEGO.get(env.JUEGO.idFromName('tele:' + codigo)).fetch(req);
+      }
       if (ruta.startsWith('/api/')) return await api(req, env, url, ruta.slice(5));
       if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /estadisticas\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
       // Fiestón: su portada, la página para entrar desde el móvil y la pantalla de la tele
