@@ -297,13 +297,7 @@ function avisarJugadores(self) {
 }
 
 // ---------- guardar y recuperar la partida (almacenamiento del Durable Object) ----------
-export function guardar(self) {
-  const g = self.g; if (!g || g.tipo !== 'fiesta') return;
-  const s = { ...g, timer: null,
-    jugadores: [...g.jugadores.values()].map(p => ({ ...p, conn: null, conectado: false })),
-    apodos: [...g.apodos], respuestas: [...(g.respuestas || new Map())], mentiras: [...(g.mentiras || new Map())] };
-  self.ctx.storage.put('fiesta', s).catch(e => console.error('guardar fiesta', e));
-}
+export function guardar(self) { if (self.g && self.g.tipo === 'fiesta' && self.guardar) self.guardar(); }
 export function restaurar(s) {
   return { ...s, timer: null, jugadores: new Map(s.jugadores.map(p => [p.id, p])), apodos: new Set(s.apodos),
     respuestas: new Map(s.respuestas), mentiras: new Map(s.mentiras) };

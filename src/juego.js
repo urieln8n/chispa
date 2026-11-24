@@ -10,13 +10,34 @@ export class Juego extends DurableObject {
     super(ctx, env);
     this.g = null;          // estado de la partida (en memoria)
     this.conns = new Set(); // conexiones abiertas
-    // Fiestón guarda su partida en el almacenamiento del objeto: sobrevive aunque todos cierren la página un rato
+    // La partida se guarda en el almacenamiento del objeto: sobrevive aunque todos cierren la página un rato
+    // (por ejemplo, al ir a WhatsApp a invitar). Sin esto, el objeto se dormía y la partida desaparecía.
     ctx.blockConcurrencyWhile(async () => {
       try {
-        const s = await ctx.storage.get('fiesta');
-        if (s && Date.now() - s.ultima < 6 * 3600e3) { this.g = F.restaurar(s); F.reanudar(this); }
-      } catch (e) { console.error('restaurar fiesta', e); }
+        const s = await ctx.storage.get('partida');
+        if (s && Date.now() - s.ultima < 6 * 3600e3) { this.g = s; this.reanudar(); return; }
+        const f = await ctx.storage.get('fiesta'); // formato anterior de Fiestón
+        if (f && Date.now() - f.ultima < 6 * 3600e3) { this.g = F.restaurar(f); this.reanudar(); }
+      } catch (e) { console.error('restaurar partida', e); }
     });
+  }
+
+  // Guarda la partida sin las conexiones ni los relojes (Map y Set se guardan tal cual)
+  guardar() {
+    const g = this.g; if (!g) return;
+    try {
+      const s = { ...g, timer: null, jugadores: new Map([...g.jugadores].map(([k, p]) => [k, { ...p, conn: null, conectado: false }])) };
+      this.ctx.storage.put('partida', s).catch(e => console.error('guardar partida', e));
+    } catch (e) { console.error('guardar partida', e); }
+  }
+  // Vuelve a poner en marcha los relojes al despertar
+  reanudar() {
+    const g = this.g; if (!g) return;
+    if (g.tipo === 'fiesta') return F.reanudar(this);
+    if (!g.tipo && g.estado === 'pregunta') {
+      const falta = g.fin - Date.now();
+      if (falta <= 0) this.terminarPregunta(); else g.timer = setTimeout(() => this.terminarPregunta(), falta + 300);
+    }
   }
 
   // ---------- llamadas desde el Worker ----------
@@ -27,19 +48,21 @@ export class Juego extends DurableObject {
       pin, quiz, claveHost: aleatorio(12), estado: 'sala', indice: -1,
       jugadores: new Map(), apodos: new Set(), respuestas: new Map(), timer: null, ultima: Date.now(), informe: null
     };
+    this.guardar();
     return { pin, claveHost: this.g.claveHost };
   }
   async crearBingo(pin, lista, opciones) {
     if (this.g && Date.now() - this.g.ultima < 3 * 3600e3) return { ocupado: true };
     this.ctx.storage.delete('fiesta');
     const r = B.crear(this, pin, lista, opciones);
-    if (r.error) this.g = null;
+    if (r.error) this.g = null; else this.guardar();
     return r;
   }
   async crearFiesta(pin, partida) {
     if (this.g && Date.now() - this.g.ultima < 3 * 3600e3) return { ocupado: true };
     const r = F.crear(this, pin, partida);
-    if (r.error) this.g = null; else F.guardar(this);
+    this.ctx.storage.delete('fiesta');
+    if (r.error) this.g = null; else this.guardar();
     return r;
   }
   async info() {
@@ -91,9 +114,10 @@ export class Juego extends DurableObject {
     }
     if (!g) return ok({ error: 'Esta partida ya no existe' });
     g.ultima = Date.now();
-    if (g.tipo === 'bingo') return B.mensaje(this, c, m, d, ok);
-    if (g.tipo === 'fiesta') return F.mensaje(this, c, m, d, r => { ok(r); F.guardar(this); });
+    if (g.tipo === 'bingo') return B.mensaje(this, c, m, d, r => { ok(r); this.guardar(); });
+    if (g.tipo === 'fiesta') return F.mensaje(this, c, m, d, r => { ok(r); this.guardar(); });
     const esHost = c.rol === 'host';
+    queueMicrotask(() => this.guardar()); // guarda tras cada acción del trivial
     switch (m.t) {
       case 'host:reanudar':
         if (!iguales(d.claveHost, g.claveHost)) return ok({ error: 'Partida no encontrada' });
@@ -110,7 +134,7 @@ export class Juego extends DurableObject {
       }
       case 'host:terminar':
         if (!esHost) return;
-        clearTimeout(g.timer); this.aJugadores('jugador:cerrada', {}); this.g = null; return ok({ ok: true });
+        clearTimeout(g.timer); this.aJugadores('jugador:cerrada', {}); this.g = null; this.ctx.storage.delete('partida'); return ok({ ok: true });
       case 'jugador:entrar': return ok(this.entrar(c, d));
       case 'jugador:responder': return ok(this.responderPregunta(c, d));
     }
@@ -142,6 +166,7 @@ export class Juego extends DurableObject {
     this.aJugadores('jugador:pregunta', datos);
     clearTimeout(g.timer);
     g.timer = setTimeout(() => this.terminarPregunta(), g.fin - Date.now() + 300);
+    this.guardar();
   }
 
   terminarPregunta() {
@@ -164,6 +189,7 @@ export class Juego extends DurableObject {
       p.historial[g.indice] = r ? { opcion: r.opcion, ok: acierto, ms: r.ms } : null;
       p.ultimo = { ganados, acierto, respondio: !!r };
     }
+    this.guardar();
     this.aHosts('host:resultado', { correcta: q.correcta, conteo, respondieron: g.respuestas.size, jugadores: g.jugadores.size, ultima: g.indice === g.quiz.preguntas.length - 1, reflexion: q.reflexion || null });
     const rk = this.ranking();
     rk.forEach((p, i) => this.aJugador(p, 'jugador:resultado', { ...this.resultado(p, rk, i), reflexion: q.reflexion || null }));
