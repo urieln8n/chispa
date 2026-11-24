@@ -78,7 +78,18 @@ export default {
       // Fiestón: su portada, la página para entrar desde el móvil y la pantalla de la tele
       if (env.MARCA === 'fiesta') {
         const paginas = { '/': '/fiesta', '/index.html': '/fiesta', '/jugar': '/fiesta-movil', '/jugar.html': '/fiesta-movil', '/tv': '/fiesta-tv' };
-        if (paginas[ruta]) return env.ASSETS.fetch(new Request(new URL(paginas[ruta] + url.search, url), req));
+        if (paginas[ruta]) {
+          const res = await env.ASSETS.fetch(new Request(new URL(paginas[ruta] + url.search, url), req));
+          if (!(res.headers.get('content-type') || '').includes('text/html')) return res;
+          // WhatsApp lee el HTML (no el JavaScript): imagen con dirección completa y, si hay PIN, el código en la descripción
+          const pin = /^\d{6}$/.test(url.searchParams.get('pin') || '') ? url.searchParams.get('pin') : '';
+          const desc = pin ? `Entra con el código ${pin.slice(0, 3)} ${pin.slice(3)} y juega desde tu móvil. Sin instalar nada.` : null;
+          let rw = new HTMLRewriter()
+            .on('meta[property="og:image"]', { element(e) { e.setAttribute('content', url.origin + '/fiesta-og.png'); } })
+            .on('head', { element(e) { e.append(`<meta property="og:url" content="${url.origin + ruta + (pin ? '?pin=' + pin : '')}">`, { html: true }); } });
+          if (desc) rw = rw.on('meta[property="og:description"]', { element(e) { e.setAttribute('content', desc); } }).on('meta[name="description"]', { element(e) { e.setAttribute('content', desc); } });
+          return rw.transform(res);
+        }
         if (/^\/(panel|editor|presentar|estadisticas|bingo-|aprender|grupos|lider|preguntas|privacidad-lumbrera)/.test(ruta)) return Response.redirect(url.origin + '/', 302);
       }
       // Verificación de Google Search Console (Lumbrera)

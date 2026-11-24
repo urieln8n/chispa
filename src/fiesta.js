@@ -44,8 +44,8 @@ function estadoHost(g) {
 }
 
 function personal(g, p) {
-  const rk = ranking(g), i = rk.indexOf(p), u = p.ultimo || {};
-  return { ...u, puntos: p.puntos, puesto: i + 1, total: rk.length };
+  const rk = ranking(g), i = rk.indexOf(p), u = p.ultimo || {}, d = i > 0 ? rk[i - 1] : null;
+  return { ...u, puntos: p.puntos, puesto: i + 1, total: rk.length, delante: d ? { apodo: d.apodo, diferencia: d.puntos - p.puntos } : null };
 }
 
 // Lo que el móvil necesita para enseñar el resultado sin tele

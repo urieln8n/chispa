@@ -4,8 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Fiestón · Entra a jugar</title>
-<meta name="description" content="Escribe el código de la tele y juega desde tu móvil. Sin instalar nada.">
+<meta name="description" content="Entra con el código de la partida y juega desde tu móvil. Sin instalar nada.">
+<meta property="og:title" content="🎉 Entra a jugar al Fiestón">
+<meta property="og:description" content="Entra con el código de la partida y juega desde tu móvil. Sin instalar nada.">
 <meta name="theme-color" content="#0F2A22">
+<link rel="manifest" href="fiesta.webmanifest">
+<link rel="icon" href="fiesta-icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="fiesta-icono-192.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fiestón">
+<meta property="og:image" content="/fiesta-og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fiesta.css">
 <style>
 .movil{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px}
@@ -27,6 +37,11 @@
 .rk{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
 .rk div{display:flex;align-items:center;gap:10px;background:var(--pino2);border-radius:12px;padding:8px 12px}
 .rk .nom{flex-grow:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-ok{background:#1F5A43!important}.res-mal{background:#6B2A22!important}
+.res-ok,.res-mal{transition:background .3s}
+.cuenta3{position:fixed;inset:0;z-index:60;background:var(--pino);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.cuenta3 b{font-family:var(--tit);font-weight:800;font-size:9rem;line-height:1;color:var(--oro)}
+.compartir{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.compartir .btn{min-height:46px;font-size:1rem}.compartir .btn.wa{background:#25D366;color:#0F2A22}
 .pin-in{font-family:var(--tit);font-weight:800;font-size:2rem;text-align:center;letter-spacing:.2em}
 </style>
 </head>
@@ -80,11 +95,14 @@
     <div class="rk" id="res-ranking"></div>
   </section>
 
+  <div class="cuenta3 oculto" id="cuenta3" aria-live="assertive"><span class="pie" id="cuenta3-info"></span><b id="cuenta3-n">3</b><span style="color:var(--claro)">¡Prepárate!</span></div>
+
   <!-- Final -->
   <section id="v-final" class="centro oculto">
     <p class="grande" id="fin-tit"></p>
     <p style="color:var(--claro);margin:0" id="fin-txt"></p>
     <div class="rk" id="fin-ranking"></div>
+    <div id="fin-compartir" style="width:100%"></div>
     <a class="btn" href="./">Organiza tu propio Fiestón</a>
   </section>
 
@@ -196,7 +214,7 @@ function conectar(apodo) {
 }
 
 function pintarRonda(r, yaRespondio) {
-  clearInterval(cuentaAuto);
+  clearInterval(cuentaAuto); document.body.style.background = '';
   S.ronda = r; S.elegido = null; S.enviado = !!yaRespondio;
   $('#ronda-info').textContent = `Ronda ${r.indice + 1} de ${r.total}`;
   $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : r.tipo === 'mentira' ? (r.fase === 'escribir' ? 'Verdad o mentira · invéntate una respuesta' : 'Verdad o mentira · ¿cuál es la de verdad?') : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial');
@@ -223,7 +241,10 @@ function pintarRonda(r, yaRespondio) {
   clearInterval(tic);
   const paso = () => {
     const t = Date.now();
-    $('#reloj').textContent = t < S.inicio ? 'Prepárate…' : Math.max(0, Math.ceil((S.fin - t) / 1000)) + ' s';
+    $('#reloj').textContent = t < S.inicio ? '' : Math.max(0, Math.ceil((S.fin - t) / 1000)) + ' s';
+    const c3 = $('#cuenta3');
+    if (t < S.inicio - 150 && !S.enviado) { c3.classList.remove('oculto'); $('#cuenta3-n').textContent = Math.ceil((S.inicio - t) / 1000); $('#cuenta3-info').textContent = `Ronda ${r.indice + 1} de ${r.total}`; }
+    else c3.classList.add('oculto');
     L.querySelectorAll('button').forEach(b => { if (!S.enviado && !/tu mentira/.test(b.textContent)) b.disabled = t < S.inicio - 200; });
   };
   paso(); tic = setInterval(paso, 200);
@@ -274,6 +295,11 @@ function pintarResultado(r) {
   }
   $('#res-tit').textContent = tit; $('#res-txt').textContent = txt;
   $('#res-puesto').textContent = `Vas ${r.puesto}.º de ${r.total} · ${r.puntos.toLocaleString('es-ES')} puntos`;
+  $('#res-txt').textContent += r.puesto === 1 ? ' · ¡Vas primero! 👑' : (r.delante ? (r.delante.diferencia > 0 ? ` · Te faltan ${r.delante.diferencia.toLocaleString('es-ES')} para alcanzar a ${r.delante.apodo}` : ` · Vas empatado con ${r.delante.apodo}`) : '');
+  const sec = $('#v-resultado'); sec.classList.remove('res-ok', 'res-mal');
+  if (r.respondio || r.tipo === 'trivial') sec.classList.add(r.acierto ? 'res-ok' : 'res-mal');
+  document.body.style.background = r.acierto ? '#1F5A43' : (r.respondio || r.tipo === 'trivial' ? '#6B2A22' : '');
+  if (r.acierto) sonido('ok'); else sonido('mal');
   $('#res-ranking').innerHTML = tele() ? '' : rankingHtml(r.ranking);
   pintarCuenta(r.autoEn && !r.ultima ? r.autoEn : 0);
   ver('v-resultado');
@@ -286,6 +312,9 @@ function pintarFinal(r) {
   $('#fin-tit').textContent = r.puesto === 1 ? '¡Has ganado!' : `Has quedado ${r.puesto}.º`;
   $('#fin-txt').textContent = `${r.puntos.toLocaleString('es-ES')} puntos · ${r.podio.top[0] ? 'Ganador: ' + r.podio.top[0].apodo : ''}`;
   $('#fin-ranking').innerHTML = rankingHtml(r.podio.ranking);
+  document.body.style.background = '';
+  const txt = r.puesto === 1 ? `🏆 ¡He ganado el Fiestón con ${r.puntos.toLocaleString('es-ES')} puntos! ¿Os atrevéis?` : `🎉 He quedado ${r.puesto}.º de ${r.total} en el Fiestón. ¿Jugamos otra?`;
+  $('#fin-compartir').innerHTML = barraCompartir(txt, location.origin + '/', 'Compartir');
   ver('v-final'); if (r.puesto === 1) confeti(120);
 }
 
