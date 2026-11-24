@@ -66,6 +66,8 @@
   .bv-portada h1{font-size:clamp(2rem,8vw,2.8rem);line-height:1.08;margin-bottom:.6rem}
   .bv-portada h1 em{font-style:normal;color:var(--ambar)}
   .bv-portada p{color:var(--suave);font-size:1.08rem;max-width:26em;margin:0 auto}
+  .bv-verso{font-style:italic;color:var(--suave);font-size:.98rem;max-width:22em;margin:-.4rem auto 1.6rem;line-height:1.35}
+  .bv-verso a{display:block;font-style:normal;font-weight:800;font-size:.8rem;color:var(--ambar);text-decoration:none;margin-top:.25rem}
   .bv-sellos{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:1.2rem}
   .bv-sellos span{background:var(--noche3);border-radius:99px;padding:.35em .85em;font-weight:800;font-size:.85rem}
   .bv-lec{background:linear-gradient(135deg,#E85D75,#b9435a);border-radius:20px;padding:1.2rem;color:#fff;margin-top:.4rem;box-shadow:0 6px 0 rgba(0,0,0,.25)}
@@ -133,6 +135,7 @@
   .pie-lec .dentro{max-width:560px;margin:0 auto;display:grid;gap:.6rem}
   .pie-lec.bien{background:#163d33;border-color:#2EAF7D}.pie-lec.mal{background:#47182a;border-color:#E2557A}
   .pie-lec h3{font-size:1.35rem}.pie-lec.bien h3{color:#8fe3c0}.pie-lec.mal h3{color:#ff9fb6}
+  .verso-pie{text-align:center;font-style:italic;color:var(--suave);margin:1.6rem auto .6rem;max-width:28em}.verso-pie a{font-style:normal;font-weight:800;color:var(--ambar);text-decoration:none;font-size:.85rem}
   .pie-lec p{margin:0;line-height:1.4}.pie-lec .ref{font-weight:800;color:var(--ambar)}
   a.rv{color:inherit;text-decoration:none;border-bottom:2px dotted currentColor}a.rv small{font-weight:700;opacity:.85;white-space:nowrap}a.rv:hover{border-bottom-style:solid}
   .grande{width:100%;font-size:1.1rem;padding:1em}
@@ -216,7 +219,7 @@
   .tienda .ico{font-size:1.8rem}.tienda .txt{flex:1}.tienda .txt b{display:block}
   .combo{display:inline-block;background:#FF9A4D;color:#1B1640;font-weight:800;border-radius:99px;padding:.2em .8em;font-size:.95rem;animation:aparece .3s ease;margin-left:.3rem;vertical-align:middle}
   @keyframes aparece{from{opacity:0;transform:scale(.7)}}
-  @media(max-width:420px){.stats{gap:.3rem}.stat{padding:.25em .5em;font-size:.85rem}.boton-ajustes{width:34px;height:34px;font-size:.95rem}.top .marca-nombre{display:none}}
+  @media(max-width:420px){.stats{gap:.3rem}.stat{padding:.25em .5em;font-size:.85rem}.boton-ajustes{width:34px;height:34px;font-size:.95rem}.top .marca-txt{display:none}}
   .tema-claro .misiones,.tema-claro .tienda{border-color:#E3D6BC}.tema-claro .mision{border-color:rgba(0,0,0,.06)}
   /* Personalizar */
   .ajuste{background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:.9rem}
@@ -278,6 +281,7 @@
   </ul>
   <h3>Preguntas frecuentes</h3>
   <details><summary>¿Lumbrera es gratis?</summary><p>Sí. Lumbrera es gratuita, no pide registro y guarda tu progreso en tu propio dispositivo.</p></details><details><summary>¿Qué libros de la Biblia tiene Lumbrera?</summary><p>Génesis, Éxodo, Mateo, Marcos, Lucas y Juan: 150 preguntas de cada libro, repartidas en 5 unidades y 15 lecciones de 10 preguntas por libro. Cada cita enlaza al pasaje en la Reina-Valera 1960.</p></details><details><summary>¿Se puede jugar en grupo?</summary><p>Sí. Eliges cuántas preguntas (de 10 a 150) y cuántos segundos por pregunta (de 10 a 60); la pantalla muestra un PIN y cada persona entra desde su móvil, sin contraseña.</p></details><details><summary>¿Puedo instalar Lumbrera como app?</summary><p>Sí. En Android y en ordenador aparece el botón «Descargar la app»; en iPhone, toca Compartir y «Añadir a pantalla de inicio». Una vez instalada, las lecciones funcionan sin conexión.</p></details><details><summary>¿Qué traducción de la Biblia usa?</summary><p>Las citas son de la Reina-Valera 1960.</p></details>
+  <p class="verso-pie">«Lámpara es a mis pies tu palabra, y lumbrera a mi camino.»<br><a href="https://www.biblegateway.com/passage/?search=Salmos%20119%3A105&amp;version=RVR1960" target="_blank" rel="noopener">Salmos 119:105</a></p>
   <p class="creditos">Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988. · Hecho por Andrés Rendón · <a href="https://www.andresrendon.com/" target="_blank" rel="noopener">Visita mi web</a> · <a href="https://www.instagram.com/andresrendon.ai/" target="_blank" rel="noopener">Sígueme en Instagram</a> · <a href="/privacidad">Privacidad</a></p>
 </section>
 <script src="comun.js"></script>
@@ -914,7 +918,7 @@ async function bienvenida() {
   const guia = t => `<div class="bv-guia">${LAMPARA}<div class="bv-bocadillo">${t}</div></div>`;
   let cuerpo = '', boton = 'Continuar', listo = true, extra = '';
   if (paso === 'portada') {
-    APP.innerHTML = `<div class="bv"><div class="bv-portada">${LAMPARA}<h1>Aprende la Biblia <em>jugando</em></h1><p>Lecciones de 10 preguntas, cada una con su versículo. Unos minutos al día bastan.</p>
+    APP.innerHTML = `<div class="bv"><div class="bv-portada">${LAMPARA}<p class="bv-verso">«Lámpara es a mis pies tu palabra, y lumbrera a mi camino.»<a href="https://www.biblegateway.com/passage/?search=Salmos%20119%3A105&amp;version=RVR1960" target="_blank" rel="noopener">Salmos 119:105 · RV1960</a></p><h1>Aprende la Biblia <em>jugando</em></h1><p>Lecciones de 10 preguntas, cada una con su versículo. Unos minutos al día bastan.</p>
       <div class="bv-sellos"><span>Gratis</span><span>Sin registro</span><span>Reina-Valera 1960</span><span>Funciona sin conexión</span></div></div>
       <div class="bv-pie"><button class="btn" id="bv-sig">Empezar</button><button class="enlace" id="bv-pin">Tengo un PIN de partida</button></div></div>`;
     document.getElementById('bv-sig').onclick = () => { BV.paso++; bienvenida(); };
@@ -1172,6 +1176,8 @@ async function tarjetaPNG(d) {
   x.fillStyle = '#1B1640'; x.fill(new Path2D('M16 6c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 12.5 13 10 16 6z')); x.fill(new Path2D('M9 22h14l-1.5 4h-11z'));
   x.restore();
   x.fillStyle = '#F4F1EA'; x.textAlign = 'left'; x.fillText('Lumbrera', inicioM + logo + 28, 238); x.textAlign = 'center';
+  x.fillStyle = '#B9B2D9'; x.font = `italic 700 40px ${TXT}`; x.fillText('«Lámpara es a mis pies tu palabra,', W / 2, 340); x.fillText('y lumbrera a mi camino.»', W / 2, 392);
+  x.fillStyle = '#F2C46B'; x.font = `800 32px ${TXT}`; x.fillText('Salmos 119:105', W / 2, 440);
   // Mensaje principal
   const enRacha = d.subioRacha && d.racha > 1;
   const icono = enRacha ? '🔥' : d.perfecta ? '🏆' : '⭐';

@@ -14,10 +14,12 @@ const LOGOS = {
 };
 let MARCA = { id: 'chispa', nombre: 'Pulsazo', tema: 'chispa', lema: '' };
 try { const m = JSON.parse(localStorage.getItem('chispa-marca') || 'null'); if (m && m.id && m.nombre !== 'Chispa') MARCA = m; } catch {}
-function marca() { return `<a class="marca" href="${BASE}"><span class="marca-logo">${LOGOS[MARCA.id] || LOGOS.chispa}</span><span class="marca-nombre">${esc(MARCA.nombre)}</span></a>`; }
+const lemaVisible = () => MARCA.id === 'fe' ? (MARCA.lema || '') : '';
+function marca() { return `<a class="marca" href="${BASE}"><span class="marca-logo">${LOGOS[MARCA.id] || LOGOS.chispa}</span><span class="marca-txt"><span class="marca-nombre">${esc(MARCA.nombre)}</span><span class="marca-lema">${esc(lemaVisible())}</span></span></a>`; }
 function aplicarMarca() {
   document.querySelectorAll('.marca-logo').forEach(e => e.innerHTML = LOGOS[MARCA.id] || LOGOS.chispa);
   document.querySelectorAll('.marca-nombre').forEach(e => e.textContent = MARCA.nombre);
+  document.querySelectorAll('.marca-lema').forEach(e => e.textContent = lemaVisible());
   document.title = document.title.replace(/^(Chispa|Pulsazo|Lumbrera)/, MARCA.nombre);
   document.documentElement.dataset.marca = MARCA.id;
   if (MARCA.tema === 'fe' && !document.body.classList.contains('tema-navidad')) document.body.classList.add('tema-fe');
