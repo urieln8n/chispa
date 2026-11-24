@@ -63,11 +63,19 @@ export default {
       }
       if (ruta.startsWith('/api/')) return await api(req, env, url, ruta.slice(5));
       if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /estadisticas\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
-      if (ruta === '/llms.txt' && env.MARCA === 'fe') return new Response(LLMS_LUMBRERA.replaceAll('{{ORIGEN}}', url.origin), { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
+      // Libros publicados de Lumbrera (para el sitemap y llms.txt: se actualizan solos al añadir un libro)
+      const librosFe = async () => { try { return (await env.ASSETS.fetch(new Request(new URL('/biblia/libros.json', url))).then(r => r.json())).libros.filter(b => b.preguntas); } catch { return []; } };
+      if (ruta === '/llms.txt' && env.MARCA === 'fe') {
+        const ls = await librosFe(), total = ls.reduce((a, b) => a + b.preguntas, 0);
+        const extra = `\n## Preguntas bíblicas con respuestas (${total})\nCada página tiene las preguntas de un libro con su respuesta, una explicación breve y la cita (enlace a la Reina-Valera 1960).\n- Índice: ${url.origin}/preguntas\n` + ls.map(b => `- ${b.nombre} (${b.preguntas} preguntas): ${url.origin}/preguntas/${b.id}`).join('\n') + '\n';
+        return new Response(LLMS_LUMBRERA.replaceAll('{{ORIGEN}}', url.origin) + extra, { headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' } });
+      }
       if (ruta === '/sitemap.xml') {
-        const urls = env.MARCA === 'fe' ? ['/', '/grupos', '/jugar', '/privacidad'] : ['/', '/privacidad'];
+        const urls = env.MARCA === 'fe' ? ['/', '/grupos', '/preguntas', ...(await librosFe()).map(b => '/preguntas/' + b.id), '/jugar', '/privacidad'] : ['/', '/privacidad'];
         return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(u => `<url><loc>${url.origin}${u}</loc></url>`).join('')}</urlset>`, { headers: { 'content-type': 'application/xml; charset=utf-8' } });
       }
+      // Las páginas de preguntas son solo de Lumbrera
+      if (env.MARCA !== 'fe' && (ruta === '/preguntas' || ruta.startsWith('/preguntas/') || ruta === '/preguntas.html')) return Response.redirect(url.origin + '/', 302);
       // Lumbrera aún no tiene web de presentación: su portada es la página para jugar
       if (env.MARCA === 'fe' && (ruta === '/' || ruta === '/index.html')) {
         // Lumbrera: la portada es «Aprender»; los enlaces con ?pin= siguen llevando a la partida
@@ -76,6 +84,8 @@ export default {
       }
       if (env.MARCA !== 'fe' && (ruta === '/aprender' || ruta === '/aprender.html' || ruta === '/grupos' || ruta === '/grupos.html')) return Response.redirect(url.origin + '/', 302);
       if (env.MARCA !== 'fe' && (ruta === '/privacidad-lumbrera' || ruta === '/privacidad-lumbrera.html')) return Response.redirect(url.origin + '/privacidad', 302);
+      // Lumbrera: /favicon.ico es su lámpara (los navegadores y Google lo piden aunque haya otros iconos)
+      if (env.MARCA === 'fe' && ruta === '/favicon.ico') { const r = await env.ASSETS.fetch(new Request(new URL('/app/icono-192.png', url), req)); return new Response(r.body, { headers: { 'content-type': 'image/png', 'cache-control': 'public, max-age=86400' } }); }
       // Lumbrera: la página para entrar con PIN es compartida con Pulsazo; aquí se le pone el título y la vista previa de Lumbrera (WhatsApp lee el HTML, no el JavaScript)
       if (env.MARCA === 'fe' && (ruta === '/jugar' || ruta === '/jugar.html')) {
         const res = await env.ASSETS.fetch(req);
@@ -85,11 +95,12 @@ export default {
         const at = t => t.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         const metas = `<meta name="description" content="${at(desc)}"><meta property="og:type" content="website"><meta property="og:site_name" content="Lumbrera">` +
           `<meta property="og:title" content="🎮 Entra a jugar en Lumbrera"><meta property="og:description" content="${at(desc)}">` +
-          `<meta property="og:url" content="${at(url.origin + '/jugar' + (pin ? '?pin=' + pin : ''))}"><meta property="og:image" content="${at(url.origin)}/app/icono-512.png"><meta name="twitter:card" content="summary">` +
+          `<meta property="og:url" content="${at(url.origin + '/jugar' + (pin ? '?pin=' + pin : ''))}"><meta property="og:image" content="${at(url.origin)}/app/og-lumbrera.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">` +
           `<link rel="icon" href="/app/icono-192.png" type="image/png">`;
         return new HTMLRewriter()
           .on('title', { element(e) { e.setInnerContent('Lumbrera · Entra a jugar'); } })
           .on('meta[name="theme-color"]', { element(e) { e.setAttribute('content', '#1B1640'); } })
+          .on('a[href="panel"]', { element(e) { e.setAttribute('href', '/#grupo'); e.setInnerContent('Crea una partida para tu grupo'); } })
           .on('head', { element(e) { e.append(metas, { html: true }); } })
           .transform(res);
       }
@@ -102,7 +113,7 @@ export default {
         return new HTMLRewriter()
           .on('link[rel="canonical"]', { element(e) { e.setAttribute('href', url.origin + ruta); } })
           .on('meta[property="og:url"]', { element(e) { e.setAttribute('content', url.origin + ruta); } })
-          .on('meta[property="og:image"]', { element(e) { e.setAttribute('content', url.origin + '/og.png'); } })
+          .on('meta[property="og:image"]', { element(e) { e.setAttribute('content', url.origin + (env.MARCA === 'fe' ? '/app/og-lumbrera.jpg' : '/og.png')); } })
           .on('script#jsonld', { text(t) { if (t.text) t.replace(t.text.replaceAll('{{ORIGEN}}', url.origin)); } })
           .transform(res);
       }

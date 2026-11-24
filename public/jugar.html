@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="styles.css">
 <style>
   .pantalla{min-height:100vh;display:flex;flex-direction:column}
+  .titulo-pin{font-size:1.25rem;margin:.4rem 0 .2rem;text-align:center;color:var(--suave)}
   .cab{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;font-weight:800}
   .cab .pts{background:var(--noche3);padding:.3em .8em;border-radius:99px}
   #pin{font-size:2rem;text-align:center;letter-spacing:.3em;font-weight:800}
@@ -33,6 +34,7 @@
 <!-- 1. PIN -->
 <section id="v-pin" class="centro">
   <div id="marca1"></div>
+  <h1 class="titulo-pin">Escribe el PIN de la partida</h1>
   <div class="tarjeta entrar">
     <input id="pin" class="campo" inputmode="numeric" maxlength="6" placeholder="PIN" autocomplete="off">
     <button id="b-pin" class="btn">Entrar</button>

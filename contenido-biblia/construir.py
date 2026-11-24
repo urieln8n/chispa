@@ -77,3 +77,7 @@ idx = [p for p in idx if not p['archivo'].startswith('libro-')]
 for lid, L in LIBROS.items():
     idx.append({"archivo": f"libro-{lid}.json", "titulo": f"📖 {L['nombre']}: 15 rondas para jugar en grupo", "descripcion": f"Las preguntas de la sección Aprender de {L['nombre']}, en rondas de 8–10 para partidas en vivo.", "n": 15, "marcas": ["fe"]})
 json.dump(idx, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public', 'packs') + '/indice.json', 'w'), ensure_ascii=False, indent=1)
+
+# Páginas públicas de preguntas con respuestas (SEO/AEO) y datos estructurados de los cursos
+import seo
+seo.main()
