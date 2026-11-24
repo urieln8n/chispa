@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fiestón · Entra a jugar</title>
+<meta name="description" content="Escribe el código de la tele y juega desde tu móvil. Sin instalar nada.">
+<meta name="theme-color" content="#0F2A22">
+<link rel="stylesheet" href="fiesta.css">
+<style>
+.movil{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px}
+.cab{display:flex;justify-content:space-between;align-items:center;min-height:40px;gap:8px}
+.cab .logo{font-size:1.6rem}
+.yo{display:flex;align-items:center;gap:8px;color:var(--suave);font-size:.9rem}
+.centro{flex-grow:1;display:flex;flex-direction:column;justify-content:center;gap:14px;text-align:center;align-items:center}
+.lista{display:flex;flex-direction:column;gap:10px}
+.opcion{display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 14px;border-radius:16px;border:2px solid #2C5446;background:var(--pino2);color:var(--crema);font-size:1.05rem;font-weight:500;text-align:left;cursor:pointer;width:100%}
+.opcion .letra{flex:none;width:36px;height:36px;border-radius:10px;background:var(--crema);color:var(--pino);display:flex;align-items:center;justify-content:center;font-family:var(--tit);font-weight:800}
+.opcion[aria-pressed="true"]{border-color:var(--oro);background:#24503F}
+.opcion:disabled{cursor:default}
+.grande{font-family:var(--tit);font-weight:800;font-size:2rem;line-height:1.1}
+.icono{width:72px;height:72px}
+.reloj{font-family:var(--tit);font-weight:800;font-size:1.2rem;color:var(--oro)}
+.pin-in{font-family:var(--tit);font-weight:800;font-size:2rem;text-align:center;letter-spacing:.2em}
+</style>
+</head>
+<body>
+<div class="movil">
+  <div class="cab">
+    <a class="logo" href="./">Fiestón</a>
+    <span class="yo" id="yo"></span>
+  </div>
+
+  <!-- Entrar -->
+  <form id="v-entrar" class="centro" style="align-items:stretch;text-align:left">
+    <h1 class="grande">Entra a jugar</h1>
+    <div><label for="in-pin">Código de la tele</label><input class="campo pin-in" id="in-pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="000000"></div>
+    <div><label for="in-nombre">Tu nombre</label><input class="campo" id="in-nombre" maxlength="16" autocomplete="nickname" placeholder="Ej.: Tío Pedro"></div>
+    <button class="btn" type="submit" id="btn-entrar">Entrar</button>
+    <p class="error" id="error" role="alert"></p>
+  </form>
+
+  <!-- Espera -->
+  <section id="v-espera" class="centro oculto">
+    <svg class="icono" viewBox="0 0 24 24" fill="none" stroke="#9AD1B5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+    <p class="grande" id="espera-tit">¡Ya estás dentro!</p>
+    <p style="color:var(--claro);margin:0" id="espera-txt">Mira la tele: la partida empieza enseguida.</p>
+  </section>
+
+  <!-- Ronda -->
+  <section id="v-ronda" class="oculto" style="display:flex;flex-direction:column;gap:16px;flex-grow:1">
+    <div style="display:flex;justify-content:space-between;gap:8px"><span class="pie" id="ronda-info"></span><span class="reloj" id="reloj"></span></div>
+    <div><p class="pie" style="margin:0 0 6px" id="ronda-previa"></p><h1 style="font-size:1.6rem;line-height:1.15;font-weight:800" id="ronda-texto"></h1></div>
+    <div class="lista" id="ronda-lista"></div>
+    <button class="btn oculto" id="btn-votar" style="margin-top:auto" disabled>Elige a alguien</button>
+  </section>
+
+  <!-- Resultado personal -->
+  <section id="v-resultado" class="centro oculto">
+    <p class="grande" id="res-tit"></p>
+    <p style="color:var(--claro);margin:0" id="res-txt"></p>
+    <p class="chip" id="res-puesto"></p>
+  </section>
+
+  <!-- Final -->
+  <section id="v-final" class="centro oculto">
+    <p class="grande" id="fin-tit"></p>
+    <p style="color:var(--claro);margin:0" id="fin-txt"></p>
+    <a class="btn" href="./">Organiza tu propio Fiestón</a>
+  </section>
+</div>
+
+<script src="comun.js"></script>
+<script>
+const qs = new URLSearchParams(location.search);
+const VISTAS = ['v-entrar', 'v-espera', 'v-ronda', 'v-resultado', 'v-final'];
+const S = { pin: String(qs.get('pin') || '').replace(/\D/g, '').slice(0, 6), yo: null, ronda: null, elegido: null, enviado: false, fin: 0, inicio: 0 };
+let socket = null, tic = null;
+function ver(id) { VISTAS.forEach(v => $('#' + v).classList.toggle('oculto', v !== id)); }
+const token = () => { try { return localStorage.getItem('fiesta-token-' + S.pin) || ''; } catch { return ''; } };
+function iniciales(n) { const w = String(n || '').trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 1)).toUpperCase(); }
+function av(p, t = 34) { return `<span class="avatar" style="width:${t}px;height:${t}px;background:${esc(p.color)};font-size:${Math.round(t * .4)}px">${esc(iniciales(p.apodo))}</span>`; }
+if (S.pin) $('#in-pin').value = S.pin;
+try { $('#in-nombre').value = localStorage.getItem('fiesta-nombre') || ''; } catch {}
+
+function pintarYo() { $('#yo').innerHTML = S.yo ? `${av(S.yo, 26)}<span>${esc(S.yo.apodo)} · ${S.yo.puntos.toLocaleString('es-ES')} pts</span>` : ''; }
+
+function aplicarEstado(r) {
+  S.yo = { id: r.id, apodo: r.apodo, color: r.color, puntos: r.puntos }; pintarYo();
+  if (r.estado === 'sala') ver('v-espera');
+  else if (r.estado === 'pregunta' && r.ronda) pintarRonda(r.ronda, r.yaRespondio);
+  else if (r.estado === 'resultado' && r.resultado) pintarResultado(r.resultado);
+  else if (r.estado === 'podio' && r.final) pintarFinal(r.final);
+}
+
+function conectar(apodo) {
+  if (socket) socket.close();
+  socket = conectarJuego(S.pin);
+  socket.on('connect', () => socket.emit('jugador:entrar', { token: token(), apodo }, r => {
+    if (!r || r.error) {
+      if (r && r.error === 'reentrar') { try { localStorage.removeItem('fiesta-token-' + S.pin); } catch {} ver('v-entrar'); return; }
+      $('#error').textContent = (r && r.error) || 'No se ha podido entrar'; $('#btn-entrar').disabled = false; ver('v-entrar'); socket.close(); return;
+    }
+    try { localStorage.setItem('fiesta-token-' + S.pin, r.token); if (apodo) localStorage.setItem('fiesta-nombre', apodo); } catch {}
+    history.replaceState(null, '', location.pathname + '?pin=' + S.pin);
+    aplicarEstado(r);
+  }));
+  socket.on('fiesta:ronda', r => { if (navigator.vibrate) navigator.vibrate(30); pintarRonda(r, false); });
+  socket.on('fiesta:resultado', r => pintarResultado(r));
+  socket.on('fiesta:podio', r => pintarFinal(r));
+  socket.on('jugador:expulsado', () => { try { localStorage.removeItem('fiesta-token-' + S.pin); } catch {} socket.close(); ver('v-entrar'); $('#error').textContent = 'Te han quitado de la partida.'; });
+  socket.on('jugador:cerrada', () => { socket.close(); ver('v-entrar'); $('#error').textContent = 'La partida se ha cerrado.'; });
+}
+
+function pintarRonda(r, yaRespondio) {
+  S.ronda = r; S.elegido = null; S.enviado = !!yaRespondio;
+  $('#ronda-info').textContent = `Ronda ${r.indice + 1} de ${r.total}`;
+  $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño');
+  $('#ronda-texto').textContent = r.texto;
+  const L = $('#ronda-lista');
+  if (r.tipo === 'trivial') {
+    L.innerHTML = r.opciones.map((o, i) => `<button class="opcion" data-i="${i}" aria-pressed="false"><span class="letra">${'ABCD'[i]}</span><span>${esc(o)}</span></button>`).join('');
+    $('#btn-votar').classList.add('oculto');
+  } else {
+    L.innerHTML = r.opciones.map(p => `<button class="opcion" data-id="${esc(p.id)}" aria-pressed="false">${av(p)}<span>${esc(p.apodo)}${S.yo && p.id === S.yo.id ? ' (tú)' : ''}</span></button>`).join('');
+    $('#btn-votar').classList.remove('oculto'); $('#btn-votar').disabled = true; $('#btn-votar').textContent = 'Elige a alguien';
+  }
+  ver('v-ronda');
+  if (S.enviado) enviado();
+  const ahora = Date.now();
+  S.inicio = ahora + (r.empiezaEn || 0); S.fin = r.restante && !r.empiezaEn ? ahora + r.restante : S.inicio + r.tiempo * 1000;
+  clearInterval(tic);
+  const paso = () => {
+    const t = Date.now();
+    $('#reloj').textContent = t < S.inicio ? 'Prepárate…' : Math.max(0, Math.ceil((S.fin - t) / 1000)) + ' s';
+    L.querySelectorAll('button').forEach(b => { if (!S.enviado) b.disabled = t < S.inicio - 200; });
+  };
+  paso(); tic = setInterval(paso, 200);
+}
+
+function enviado() {
+  S.enviado = true;
+  $('#ronda-lista').querySelectorAll('button').forEach(b => b.disabled = true);
+  const v = $('#btn-votar'); v.disabled = true; v.textContent = 'Enviado · mira la tele';
+  if (S.ronda && S.ronda.tipo === 'trivial') { v.classList.remove('oculto'); }
+}
+
+$('#ronda-lista').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || S.enviado || b.disabled) return;
+  $('#ronda-lista').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  if (S.ronda.tipo === 'trivial') {
+    socket.emit('fiesta:responder', { opcion: +b.dataset.i }, r => { if (r && r.error) aviso(r.error); else { enviado(); sonido('tic'); } });
+  } else {
+    S.elegido = b.dataset.id;
+    const nombre = b.textContent.trim();
+    const v = $('#btn-votar'); v.disabled = false; v.textContent = 'Votar a ' + nombre.replace(' (tú)', '');
+  }
+});
+$('#btn-votar').onclick = () => {
+  if (!S.elegido || S.enviado) return;
+  socket.emit('fiesta:responder', { voto: S.elegido }, r => { if (r && r.error) aviso(r.error); else { enviado(); sonido('tic'); } });
+};
+
+function pintarResultado(r) {
+  clearInterval(tic);
+  if (S.yo) { S.yo.puntos = r.puntos; pintarYo(); }
+  let tit, txt;
+  if (r.tipo === 'trivial') {
+    tit = !r.respondio ? 'Se acabó el tiempo' : r.acierto ? '¡Correcto!' : 'Uy, no era esa';
+    txt = r.acierto ? `+${r.ganados} puntos` : 'Mira en la tele cuál era la buena.';
+  } else {
+    tit = r.elegido ? '¡Te ha tocado a ti!' : (r.acierto ? '¡Piensas como la mesa!' : (r.respondio ? 'La mesa no opina igual' : 'No has votado'));
+    txt = (r.elegidos && r.elegidos.length ? `La mesa ha elegido a ${r.elegidos.join(' y ')}. ` : '') + (r.acierto ? `+${r.ganados} puntos` : '');
+  }
+  $('#res-tit').textContent = tit; $('#res-txt').textContent = txt;
+  $('#res-puesto').textContent = `Vas ${r.puesto}.º de ${r.total} · ${r.puntos.toLocaleString('es-ES')} puntos`;
+  ver('v-resultado');
+  if (navigator.vibrate) navigator.vibrate(r.acierto ? [20, 40, 20] : 60);
+}
+
+function pintarFinal(r) {
+  clearInterval(tic);
+  if (S.yo) { S.yo.puntos = r.puntos; pintarYo(); }
+  $('#fin-tit').textContent = r.puesto === 1 ? '¡Has ganado!' : `Has quedado ${r.puesto}.º`;
+  $('#fin-txt').textContent = `${r.puntos.toLocaleString('es-ES')} puntos · ${r.podio.top[0] ? 'Ganador: ' + r.podio.top[0].apodo : ''}`;
+  ver('v-final'); if (r.puesto === 1) confeti(120);
+}
+
+$('#v-entrar').addEventListener('submit', e => {
+  e.preventDefault();
+  S.pin = $('#in-pin').value.replace(/\D/g, '');
+  const apodo = $('#in-nombre').value.trim();
+  $('#error').textContent = '';
+  if (!/^\d{6}$/.test(S.pin)) { $('#error').textContent = 'El código tiene 6 números'; return; }
+  if (!apodo && !token()) { $('#error').textContent = 'Escribe tu nombre'; return; }
+  $('#btn-entrar').disabled = true;
+  conectar(apodo);
+});
+
+// Si ya estaba dentro (recargó la página), vuelve a entrar solo
+if (S.pin && token()) conectar('');
+</script>
+</body>
+</html>

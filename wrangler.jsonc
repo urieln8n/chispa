@@ -3,7 +3,7 @@
   "name": "chispa",
   "main": "src/index.js",
   "compatibility_date": "2026-06-01",
-  "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "none", "run_worker_first": ["/", "/index.html", "/privacidad", "/privacidad.html", "/aprender", "/aprender.html", "/grupos", "/grupos.html", "/privacidad-lumbrera", "/privacidad-lumbrera.html", "/jugar", "/jugar.html", "/favicon.ico", "/preguntas", "/preguntas.html", "/preguntas/*", "/google4d510a5713a71d14.html", "/lider", "/lider.html", "/mudanza"] },
+  "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "none", "run_worker_first": ["/", "/index.html", "/privacidad", "/privacidad.html", "/aprender", "/aprender.html", "/grupos", "/grupos.html", "/privacidad-lumbrera", "/privacidad-lumbrera.html", "/jugar", "/jugar.html", "/favicon.ico", "/preguntas", "/preguntas.html", "/preguntas/*", "/google4d510a5713a71d14.html", "/lider", "/lider.html", "/mudanza", "/panel", "/panel.html", "/editor", "/editor.html", "/presentar", "/presentar.html", "/estadisticas", "/estadisticas.html", "/bingo-*", "/tv"] },
   "durable_objects": {
     "bindings": [
       { "name": "JUEGO", "class_name": "Juego" },
@@ -26,6 +26,17 @@
       "triggers": { "crons": ["0 * * * *"] },
       // Cambio de dominio: DOMINIO_NUEVO vacío = apagado. El día del cambio lo rellena scripts/cambiar-dominio.sh
       "vars": { "MARCA": "fe", "MAX_PLAYERS": "500", "AI_DAILY_LIMIT": "50", "ANTHROPIC_MODEL": "claude-sonnet-5-5", "DOMINIO_ANTIGUO": "genesis.andresrendon.com", "DOMINIO_NUEVO": "" }
+    },
+    // Tercera marca con el mismo motor: «Fiestón» (juegos de fiesta: la tele es el tablero, el móvil el mando). A mano: npx wrangler deploy --env fiesta
+    "fiesta": {
+      "name": "fieston",
+      "durable_objects": {
+        "bindings": [
+          { "name": "JUEGO", "class_name": "Juego" },
+          { "name": "ALMACEN", "class_name": "Almacen" }
+        ]
+      },
+      "vars": { "MARCA": "fiesta", "MAX_PLAYERS": "12", "AI_DAILY_LIMIT": "100", "ANTHROPIC_MODEL": "claude-sonnet-5-5" }
     }
   }
 }

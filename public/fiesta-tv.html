@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fiestón · Pantalla</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0F2A22">
+<link rel="stylesheet" href="fiesta.css">
+<style>
+body{overflow-x:hidden}
+.pantalla{min-height:100vh;padding:clamp(20px,4vw,56px) clamp(20px,5vw,64px);display:flex;flex-direction:column;gap:clamp(18px,3vw,36px)}
+.barra{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.barra .logo{font-size:clamp(1.8rem,3vw,2.8rem)}
+.sub{color:var(--suave);font-size:clamp(1rem,1.4vw,1.15rem)}
+.dos{display:flex;flex-wrap:wrap;gap:clamp(20px,3.5vw,48px);flex-grow:1}
+.dos>.a{flex:999 1 480px;min-width:0;display:flex;flex-direction:column;gap:18px;justify-content:center}
+.dos>.b{flex:1 1 320px;min-width:0}
+.pin{display:flex;gap:10px;flex-wrap:wrap}
+.pin span{width:clamp(56px,6.5vw,96px);height:clamp(72px,8.5vw,124px);border-radius:18px;background:var(--crema);color:var(--pino);display:flex;align-items:center;justify-content:center;font-family:var(--tit);font-weight:800;font-size:clamp(2.6rem,5.5vw,5rem)}
+.url{font-family:var(--tit);font-weight:600;font-size:clamp(1.6rem,3vw,2.6rem);word-break:break-all}
+.qr{display:flex;align-items:center;gap:16px}
+.qr img{width:120px;height:120px;border-radius:12px;background:#fff;padding:6px}
+.jugadores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.jug{display:flex;align-items:center;gap:12px;background:var(--pino3);border-radius:16px;padding:10px 14px;font-size:1.1rem;font-weight:500;min-width:0}
+.jug .nom{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-grow:1}
+.jug.off{opacity:.5}
+.estado{font-size:.85rem;color:var(--suave);white-space:nowrap}
+.estado.ok{color:var(--menta)}
+.reloj{width:72px;height:72px;border-radius:50%;border:6px solid var(--oro);display:flex;align-items:center;justify-content:center;font-family:var(--tit);font-weight:800;font-size:1.8rem}
+.pregunta-txt{font-family:var(--tit);font-weight:800;font-size:clamp(2rem,4.6vw,4rem);line-height:1.05}
+.previa{color:var(--claro);font-size:clamp(1.2rem,2vw,1.6rem);margin:0 0 8px}
+.opciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.op{display:flex;align-items:center;gap:14px;background:var(--pino2);border:2px solid transparent;border-radius:18px;padding:16px 18px;font-size:clamp(1.1rem,2vw,1.5rem);font-weight:600}
+.op .letra{flex:none;width:40px;height:40px;border-radius:12px;background:var(--crema);color:var(--pino);display:flex;align-items:center;justify-content:center;font-family:var(--tit);font-weight:800}
+.op .n{margin-left:auto;font-family:var(--tit);font-weight:800;color:var(--suave)}
+.op.buena{border-color:var(--menta);background:#1F4D3C}
+.op.buena .letra{background:var(--menta)}
+.op.mala{opacity:.45}
+.cuenta{position:fixed;inset:0;background:rgba(15,42,34,.92);display:flex;align-items:center;justify-content:center;font-family:var(--tit);font-weight:800;font-size:clamp(8rem,22vw,16rem);color:var(--oro);z-index:40}
+.ranking .fila{display:flex;align-items:center;gap:12px;padding:8px 0;font-size:1.15rem}
+.ranking .pos{width:30px;font-family:var(--tit);font-weight:800;font-size:1.4rem;color:var(--claro)}
+.ranking .fila:first-child .pos{color:var(--oro)}
+.ranking .nom{flex-grow:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ranking .pts{font-weight:600}
+.elegido{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.elegido .avs{display:flex;gap:10px}
+.elegido .avatar{width:88px;height:88px;font-size:2rem}
+.elegido .quien{font-family:var(--tit);font-weight:800;font-size:clamp(2.4rem,5vw,4.4rem);line-height:1}
+.barras{display:flex;flex-direction:column;gap:10px}
+.barra-voto{display:flex;align-items:center;gap:12px}
+.barra-voto .nom{width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.barra-voto .pista{flex-grow:1;height:22px;border-radius:999px;background:var(--pino2);overflow:hidden}
+.barra-voto .lleno{display:block;height:100%;border-radius:999px;background:var(--oro);transition:width .6s}
+.podio{display:flex;align-items:flex-end;justify-content:center;gap:clamp(12px,3vw,32px);flex-wrap:wrap}
+.escalon{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:160px}
+.escalon .bloque{width:100%;border-radius:18px 18px 0 0;background:var(--pino2);display:flex;align-items:flex-start;justify-content:center;padding-top:14px;font-family:var(--tit);font-weight:800;font-size:2.6rem}
+.escalon .avatar{width:72px;height:72px;font-size:1.6rem}
+.escalon .n{font-family:var(--tit);font-weight:800;font-size:1.5rem;text-align:center}
+.acciones{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+</style>
+</head>
+<body>
+<div class="pantalla">
+  <div class="barra">
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><a class="logo" href="./">Fiestón</a><span class="sub" id="titulo">Pack Navidad</span></div>
+    <span class="sub" id="info-ronda"></span>
+  </div>
+
+  <!-- Cargando / error -->
+  <section id="v-cargando" class="dos"><div class="a"><p class="sub" id="msg-cargando">Conectando con la partida…</p></div></section>
+
+  <!-- Sala de espera -->
+  <section id="v-sala" class="dos oculto">
+    <div class="a">
+      <p class="previa" style="margin:0">Entra desde tu móvil en</p>
+      <p class="url" id="url" style="margin:0"></p>
+      <p class="previa" style="margin:6px 0 0">y escribe este código</p>
+      <div class="pin" id="pin"></div>
+      <div class="qr"><img id="qr" alt="Código QR para entrar a la partida"><span class="sub">o escanea el QR con la cámara · hasta 12 jugadores</span></div>
+    </div>
+    <div class="b tarjeta" style="flex-basis:460px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">
+        <h2 style="font-size:1.7rem;font-weight:600">Jugadores</h2><span class="sub" id="n-jug">Nadie todavía</span>
+      </div>
+      <div class="jugadores" id="lista-sala"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:auto">
+        <span class="chip">Trivial navideño</span><span class="chip">¿Quién es más probable…?</span><span class="chip" id="chip-ia">Preguntas sobre vosotros</span>
+      </div>
+      <button class="btn" id="btn-empezar" disabled>Empezar partida</button>
+      <p class="pie" style="margin:0">Hacen falta al menos 2 jugadores. También puedes pulsar la barra espaciadora.</p>
+    </div>
+  </section>
+
+  <!-- Ronda en juego -->
+  <section id="v-ronda" class="dos oculto">
+    <div class="a" style="justify-content:flex-start">
+      <div><p class="previa" id="ronda-previa"></p><h1 class="pregunta-txt" id="ronda-texto"></h1></div>
+      <div class="opciones" id="ronda-opciones"></div>
+      <div class="jugadores" id="ronda-jugadores" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))"></div>
+    </div>
+    <div class="b" style="display:flex;flex-direction:column;gap:18px;align-items:flex-start">
+      <div style="display:flex;align-items:center;gap:12px"><span class="sub">Tiempo</span><span class="reloj" id="reloj">20</span></div>
+      <p class="sub" id="ronda-cuenta" style="margin:0"></p>
+      <button class="btn sec" id="btn-cerrar">Cerrar la ronda ya</button>
+    </div>
+  </section>
+
+  <!-- Resultado -->
+  <section id="v-resultado" class="dos oculto">
+    <div class="a" style="justify-content:flex-start" id="res-cuerpo"></div>
+    <div class="b tarjeta" style="display:flex;flex-direction:column;gap:14px">
+      <h2 style="font-size:1.5rem;font-weight:600">Clasificación</h2>
+      <div class="ranking" id="res-ranking"></div>
+      <button class="btn" id="btn-siguiente" style="margin-top:auto">Siguiente ronda</button>
+    </div>
+  </section>
+
+  <!-- Podio -->
+  <section id="v-podio" class="oculto" style="display:flex;flex-direction:column;gap:28px;flex-grow:1;justify-content:center">
+    <h1 class="pregunta-txt" style="text-align:center">¡Y el campeón de la Navidad es…!</h1>
+    <div class="podio" id="podio"></div>
+    <div class="acciones" style="justify-content:center">
+      <a class="btn" href="./">Jugar otra partida</a>
+      <button class="btn sec" id="btn-compartir">Compartir resultado</button>
+    </div>
+  </section>
+</div>
+<div class="cuenta oculto" id="cuenta" aria-live="assertive"></div>
+
+<script src="comun.js"></script>
+<script>
+const PIN = String(new URLSearchParams(location.search).get('pin') || '').replace(/\D/g, '');
+let CLAVE = ''; try { CLAVE = localStorage.getItem('fiesta-host-' + PIN) || ''; } catch {}
+const VISTAS = ['v-cargando', 'v-sala', 'v-ronda', 'v-resultado', 'v-podio'];
+const S = { estado: '', jugadores: [], ronda: null, respondieron: [], fin: 0, inicio: 0, total: 0 };
+let tic = null;
+function ver(id) { VISTAS.forEach(v => $('#' + v).classList.toggle('oculto', v !== id)); }
+function av(p, tam = 40) { return `<span class="avatar" style="width:${tam}px;height:${tam}px;background:${esc(p.color)};font-size:${Math.round(tam * .4)}px">${esc(iniciales(p.apodo))}</span>`; }
+function iniciales(n) { const w = String(n || '').trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 1)).toUpperCase(); }
+function cargando(msg) { $('#msg-cargando').textContent = msg; ver('v-cargando'); }
+
+if (!/^\d{6}$/.test(PIN) || !CLAVE) cargando('No encontramos esta partida en este dispositivo. Vuelve a la portada y crea una nueva.');
+else iniciar();
+
+function enlaceJugar() {
+  const corto = (MARCA && MARCA.id === 'fiesta') ? '/jugar' : '/fiesta-movil';
+  return { mostrar: location.host + corto, completo: location.origin + corto + '?pin=' + PIN };
+}
+
+function pintarSala() {
+  const e = enlaceJugar();
+  $('#url').textContent = e.mostrar;
+  $('#pin').innerHTML = PIN.split('').map(d => `<span>${d}</span>`).join('');
+  $('#qr').src = 'api/qr?t=' + encodeURIComponent(e.completo);
+  const n = S.jugadores.length;
+  $('#n-jug').textContent = n ? `${n} dentro · esperando…` : 'Nadie todavía';
+  $('#lista-sala').innerHTML = S.jugadores.map(p => `<div class="jug entra ${p.conectado ? '' : 'off'}">${av(p)}<span class="nom">${esc(p.apodo)}</span></div>`).join('');
+  $('#btn-empezar').disabled = n < 2;
+}
+
+function pintarJugadoresRonda() {
+  const hechos = new Set(S.respondieron);
+  const r = S.ronda;
+  $('#ronda-jugadores').innerHTML = S.jugadores.map(p => `<div class="jug ${p.conectado ? '' : 'off'}">${av(p, 34)}<span class="nom">${esc(p.apodo)}</span><span class="estado ${hechos.has(p.id) ? 'ok' : ''}">${hechos.has(p.id) ? (r && r.tipo === 'probable' ? 'Votó' : 'Respondió') : 'Pensando…'}</span></div>`).join('');
+  $('#ronda-cuenta').textContent = `${hechos.size} de ${S.jugadores.length} ${r && r.tipo === 'probable' ? 'han votado' : 'han respondido'}`;
+}
+
+function pintarRonda(r) {
+  S.ronda = r; S.respondieron = r.respondieron || []; S.total = r.total;
+  $('#info-ronda').textContent = `Ronda ${r.indice + 1} de ${r.total}`;
+  $('#ronda-previa').textContent = r.tipo === 'probable' ? '¿Quién es más probable…' : (r.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño');
+  $('#ronda-texto').textContent = r.texto;
+  $('#ronda-opciones').innerHTML = r.tipo === 'trivial' ? r.opciones.map((o, i) => `<div class="op"><span class="letra">${'ABCD'[i]}</span><span>${esc(o)}</span></div>`).join('') : '';
+  $('#ronda-opciones').classList.toggle('oculto', r.tipo !== 'trivial');
+  pintarJugadoresRonda();
+  ver('v-ronda');
+  const ahora = Date.now();
+  S.inicio = ahora + (r.empiezaEn || 0);
+  S.fin = r.restante && !r.empiezaEn ? ahora + r.restante : S.inicio + r.tiempo * 1000;
+  clearInterval(tic);
+  const paso = () => {
+    const t = Date.now();
+    const c = $('#cuenta');
+    if (t < S.inicio) { c.classList.remove('oculto'); c.textContent = Math.ceil((S.inicio - t) / 1000); }
+    else c.classList.add('oculto');
+    const s = Math.max(0, Math.ceil((S.fin - Math.max(t, S.inicio)) / 1000));
+    $('#reloj').textContent = s;
+    if (t > S.fin + 1500) clearInterval(tic);
+  };
+  paso(); tic = setInterval(paso, 200);
+}
+
+function pintarResultado(res) {
+  clearInterval(tic); $('#cuenta').classList.add('oculto');
+  $('#info-ronda').textContent = `Ronda ${res.indice + 1} de ${res.total}`;
+  let h = '';
+  if (res.tipo === 'trivial') {
+    h = `<div><p class="previa">${res.propia ? 'Pregunta sobre vosotros' : 'Trivial navideño'}</p><h1 class="pregunta-txt" style="font-size:clamp(1.8rem,3.6vw,3rem)">${esc(res.texto)}</h1></div>
+      <div class="opciones">${res.opciones.map((o, i) => `<div class="op ${i === res.correcta ? 'buena' : 'mala'}"><span class="letra">${'ABCD'[i]}</span><span>${esc(o)}</span><span class="n">${res.conteo[i]}</span></div>`).join('')}</div>`;
+  } else {
+    const ganadores = res.votos.filter(v => v.elegido);
+    const max = Math.max(1, ...res.votos.map(v => v.votos));
+    h = `<div><p class="previa">¿Quién es más probable${esc(res.texto.replace(/^…/, '… '))}</p></div>` +
+      (ganadores.length ? `<div class="elegido entra"><div class="avs">${ganadores.map(g => av(g, 88)).join('')}</div><div style="flex:1 1 300px;min-width:0"><p class="quien">${ganadores.map(g => esc(g.apodo)).join(' y ')}</p><p class="sub" style="margin:6px 0 0">${ganadores[0].votos} ${ganadores[0].votos === 1 ? 'voto' : 'votos'} · quien votó con la mayoría gana 500 puntos</p></div></div>`
+        : `<p class="quien">Nadie ha votado</p>`) +
+      `<div class="barras">${res.votos.map(v => `<div class="barra-voto"><span class="nom">${esc(v.apodo)}</span><span class="pista"><span class="lleno" style="width:${Math.round(100 * v.votos / max)}%;background:${esc(v.color)}"></span></span><b>${v.votos}</b></div>`).join('')}</div>`;
+  }
+  $('#res-cuerpo').innerHTML = h;
+  $('#res-ranking').innerHTML = res.ranking.map((p, i) => `<div class="fila"><span class="pos">${i + 1}</span>${av(p, 32)}<span class="nom">${esc(p.apodo)}</span><span class="pts">${p.puntos.toLocaleString('es-ES')}</span></div>`).join('');
+  $('#btn-siguiente').textContent = res.ultima ? 'Ver el podio' : 'Siguiente ronda';
+  ver('v-resultado'); sonido('ok');
+}
+
+function pintarPodio(p) {
+  clearInterval(tic); $('#info-ronda').textContent = 'Final';
+  const orden = [1, 0, 2].filter(i => p.top[i]);
+  const alturas = { 0: 200, 1: 140, 2: 100 };
+  $('#podio').innerHTML = orden.map(i => { const x = p.top[i]; return `<div class="escalon entra">${av(x, 72)}<span class="n">${esc(x.apodo)}</span><span class="sub">${x.puntos.toLocaleString('es-ES')} puntos</span><div class="bloque" style="height:${alturas[i]}px;${i === 0 ? 'background:var(--oro);color:var(--pino)' : ''}">${i + 1}</div></div>`; }).join('');
+  ver('v-podio'); confeti(160); sonido('fin');
+  S.podio = p;
+}
+
+function iniciar() {
+  fetch('api/marca').then(r => r.json()).then(m => { if (m && m.id) { MARCA = m; if (S.estado === 'sala') pintarSala(); } }).catch(() => {});
+  const socket = conectarJuego(PIN);
+  const siguiente = () => socket.emit('host:siguiente', {}, r => { if (r && r.error) aviso(r.error); });
+  socket.on('connect', () => socket.emit('host:reanudar', { claveHost: CLAVE }, r => {
+    if (!r || r.error) return cargando('Esta partida ya no existe. Vuelve a la portada y crea una nueva.');
+    const e = r.estado; S.jugadores = e.jugadores; S.total = e.total;
+    if (e.anfitrion) $('#titulo').textContent = 'Pack Navidad · ' + e.anfitrion;
+    try { const a = sessionStorage.getItem('fiesta-aviso'); if (a) { aviso(a, 6000); sessionStorage.removeItem('fiesta-aviso'); } } catch {}
+    if (e.estado === 'sala') { pintarSala(); ver('v-sala'); }
+    else if (e.estado === 'pregunta' && e.ronda) pintarRonda(e.ronda);
+    else if (e.estado === 'resultado' && e.resultado) pintarResultado(e.resultado);
+    else if (e.estado === 'podio' && e.podio) pintarPodio(e.podio);
+    S.estado = e.estado;
+  }));
+  socket.on('disconnect', () => aviso('Reconectando…', 1500));
+  socket.on('host:jugadores', l => { S.jugadores = l; if (!$('#v-sala').classList.contains('oculto')) pintarSala(); if (!$('#v-ronda').classList.contains('oculto')) pintarJugadoresRonda(); });
+  socket.on('fiesta:ronda', r => { S.estado = 'pregunta'; pintarRonda(r); });
+  socket.on('fiesta:respuestas', d => { S.respondieron = d.respondieron; pintarJugadoresRonda(); sonido('tic'); });
+  socket.on('fiesta:resultado', res => { S.estado = 'resultado'; pintarResultado(res); });
+  socket.on('fiesta:podio', p => { S.estado = 'podio'; pintarPodio(p); });
+  $('#btn-empezar').onclick = siguiente;
+  $('#btn-siguiente').onclick = siguiente;
+  $('#btn-cerrar').onclick = siguiente;
+  $('#btn-compartir').onclick = () => {
+    const p = S.podio; if (!p || !p.top[0]) return;
+    compartir(`🏆 ${p.top[0].apodo} ha ganado el Fiestón de Navidad con ${p.top[0].puntos.toLocaleString('es-ES')} puntos. ¿Os atrevéis?`, location.origin + '/');
+  };
+  document.addEventListener('keydown', e => {
+    if (e.code !== 'Space' || /INPUT|TEXTAREA|BUTTON/.test(document.activeElement.tagName)) return;
+    e.preventDefault();
+    if (S.estado === 'sala' && S.jugadores.length >= 2) siguiente();
+    else if (S.estado === 'resultado' || S.estado === 'pregunta') siguiente();
+  });
+}
+</script>
+</body>
+</html>

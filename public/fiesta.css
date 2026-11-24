@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Inter:wght@400;500;600&display=swap');
+/* Fiestón · verde pino y dorado (mismo estilo que el boceto) */
+:root{--pino:#0F2A22;--pino2:#163A2F;--pino3:#1E4A3C;--borde:#3F6B5C;--oro:#F2B544;--oro2:#FFD27A;--crema:#F6F1E7;--suave:#B9CDBF;--claro:#DCE7DF;--menta:#9AD1B5;--rojo:#E4572E;--tit:'Bricolage Grotesque',Inter,system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--pino);color:var(--crema);font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+h1,h2,h3{font-family:var(--tit);margin:0;letter-spacing:-.5px}
+a{color:var(--oro)}a:hover{color:var(--oro2)}
+button,input,textarea,select{font:inherit}
+.oculto{display:none!important}
+.logo{font-family:var(--tit);font-weight:800;color:var(--oro);text-decoration:none;letter-spacing:-1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4em;min-height:52px;padding:0 1.4em;border:0;border-radius:16px;background:var(--oro);color:var(--pino);font-family:var(--tit);font-weight:800;font-size:1.15rem;cursor:pointer;text-decoration:none;transition:transform .08s,background .15s}
+.btn:hover{background:var(--oro2);color:var(--pino)}
+.btn:active{transform:translateY(2px)}
+.btn.sec{background:transparent;color:var(--crema);border:1px solid var(--borde)}
+.btn.sec:hover{background:var(--pino3)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.campo{width:100%;padding:.9em 1em;border-radius:14px;border:2px solid var(--pino3);background:#0B211A;color:var(--crema);outline:none}
+.campo:focus{border-color:var(--oro)}
+label{display:block;font-weight:600;margin:0 0 .4em}
+.ayuda{color:var(--suave);font-size:.9rem;margin:.35em 0 0}
+.tarjeta{background:var(--pino2);border-radius:24px;padding:1.5rem}
+.chip{display:inline-block;font-size:.9rem;padding:.45em .9em;border-radius:999px;border:1px solid var(--borde);color:var(--claro)}
+.avatar{flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:var(--pino);font-weight:600}
+.error{color:#FFB4A8;min-height:1.3em;font-weight:600;margin:.5em 0 0}
+.aviso{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--crema);color:var(--pino);padding:.8em 1.2em;border-radius:14px;font-weight:600;z-index:80;max-width:90vw;text-align:center}
+.pie{color:var(--suave);font-size:.85rem}
+@keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.entra{animation:entra .35s ease both}
+@media (prefers-reduced-motion:reduce){.entra{animation:none}}

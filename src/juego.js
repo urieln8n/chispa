@@ -3,6 +3,7 @@ import { DurableObject } from 'cloudflare:workers';
 import { diaLiga, semanaLiga } from './liga.js';
 import { aleatorio, iguales } from './comun.js';
 import * as B from './bingo.js';
+import * as F from './fiesta.js';
 
 export class Juego extends DurableObject {
   constructor(ctx, env) {
@@ -26,8 +27,15 @@ export class Juego extends DurableObject {
     if (r.error) this.g = null;
     return r;
   }
+  async crearFiesta(pin, partida) {
+    if (this.g && Date.now() - this.g.ultima < 3 * 3600e3) return { ocupado: true };
+    const r = F.crear(this, pin, partida);
+    if (r.error) this.g = null;
+    return r;
+  }
   async info() {
     if (!this.g) return null;
+    if (this.g.tipo === 'fiesta') return F.info(this.g);
     return this.g.tipo === 'bingo' ? B.info(this.g) : { titulo: this.g.quiz.titulo, estado: this.g.estado, tipo: 'trivial' };
   }
 
@@ -56,7 +64,7 @@ export class Juego extends DurableObject {
     const g = this.g;
     if (g && c.rol === 'jugador') {
       const p = g.jugadores.get(c.jid);
-      if (p && p.conn === c) { p.conn = null; p.conectado = false; this.mandarJugadores(); }
+      if (p && p.conn === c) { p.conn = null; p.conectado = false; g.tipo === 'fiesta' ? F.desconectado(this) : this.mandarJugadores(); }
     }
   }
 
@@ -67,6 +75,7 @@ export class Juego extends DurableObject {
     if (!g) return ok({ error: 'Esta partida ya no existe' });
     g.ultima = Date.now();
     if (g.tipo === 'bingo') return B.mensaje(this, c, m, d, ok);
+    if (g.tipo === 'fiesta') return F.mensaje(this, c, m, d, ok);
     const esHost = c.rol === 'host';
     switch (m.t) {
       case 'host:reanudar':

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fiestón · Juegos de Navidad para jugar en familia con el móvil</title>
+<meta name="description" content="El juego de fiesta en español para las cenas de Navidad: la tele es el tablero y cada uno juega desde su móvil. Trivial navideño y «¿Quién es más probable…?», con preguntas sobre tu familia hechas con IA.">
+<meta name="theme-color" content="#0F2A22">
+<meta property="og:title" content="Fiestón · El juego para tu cena de Navidad">
+<meta property="og:description" content="La tele es el tablero, tu móvil el mando. Sin instalar nada.">
+<link rel="stylesheet" href="fiesta.css">
+<style>
+.envoltura{max-width:1080px;margin:0 auto;padding:28px 20px 48px}
+.cab{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cab .logo{font-size:2rem}
+.heroe{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start;margin-top:40px}
+.heroe .txt{flex:999 1 420px;min-width:0}
+.heroe .form{flex:1 1 360px;min-width:0}
+.heroe h1{font-size:clamp(2.2rem,5vw,3.6rem);line-height:1.02;font-weight:800}
+.heroe p.lead{font-size:1.15rem;color:var(--claro);line-height:1.5;margin:18px 0 0}
+.pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:28px}
+.paso{background:var(--pino2);border-radius:18px;padding:16px}
+.paso b{display:block;font-family:var(--tit);font-size:1.6rem;color:var(--oro)}
+.paso span{color:var(--claro)}
+.juegos{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.form .tarjeta{display:flex;flex-direction:column;gap:16px}
+.grupo-rondas{display:flex;gap:8px}
+.grupo-rondas label{flex:1;margin:0}
+.grupo-rondas input{position:absolute;opacity:0}
+.grupo-rondas span{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;border:1px solid var(--borde);cursor:pointer;font-weight:600}
+.grupo-rondas input:checked+span{background:var(--oro);color:var(--pino);border-color:var(--oro)}
+.grupo-rondas input:focus-visible+span{outline:2px solid var(--crema);outline-offset:2px}
+textarea.campo{min-height:110px;resize:vertical}
+.entrar-codigo{margin-top:14px;text-align:center}
+</style>
+</head>
+<body>
+<div class="envoltura">
+  <header class="cab">
+    <a class="logo" href="./">Fiestón</a>
+    <a class="btn sec" href="fiesta-movil" id="enlace-entrar">Tengo un código</a>
+  </header>
+
+  <main class="heroe">
+    <section class="txt">
+      <span class="chip">Pack Navidad</span>
+      <h1 style="margin-top:14px">El juego para tu cena de Navidad. La tele es el tablero, tu móvil el mando.</h1>
+      <p class="lead">Trivial navideño y «¿Quién es más probable…?» para jugar en familia o con amigos. Cada uno juega desde su móvil, sin instalar nada. Y si quieres, la IA prepara preguntas sobre vosotros.</p>
+      <div class="pasos">
+        <div class="paso"><b>1</b><span>Abre esta web en la tele o el portátil y crea la partida.</span></div>
+        <div class="paso"><b>2</b><span>Cada invitado entra desde su móvil con el código de la pantalla.</span></div>
+        <div class="paso"><b>3</b><span>Contestad, votad y reíos. Gana quien más puntos tenga.</span></div>
+      </div>
+      <div class="juegos">
+        <span class="chip">Trivial navideño</span>
+        <span class="chip">¿Quién es más probable…?</span>
+        <span class="chip">Preguntas sobre tu familia (IA)</span>
+      </div>
+    </section>
+
+    <section class="form">
+      <form class="tarjeta" id="crear">
+        <h2 style="font-size:1.6rem">Crear partida</h2>
+        <div>
+          <label for="anfitrion">Nombre de la partida (opcional)</label>
+          <input class="campo" id="anfitrion" maxlength="40" placeholder="Ej.: Familia Rendón">
+        </div>
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend style="font-weight:600;margin-bottom:.4em">Duración</legend>
+          <div class="grupo-rondas">
+            <label><input type="radio" name="rondas" value="8"><span>Corta · 8</span></label>
+            <label><input type="radio" name="rondas" value="12" checked><span>Normal · 12</span></label>
+            <label><input type="radio" name="rondas" value="16"><span>Larga · 16</span></label>
+          </div>
+        </fieldset>
+        <div>
+          <label for="datos">Cuéntanos sobre los que vais a jugar (opcional)</label>
+          <textarea class="campo" id="datos" maxlength="1500" placeholder="Ej.: La abuela Rosa es de Cali y hace los mejores buñuelos. Juan siempre llega tarde. Camila canta en un coro…"></textarea>
+          <p class="ayuda">Con esto la IA crea unas cuantas preguntas sobre vosotros. Solo se usa para esta partida: no lo guardamos. Evita datos delicados.</p>
+        </div>
+        <button class="btn" id="btn-crear" type="submit">Crear partida</button>
+        <p class="error" id="error" role="alert"></p>
+      </form>
+      <p class="entrar-codigo pie">¿Ya hay una partida en marcha? <a href="fiesta-movil" id="enlace-entrar2">Entra con el código</a></p>
+    </section>
+  </main>
+  <footer class="pie" style="margin-top:48px">Hecho por <a href="https://www.andresrendon.com/">Andrés Rendón</a> · <a href="https://www.instagram.com/andresrendon.ai/">Sígueme en Instagram</a></footer>
+</div>
+<script src="comun.js"></script>
+<script>
+$('#crear').addEventListener('submit', async e => {
+  e.preventDefault();
+  const b = $('#btn-crear'), err = $('#error');
+  err.textContent = '';
+  const datos = $('#datos').value.trim();
+  b.disabled = true; b.textContent = datos ? 'Preparando vuestras preguntas…' : 'Creando…';
+  try {
+    const r = await fetch('api/fiesta/crear', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ pack: 'navidad', rondas: document.querySelector('input[name=rondas]:checked').value, datos, anfitrion: $('#anfitrion').value }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.pin) throw new Error(d.error || 'No se ha podido crear la partida');
+    try { localStorage.setItem('fiesta-host-' + d.pin, d.claveHost); if (d.aviso) sessionStorage.setItem('fiesta-aviso', d.aviso); } catch {}
+    location.href = 'fiesta-tv?pin=' + d.pin;
+  } catch (x) {
+    err.textContent = x.message; b.disabled = false; b.textContent = 'Crear partida';
+  }
+});
+</script>
+</body>
+</html>
