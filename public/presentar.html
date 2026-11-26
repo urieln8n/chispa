@@ -94,12 +94,19 @@ function sala() {
       </div>
       <div><h1>${esc(S.titulo)}</h1><p class="pie" style="font-size:1rem">Escanea el QR o escribe el PIN. Sin instalar nada y sin registrarse.</p>
         <p class="pie" style="opacity:1;font-weight:800;margin:1rem 0 .5rem">¿Falta alguien? Mándale el enlace:</p>
-        ${barraCompartir(`🎮 ¡Juega conmigo a «${S.titulo}» en ${MARCA.nombre}! Entra desde el móvil con el PIN ${S.pin}:`, url, 'Invitar')}</div>
+        ${barraCompartir(`🎮 ¡Juega conmigo a «${S.titulo}» en ${MARCA.nombre}! Entra desde el móvil con el PIN ${S.pin}:`, url, 'Invitar')}
+        <button class="btn" id="b-yo-juego" type="button" style="margin-top:1rem;width:100%;max-width:420px">🙋 Jugar yo también</button>
+        <p class="pie" id="yo-juego-nota" style="opacity:1;margin:.5rem 0 0;font-size:.9rem"></p></div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center"><div class="contador"><span id="njug">0</span> jugadores</div>
       <div class="control"><button class="btn" id="b-empezar" disabled>¡Empezar!</button></div></div>
     <div class="jugadores" id="jugs"></div>`;
   $('#b-empezar').onclick = siguiente;
+  // El que crea la partida también juega. En el móvil entra aquí mismo y lleva la partida desde su pantalla de jugador;
+  // en un ordenador con pantalla grande se abre en otra pestaña para que esta siga proyectándose.
+  const movil = matchMedia('(pointer: coarse)').matches && innerWidth < 900;
+  $('#yo-juego-nota').textContent = movil ? 'Desde tu pantalla de jugador podrás empezar y pasar de pregunta.' : 'Se abre en otra pestaña; esta sigue en la pantalla grande.';
+  $('#b-yo-juego').onclick = () => { if (movil) location.href = url; else window.open(url, '_blank'); };
   pintarJugadores();
 }
 function pintarJugadores() {
