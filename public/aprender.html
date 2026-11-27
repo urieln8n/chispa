@@ -158,6 +158,9 @@
   .etiq-tiempo{margin-top:.2rem;font-weight:700}
   .dos-btn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   @media(max-width:340px){.cantidades:not(.libros-p){grid-template-columns:repeat(3,1fr)}.dos-btn{grid-template-columns:1fr}}
+  .reto{margin:0 0 1.2rem;background:linear-gradient(135deg,rgba(46,175,125,.16),rgba(46,175,125,.05));border-color:#2EAF7D}
+  .reto .cuadros,.cuadros{display:block;font-size:1.25rem;letter-spacing:2px;margin:.15rem 0}.cuadros.grande{font-size:2.2rem;letter-spacing:4px}
+  .tema-claro .reto{background:linear-gradient(135deg,#E8F7F0,#F6FCF9);border-color:#9FD9C0}
   .partida.arriba{padding:.9rem 1rem;background:linear-gradient(160deg,#25265e 0%,#1d3557 100%);border-color:#3d5c8c}
   .partida.arriba h2::before{content:'🎲 '}
   .tema-claro .partida.arriba{background:linear-gradient(160deg,#FFFFFF 0%,#EAF3F7 100%);border-color:#C9DCE6}.partida.arriba h2{font-size:1.15rem}.partida.arriba .cantidades{margin:.55rem 0}.partida.arriba .cant,.partida.arriba .tiem,.partida.arriba .libp{padding:.45em 0;font-size:.9rem}.cantidades.libros-p{grid-template-columns:repeat(3,1fr)}#grupo-msg:empty{display:none}.partida.arriba .dos-btn .btn{padding:.75em .4em;font-size:1rem;white-space:nowrap}
@@ -524,6 +527,7 @@ async function inicio() {
       <div class="dos-btn"><button class="btn" id="b-solo">Jugar yo solo</button><button class="btn sec" id="b-grupo">Jugar en grupo</button></div>
       <p class="pie" id="grupo-msg" style="opacity:1;min-height:1.2em"></p>
     </div>
+    <div id="reto"></div>
     ${E.bv && E.bv.motivo === 'grupo' ? `<div class="lider-t"><b>👥 Para tu grupo</b><span class="pie" style="opacity:1">Partidas con PIN en la pantalla y liga semanal de tu grupo.</span><div class="dos-btn"><button class="btn peq" id="b-lider-partida">Crear partida</button><a class="btn sec peq" href="lider">Panel del líder</a></div></div>` : ''}
     <div class="meta"><div class="anillo" style="--p:${pct}"><span>${pct}%</span></div>
       <div><b>Meta de hoy: ${E.meta} puntos</b><div class="pie" style="opacity:1">${xpHoy() >= E.meta ? '¡Cumplida! Vuelve mañana para mantener la racha.' : `Llevas ${xpHoy()}. Una lección son unos 100.`}</div></div></div>
@@ -545,7 +549,8 @@ async function inicio() {
   document.getElementById('b-grupo').onclick = () => crearGrupo(CANT, TIEMPO, libP().id);
   const bc = document.getElementById('b-continuar'); if (bc) bc.onclick = () => empezar(cont.L, cont.ui, cont.li);
   const bl = document.getElementById('b-lider-partida'); if (bl) bl.onclick = () => document.getElementById('grupo').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  if (!APP.dataset.vista) { inicioRefresco(); pintarMisiones(); pintarExtra(); pintarLigaTarjeta(); }
+  if (!APP.dataset.vista) { inicioRefresco(); pintarReto(); pintarMisiones(); pintarExtra(); pintarLigaTarjeta(); }
+  if (IR_RETO && !APP.dataset.vista) { IR_RETO = false; if (!retoHecho()) return jugarReto(); }
   if (LIGA_INV && !APP.dataset.vista) { const g = LIGA_INV; LIGA_INV = null; if (!E.liga || E.liga.grupo !== g) return formLiga({ grupo: g, invitado: true }); }
   // Desde la página para líderes (/grupos) se llega con #grupo: baja directo a la partida en grupo
   if (IR_GRUPO) { IR_GRUPO = false; const ir = () => setTimeout(() => { const g = document.getElementById('grupo'); if (g) g.scrollIntoView({ block: 'center' }); }, 50); document.readyState === 'complete' ? ir() : addEventListener('load', ir, { once: true }); }
@@ -691,6 +696,69 @@ function repasoLibro(L) {
   LEC = { L, cola: barajar(todas).slice(0, 15), total: 15, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'repaso', vuelta: L.id };
   pintarPregunta();
 }
+// ===================== Reto diario (como Wordle: las mismas 5 preguntas para todos cada día) =====================
+const RETO_N = 5;
+const diaNum = () => Math.floor(new Date(hoyISO()).getTime() / 864e5);
+function azarSemilla(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function barajarSemilla(a, r) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+// El libro del reto rota cada día (distinto del de la pregunta del día)
+function libroReto() { const ids = CAT ? CAT.libros.filter(b => b.preguntas).map(b => b.id) : ['genesis']; return ids[(diaNum() + 3) % ids.length]; }
+function preguntasReto(L) {
+  const r = azarSemilla(diaNum() * 2654435761);
+  const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => { if (q.t === 'opcion' || q.t === 'vf' || q.t === 'completar') todas.push({ ...q, libro: L.id }); })));
+  return barajarSemilla(todas, r).slice(0, RETO_N).map(q => q.t === 'vf' ? q : { ...q, _ops: barajarSemilla([q.ok, ...q.malas], r) });
+}
+const retoHecho = () => E.reto && E.reto.fecha === hoyISO();
+const cuadritos = res => res.map(x => x ? '🟩' : '🟥').join('');
+function textoReto() {
+  const R = E.reto, L = LIBROS[R.libro], fecha = new Date(hoyISO()).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+  const ok = R.res.filter(Boolean).length;
+  return `📖 Reto Lumbrera · ${fecha}${L ? ' · ' + L.nombre : ''}\n${cuadritos(R.res)} ${ok}/${RETO_N}${ok === RETO_N ? ' 🏆' : ''}\n¿Lo superas? Son 5 preguntas, las mismas para todos hoy.`;
+}
+async function pintarReto() {
+  const h = document.getElementById('reto'); if (!h) return;
+  if (retoHecho()) {
+    const ok = E.reto.res.filter(Boolean).length;
+    h.innerHTML = `<div class="tarjeta-x reto hecho"><span class="ico">✅</span><div class="txt"><b>Reto de hoy: ${ok}/${RETO_N}</b><span class="cuadros" aria-label="${ok} de ${RETO_N} aciertos">${cuadritos(E.reto.res)}</span><span class="pie" style="opacity:1">Mañana hay otro. ¡Reta a tus amigos!</span></div><button class="btn peq" id="b-reto-comp">📤 Retar</button></div>`;
+    document.getElementById('b-reto-comp').onclick = compartirReto;
+    return;
+  }
+  const id = libroReto(); let nombre = (CAT && CAT.libros.find(b => b.id === id) || {}).nombre || '';
+  h.innerHTML = `<div class="tarjeta-x reto"><span class="ico">🗓️</span><div class="txt"><b>Reto de hoy</b><span class="pie" style="opacity:1">5 preguntas de ${esc(nombre)}, iguales para todos. ¿Cuántas aciertas?</span></div><button class="btn peq" id="b-reto">Jugar</button></div>`;
+  document.getElementById('b-reto').onclick = jugarReto;
+}
+async function jugarReto() {
+  if (retoHecho()) return inicio();
+  await catalogo();
+  const L = await libro(libroReto());
+  LEC = { L, cola: preguntasReto(L), total: RETO_N, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'reto', res: [], combo: 0, mejorCombo: 0 };
+  enviarMetrica({ e: 'reto', paso: 'empezar' });
+  pintarPregunta();
+}
+function compartirReto() { enviarMetrica({ e: 'compartir', que: 'reto' }); compartir(textoReto(), URL_APP + '?reto'); }
+function terminarReto() {
+  const ok = LEC.res.filter(Boolean).length, perfecto = ok === RETO_N;
+  E.reto = { fecha: hoyISO(), libro: LEC.L.id, res: LEC.res };
+  E.retos = (E.retos || 0) + 1;
+  const total = LEC.xp + 5; sumarXP(total);
+  E.talentos = (E.talentos || 0) + (perfecto ? 5 : 2); guardarE();
+  contar('lecciones'); maximo('combo', LEC.mejorCombo || 0);
+  confeti(perfecto ? 140 : 60); sonido('fin');
+  enviarMetrica({ e: 'reto', paso: 'fin', aciertos: ok });
+  APP.innerHTML = `<div class="fin">
+    <div class="big">${perfecto ? '🏆' : ok >= 3 ? '🎉' : '💪'}</div>
+    <h1 class="t">Reto de hoy: ${ok}/${RETO_N}</h1>
+    <div class="cuadros grande" aria-label="${ok} de ${RETO_N} aciertos">${cuadritos(LEC.res)}</div>
+    <p class="pie" style="opacity:1;margin:0">${perfecto ? '¡Perfecto! A ver quién te iguala.' : 'Las que fallaste quedan guardadas para repasarlas.'} Mañana hay un reto nuevo.</p>
+    <div class="cajas"><div class="caja-f"><b>+${total}</b>puntos</div><div class="caja-f"><b>🪙 ${perfecto ? 5 : 2}</b>talentos</div><div class="caja-f"><b>🔥 ${rachaViva()}</b>${rachaViva() === 1 ? 'día' : 'días'}</div></div>
+    <button class="btn grande" id="b-reto-comp">📤 Reta a tus amigos</button>
+    <button class="btn sec grande" id="b-fin">Continuar</button></div>`;
+  document.getElementById('b-reto-comp').onclick = compartirReto;
+  document.getElementById('b-fin').onclick = inicio;
+  avisarLogros(revisarLogros()); avisoHecho();
+  setTimeout(revisarMisiones, 800);
+}
+
 let CANT = 20, TIEMPO = 20, LIBRO_P = 'genesis';
 // Partida individual con el número de preguntas que elija la persona (al azar entre todo el libro)
 function practicaLibre(L, n) {
@@ -718,7 +786,7 @@ function pintarPregunta() {
   APP.dataset.vista = 'leccion';
   const q = LEC.cola[0];
   RESP = null;
-  const pct = 100 * LEC.bien / LEC.total;
+  const pct = 100 * avance() / LEC.total;
   let cuerpo = '';
   if (q.t === 'opcion' || q.t === 'completar') {
     q._ops = q._ops || barajar([q.ok, ...q.malas]);
@@ -735,7 +803,7 @@ function pintarPregunta() {
   }
   const enunciado = q.t === 'completar' ? esc(q.q).replace('___', '<span class="hueco">&nbsp;</span>') : esc(q.q);
   APP.innerHTML = `<div class="lec-top"><button class="cerrar" id="b-salir" aria-label="Salir de la lección">✕</button><div class="prog" role="progressbar" aria-label="Progreso de la lección" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div></div>
-    <div class="tipo">${LEC.fallidas.has(q.id) ? '🔁 Otra vez · ' : ''}${ETIQ[q.t]}</div>
+    <div class="tipo">${LEC.modo === 'reto' ? `🗓️ Reto de hoy · ${LEC.total - LEC.cola.length + 1} de ${LEC.total} · ` : ''}${LEC.fallidas.has(q.id) ? '🔁 Otra vez · ' : ''}${ETIQ[q.t]}</div>
     <p class="enunciado">${enunciado}</p>${cuerpo}
     <div class="pie-lec" id="pie"><div class="dentro" aria-live="polite"><button class="btn grande" id="b-comprobar" disabled>Comprobar</button></div></div>`;
   document.getElementById('b-salir').onclick = salir;
@@ -775,8 +843,10 @@ function pintarPregunta() {
     });
   }
 }
+const avance = () => LEC.modo === 'reto' ? LEC.total - LEC.cola.length : LEC.bien;
 function corregir(ok, correcta, fallosPar = 0) {
   const q = LEC.cola.shift();
+  if (LEC.modo === 'reto') LEC.res.push(!!ok);
   const primera = !LEC.fallidas.has(q.id);
   const emparejadoConFallos = q.t === 'emparejar' && fallosPar > 0;
   LEC.combo = LEC.combo || 0; LEC.mejorCombo = LEC.mejorCombo || 0;
@@ -791,13 +861,13 @@ function corregir(ok, correcta, fallosPar = 0) {
     if (emparejadoConFallos) { LEC.errores++; E.fallos[q.id] = { libro: q.libro }; }
     sonido('ok'); vibrar(20);
   } else {
-    LEC.errores++; LEC.fallidas.add(q.id); LEC.cola.push(q); E.fallos[q.id] = { libro: q.libro };
+    LEC.errores++; LEC.fallidas.add(q.id); if (LEC.modo !== 'reto') LEC.cola.push(q); E.fallos[q.id] = { libro: q.libro };
     sonido('mal'); vibrar(120);
   }
   guardarE();
   APP.querySelectorAll('.op,.ficha').forEach(b => b.disabled = true);
-  document.querySelector('.prog i').style.width = (100 * LEC.bien / LEC.total) + '%';
-  document.querySelector('.prog').setAttribute('aria-valuenow', Math.round(100 * LEC.bien / LEC.total));
+  document.querySelector('.prog i').style.width = (100 * avance() / LEC.total) + '%';
+  document.querySelector('.prog').setAttribute('aria-valuenow', Math.round(100 * avance() / LEC.total));
   const pie = document.getElementById('pie'); const bien = ok || q.t === 'emparejar';
   pie.className = 'pie-lec ' + (bien ? 'bien' : 'mal');
   const frases = ['¡Bien hecho!', '¡Correcto!', '¡Muy bien!', '¡Exacto!', '¡Eso es!'];
@@ -811,6 +881,7 @@ function corregir(ok, correcta, fallosPar = 0) {
   document.getElementById('b-seguir').focus();
 }
 function terminar() {
+  if (LEC.modo === 'reto') return terminarReto();
   const perfecta = LEC.errores === 0;
   const bonus = LEC.modo === 'leccion' ? (perfecta ? 20 : 10) : 5;
   const total = LEC.xp + bonus;
@@ -1265,6 +1336,7 @@ avisosSincronizar(); estadoParaAvisos();
 setTimeout(partidaAbierta, 600);
 libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
 var LIGA_INV = (new URLSearchParams(location.search).get('liga') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20) || null;
+var IR_RETO = new URLSearchParams(location.search).has('reto');
 var IR_GRUPO = location.hash === '#grupo'; // se lee antes de que inicio() limpie la dirección
 const lib = new URLSearchParams(location.search).get('libro');
 lib ? verLibro(lib).catch(inicio) : inicio();
