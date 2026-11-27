@@ -181,6 +181,17 @@
   .tema-txt>span{font-weight:600;font-size:.9rem;opacity:.95}.tema-txt small{font-weight:800;font-size:.8rem;opacity:.95;margin-top:.25rem}.tema-est{color:#FFE29A;letter-spacing:1px}
   .tema-flecha{font-size:1.3rem;font-weight:800;position:relative;z-index:1}
   .t-familia{--a:#B43A57;--b:#7E2440}.t-perdon{--a:#1D6E86;--b:#124B5D}.t-finanzas{--a:#1B7453;--b:#11513A}.t-matrimonio{--a:#9B4E25;--b:#6E3418}.t-evangelismo{--a:#5B3FCC;--b:#3F2A99}
+  .tema-banner{position:relative;overflow:hidden;display:flex;align-items:center;gap:1rem;border-radius:24px;padding:1.4rem 1.2rem;color:#fff;margin-top:.4rem;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 10px 28px rgba(0,0,0,.3)}
+  .tema-banner::after{content:'';position:absolute;right:-40px;bottom:-50px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08)}
+  .tema-banner .tema-ico{width:64px;height:64px;font-size:2rem}.tema-banner small{font-weight:800;font-size:.72rem;letter-spacing:1.4px;text-transform:uppercase;opacity:.9}
+  .tema-banner h1{font-size:1.8rem;line-height:1.05;margin:.1rem 0 .2rem}.tema-banner p{margin:0;font-weight:600;opacity:.95}
+  .tema-lecs{display:grid;gap:10px;margin-top:1.1rem}
+  .tema-lec{display:flex;align-items:center;gap:.9rem;width:100%;text-align:left;font:inherit;color:var(--texto);cursor:pointer;background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:.95rem 1rem}
+  .tema-lec .tl-num{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--noche3);font-family:var(--tit);font-weight:800;font-size:1.15rem}
+  .tema-lec.hecha .tl-num{background:var(--ambar);color:#1B1640}.tema-lec.sig{border-color:var(--ambar);box-shadow:0 0 0 3px rgba(242,196,107,.15)}
+  .tema-lec .tl-txt{flex:1;display:flex;flex-direction:column}.tema-lec .tl-txt b{font-family:var(--tit);font-size:1.15rem}.tema-lec small{color:var(--suave);font-weight:700}
+  .tema-lec .tema-est{color:var(--ambar)}.tema-lec .tl-accion{font-weight:800;color:var(--ambar);font-size:.92rem}
+  .tema-claro .tema-lec{border-color:#E3D6BC}.tema-claro .tema-lec .tema-est,.tema-claro .tema-lec .tl-accion{color:#8A5A00}
   .tema-claro .temas-entrada{background:radial-gradient(120% 140% at 0% 0%,rgba(242,196,107,.35) 0%,transparent 55%),linear-gradient(135deg,#2c2266,#1c1748)}
   .partida.arriba{padding:.9rem 1rem;background:linear-gradient(160deg,#25265e 0%,#1d3557 100%);border-color:#3d5c8c}
   .partida.arriba h2::before{content:'🎲 '}
@@ -785,29 +796,55 @@ function terminarReto() {
 // ===================== Aprende por temas (solo versículos de cada tema) =====================
 let TEMAS = null;
 async function temas() { if (!TEMAS) TEMAS = await fetch(BASE + 'biblia/temas.json').then(r => r.json()); return TEMAS; }
+// Progreso: E.temas['familia-0'] = { estrellas, fecha } por lección (antes era uno por tema: se pasa a la lección 1)
+function progresoTemas(T) {
+  E.temas = E.temas || {};
+  T.temas.forEach(t => { if (E.temas[t.id] && !E.temas[t.id + '-0']) { E.temas[t.id + '-0'] = E.temas[t.id]; delete E.temas[t.id]; guardarE(); } });
+  const lecT = t => t.lecciones.map((_, li) => E.temas[t.id + '-' + li]);
+  return { lecT, hechasT: t => lecT(t).filter(Boolean).length, estrellasT: t => lecT(t).reduce((a, x) => a + (x ? x.estrellas : 0), 0) };
+}
 async function verTemas() {
   APP.dataset.vista = 'temas';
-  const T = await temas(); E.temas = E.temas || {};
-  const hechos = T.temas.filter(t => E.temas[t.id]).length;
+  const T = await temas(), P = progresoTemas(T);
+  const totalLec = T.temas.reduce((a, t) => a + t.lecciones.length, 0), hechas = T.temas.reduce((a, t) => a + P.hechasT(t), 0);
   APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver al inicio">←</button>`) + `
     <div class="temas-cab"><small>Aprende por temas</small><h1 class="t">Lo que la Biblia dice sobre tu vida</h1>
-      <p class="sub">Diez preguntas por tema, solo con versículos de ese tema. Cada cita enlaza a la Reina-Valera 1960.</p>
-      <div class="temas-prog" role="progressbar" aria-label="Temas completados" aria-valuemin="0" aria-valuemax="${T.temas.length}" aria-valuenow="${hechos}"><i style="width:${100 * hechos / T.temas.length}%"></i></div>
-      <p class="pie" style="opacity:1;margin:.35rem 0 0">${hechos} de ${T.temas.length} temas completados</p></div>
-    <div class="temas-lista">${T.temas.map(t => { const h = E.temas[t.id]; return `
+      <p class="sub">Tres lecciones por tema, solo con versículos de ese tema. Cada cita enlaza a la Reina-Valera 1960.</p>
+      <div class="temas-prog" role="progressbar" aria-label="Lecciones de temas completadas" aria-valuemin="0" aria-valuemax="${totalLec}" aria-valuenow="${hechas}"><i style="width:${100 * hechas / totalLec}%"></i></div>
+      <p class="pie" style="opacity:1;margin:.35rem 0 0">${hechas} de ${totalLec} lecciones completadas</p></div>
+    <div class="temas-lista">${T.temas.map(t => { const h = P.hechasT(t), n = t.lecciones.length, todo = h === n; return `
       <button class="tema t-${t.id}" data-tema="${t.id}">
         <span class="tema-ico" aria-hidden="true">${t.icono}</span>
         <span class="tema-txt"><b>${esc(t.nombre)}</b><span>${esc(t.desc)}</span>
-          <small>${h ? `<span class="tema-est">${'★'.repeat(h.estrellas)}${'☆'.repeat(3 - h.estrellas)}</span> · Repetir` : `${t.preguntas.length} preguntas · Empezar`}</small></span>
-        <span class="tema-flecha" aria-hidden="true">${h ? '✓' : '→'}</span>
+          <small>${h ? `${h} de ${n} lecciones · <span class="tema-est">★ ${P.estrellasT(t)}/${n * 3}</span>` : `${n} lecciones · ${n * 10} preguntas`}</small></span>
+        <span class="tema-flecha" aria-hidden="true">${todo ? '✓' : '→'}</span>
       </button>`; }).join('')}</div>`;
   document.getElementById('b-atras').onclick = inicio;
-  APP.querySelectorAll('[data-tema]').forEach(b => b.onclick = () => empezarTema(T.temas.find(t => t.id === b.dataset.tema)));
+  APP.querySelectorAll('[data-tema]').forEach(b => b.onclick = () => verTema(b.dataset.tema));
   scrollTo(0, 0);
 }
-function empezarTema(t) {
-  LEC = { L: null, tema: t, cola: t.preguntas.map(q => ({ ...q })), total: t.preguntas.length, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'tema', combo: 0, mejorCombo: 0 };
-  enviarMetrica({ e: 'tema', id: t.id });
+async function verTema(id) {
+  APP.dataset.vista = 'temas';
+  const T = await temas(), P = progresoTemas(T), t = T.temas.find(x => x.id === id);
+  if (!t) return verTemas();
+  const sig = t.lecciones.findIndex((_, li) => !E.temas[t.id + '-' + li]);
+  APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver a los temas">←</button>`) + `
+    <div class="tema-banner t-${t.id}"><span class="tema-ico" aria-hidden="true">${t.icono}</span>
+      <div><small>Tema</small><h1>${esc(t.nombre)}</h1><p>${esc(t.desc)}</p></div></div>
+    <div class="tema-lecs">${t.lecciones.map((l, li) => { const h = E.temas[t.id + '-' + li]; return `
+      <button class="tema-lec${h ? ' hecha' : ''}${li === sig ? ' sig' : ''}" data-li="${li}">
+        <span class="tl-num" aria-hidden="true">${h ? '✓' : li + 1}</span>
+        <span class="tl-txt"><b>${esc(l.titulo)}</b><small>${l.preguntas.length} preguntas${h ? ` · <span class="tema-est">${'★'.repeat(h.estrellas)}${'☆'.repeat(3 - h.estrellas)}</span>` : ''}</small></span>
+        <span class="tl-accion">${h ? 'Repetir' : li === sig ? 'Empezar' : 'Jugar'}</span>
+      </button>`; }).join('')}</div>`;
+  document.getElementById('b-atras').onclick = verTemas;
+  APP.querySelectorAll('.tema-lec').forEach(b => b.onclick = () => empezarTema(t, +b.dataset.li));
+  scrollTo(0, 0);
+}
+function empezarTema(t, li = 0) {
+  const l = t.lecciones[li];
+  LEC = { L: null, tema: t, temaLi: li, cola: l.preguntas.map(q => ({ ...q })), total: l.preguntas.length, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'tema', combo: 0, mejorCombo: 0 };
+  enviarMetrica({ e: 'tema', id: t.id, leccion: li });
   pintarPregunta();
 }
 
@@ -855,7 +892,7 @@ function pintarPregunta() {
   }
   const enunciado = q.t === 'completar' ? esc(q.q).replace('___', '<span class="hueco">&nbsp;</span>') : esc(q.q);
   APP.innerHTML = `<div class="lec-top"><button class="cerrar" id="b-salir" aria-label="Salir de la lección">✕</button><div class="prog" role="progressbar" aria-label="Progreso de la lección" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div></div>
-    <div class="tipo">${LEC.modo === 'reto' ? `🗓️ Reto de hoy · ${LEC.total - LEC.cola.length + 1} de ${LEC.total} · ` : LEC.modo === 'tema' ? `${LEC.tema.icono} ${esc(LEC.tema.nombre)} · ` : ''}${LEC.fallidas.has(q.id) ? '🔁 Otra vez · ' : ''}${ETIQ[q.t]}</div>
+    <div class="tipo">${LEC.modo === 'reto' ? `🗓️ Reto de hoy · ${LEC.total - LEC.cola.length + 1} de ${LEC.total} · ` : LEC.modo === 'tema' ? `${LEC.tema.icono} ${esc(LEC.tema.nombre)} · ${esc(LEC.tema.lecciones[LEC.temaLi].titulo)} · ` : ''}${LEC.fallidas.has(q.id) ? '🔁 Otra vez · ' : ''}${ETIQ[q.t]}</div>
     <p class="enunciado">${enunciado}</p>${cuerpo}
     <div class="pie-lec" id="pie"><div class="dentro" aria-live="polite"><button class="btn grande" id="b-comprobar" disabled>Comprobar</button></div></div>`;
   document.getElementById('b-salir').onclick = salir;
@@ -942,8 +979,8 @@ function terminar() {
   let estrellas = 0;
   if (LEC.modo === 'tema') {
     estrellas = perfecta ? 3 : LEC.errores <= 2 ? 2 : 1;
-    E.temas = E.temas || {}; const prev = E.temas[LEC.tema.id];
-    E.temas[LEC.tema.id] = { estrellas: Math.max(estrellas, prev ? prev.estrellas : 0), fecha: hoyISO() };
+    E.temas = E.temas || {}; const kt = LEC.tema.id + '-' + LEC.temaLi, prev = E.temas[kt];
+    E.temas[kt] = { estrellas: Math.max(estrellas, prev ? prev.estrellas : 0), fecha: hoyISO() };
     guardarE();
   }
   if (LEC.modo === 'leccion') {
@@ -966,7 +1003,7 @@ function terminar() {
   const tu = AJ.nombre ? `, ${esc(AJ.nombre)}` : '';
   APP.innerHTML = `<div class="fin">
     <div class="big">${perfecta ? '🏆' : '🎉'}</div>
-    <h1 class="t">${LEC.modo === 'tema' ? (perfecta ? '¡Tema perfecto' : '¡Tema completado') : LEC.libre ? '¡Partida completada' : LEC.modo === 'repaso' ? '¡Repaso completado' : perfecta ? '¡Lección perfecta' : '¡Lección completada'}${tu}!</h1>
+    <h1 class="t">${LEC.modo === 'tema' ? (perfecta ? '¡Lección perfecta' : '¡Lección completada') : LEC.libre ? '¡Partida completada' : LEC.modo === 'repaso' ? '¡Repaso completado' : perfecta ? '¡Lección perfecta' : '¡Lección completada'}${tu}!</h1>
     ${estrellas ? `<div style="font-size:2rem;color:var(--ambar);letter-spacing:4px">${'★'.repeat(estrellas)}${'☆'.repeat(3 - estrellas)}</div>` : ''}
     <div class="cajas"><div class="caja-f"><b>+${total}</b>puntos</div><div class="caja-f"><b>${precision}%</b>aciertos</div><div class="caja-f"><b>🔥 ${rachaViva()}</b>${rachaViva() === 1 ? 'día' : 'días'}</div></div>
     ${subioRacha ? `<p style="margin:0;font-weight:800;color:#FF9A4D">${rachaViva() === 1 ? '¡Empiezas tu racha! Vuelve mañana para seguir.' : '¡Tu racha sigue viva!'}</p>` : ''}
@@ -990,7 +1027,7 @@ function terminar() {
   }
   avisarLogros(nuevosLogros);
   setTimeout(revisarMisiones, 800);
-  document.getElementById('b-fin').onclick = () => LEC.modo === 'tema' ? verTemas() : LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
+  document.getElementById('b-fin').onclick = () => LEC.modo === 'tema' ? verTema(LEC.tema.id) : LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
 }
 // ===================== Avisos (notificaciones push) =====================
 // El servidor manda un aviso a la hora elegida si hoy aún no has hecho tu lección; el texto lo pone el service worker con tu racha.
@@ -1383,7 +1420,7 @@ function salir() {
   v.querySelector('#b-quedar').onclick = () => v.remove();
   v.querySelector('#b-irse').onclick = () => { v.remove(); volver(); };
 }
-function volver() { if (LEC && LEC.modo === 'tema') { LEC = null; return verTemas(); } const id = LEC && (LEC.L ? LEC.L.id : LEC.vuelta); LEC = null; id ? verLibro(id) : inicio(); }
+function volver() { if (LEC && LEC.modo === 'tema') { const id = LEC.tema.id; LEC = null; return verTema(id); } const id = LEC && (LEC.L ? LEC.L.id : LEC.vuelta); LEC = null; id ? verLibro(id) : inicio(); }
 
 // ===================== Arranque =====================
 const salvados = aplicarProtectores();
