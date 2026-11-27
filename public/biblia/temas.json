@@ -1952,6 +1952,1944 @@
      ]
     }
    ]
+  },
+  {
+   "id": "oracion",
+   "nombre": "Oración",
+   "icono": "🙏",
+   "desc": "Hablar con Dios cada día",
+   "lecciones": [
+    {
+     "titulo": "Lo básico",
+     "preguntas": [
+      {
+       "t": "opcion",
+       "q": "¿Qué pidió uno de sus discípulos a Jesús en Lucas 11?",
+       "ok": "Señor, enséñanos a orar",
+       "malas": [
+        "Señor, auméntanos la fe",
+        "Señor, muéstranos el Padre",
+        "Señor, ¿quién es el mayor?"
+       ],
+       "ref": "Lucas 11:1",
+       "id": "tema-oracion-1",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Orad sin ___»",
+       "ok": "cesar",
+       "malas": [
+        "miedo",
+        "palabras",
+        "dudar"
+       ],
+       "ref": "1 Tesalonicenses 5:17",
+       "exp": "No es estar todo el día de rodillas, sino vivir en conversación con Dios.",
+       "id": "tema-oracion-2",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Mateo 6:6, ¿dónde dice Jesús que oremos?",
+       "ok": "En tu aposento, con la puerta cerrada",
+       "malas": [
+        "En las esquinas de las calles",
+        "Solo en el templo",
+        "En voz alta ante todos"
+       ],
+       "ref": "Mateo 6:6",
+       "id": "tema-oracion-3",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Jesús enseñó que al orar no usemos vanas repeticiones, como los gentiles.",
+       "v": true,
+       "ref": "Mateo 6:7",
+       "id": "tema-oracion-4",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Con qué palabras empieza el Padrenuestro?",
+       "ok": "Padre nuestro que estás en los cielos",
+       "malas": [
+        "Señor, Dios de Israel",
+        "Bendito sea el Señor",
+        "Oh Dios, tú eres mi Dios"
+       ],
+       "ref": "Mateo 6:9",
+       "id": "tema-oracion-5",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Filipenses 4:6, ¿cómo deben ser conocidas nuestras peticiones delante de Dios?",
+       "ok": "En toda oración y ruego, con acción de gracias",
+       "malas": [
+        "Con ayuno y cilicio",
+        "Por medio de los sacerdotes",
+        "Solo en el día de reposo"
+       ],
+       "ref": "Filipenses 4:6",
+       "id": "tema-oracion-6",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Pedid, y se os ___; buscad, y hallaréis; llamad, y se os abrirá»",
+       "ok": "dará",
+       "malas": [
+        "negará",
+        "oirá",
+        "juzgará"
+       ],
+       "ref": "Mateo 7:7",
+       "id": "tema-oracion-7",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Santiago dice que la oración eficaz del justo puede mucho.",
+       "v": true,
+       "ref": "Santiago 5:16",
+       "id": "tema-oracion-8",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Dónde oró Jesús la noche antes de su crucifixión?",
+       "ok": "En Getsemaní",
+       "malas": [
+        "En el monte Sinaí",
+        "En el templo",
+        "En Betania"
+       ],
+       "ref": "Mateo 26:36",
+       "id": "tema-oracion-9",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué oró Jesús en Getsemaní?",
+       "ok": "No sea como yo quiero, sino como tú",
+       "malas": [
+        "Líbrame de mis enemigos",
+        "Dame una señal del cielo",
+        "Bendice a mis discípulos"
+       ],
+       "ref": "Mateo 26:39",
+       "exp": "La oración también es rendir nuestra voluntad a la de Dios.",
+       "id": "tema-oracion-10",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Profundiza",
+     "preguntas": [
+      {
+       "t": "opcion",
+       "q": "¿Cuántas veces al día oraba Daniel de rodillas?",
+       "ok": "Tres",
+       "malas": [
+        "Una",
+        "Siete",
+        "Dos"
+       ],
+       "ref": "Daniel 6:10",
+       "id": "tema-oracion-11",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué le pasó a Daniel por seguir orando a pesar del decreto del rey?",
+       "ok": "Lo echaron en el foso de los leones",
+       "malas": [
+        "Lo echaron en un horno de fuego",
+        "Lo desterraron a Egipto",
+        "Lo encerraron en una cisterna"
+       ],
+       "ref": "Daniel 6:16",
+       "exp": "El horno de fuego fue para sus amigos Sadrac, Mesac y Abed-nego.",
+       "id": "tema-oracion-12",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué pidió Salomón cuando Dios le dijo «Pide lo que quieras que yo te dé»?",
+       "ok": "Un corazón entendido para juzgar al pueblo",
+       "malas": [
+        "Riquezas y gloria",
+        "La vida de sus enemigos",
+        "Muchos años de vida"
+       ],
+       "ref": "1 Reyes 3:5-9",
+       "id": "tema-oracion-13",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Elías oró para que no lloviese, y no llovió sobre la tierra durante tres años y seis meses.",
+       "v": true,
+       "ref": "Santiago 5:17",
+       "id": "tema-oracion-14",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué pasó cuando Elías oró en el monte Carmelo?",
+       "ok": "Descendió fuego de Jehová y consumió el holocausto",
+       "malas": [
+        "Se abrió el mar",
+        "Cayó maná del cielo",
+        "Se derrumbaron unas murallas"
+       ],
+       "ref": "1 Reyes 18:36-38",
+       "id": "tema-oracion-15",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué hacía la iglesia mientras Pedro estaba en la cárcel?",
+       "ok": "Hacía sin cesar oración a Dios por él",
+       "malas": [
+        "Preparaba su huida",
+        "Pedía su libertad al rey",
+        "Se escondía en las casas"
+       ],
+       "ref": "Hechos 12:5",
+       "id": "tema-oracion-16",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué hacían Pablo y Silas a medianoche en la cárcel de Filipos?",
+       "ok": "Oraban y cantaban himnos a Dios",
+       "malas": [
+        "Dormían",
+        "Planeaban escapar",
+        "Discutían con el carcelero"
+       ],
+       "ref": "Hechos 16:25",
+       "id": "tema-oracion-17",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Marcos 1:35, ¿cuándo se levantó Jesús a orar?",
+       "ok": "Muy de mañana, siendo aún muy oscuro",
+       "malas": [
+        "Al mediodía",
+        "Después de cenar",
+        "Solo los sábados"
+       ],
+       "ref": "Marcos 1:35",
+       "id": "tema-oracion-18",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Ana oraba en su corazón en el templo: sus labios se movían, pero no se oía su voz.",
+       "v": true,
+       "ref": "1 Samuel 1:13",
+       "id": "tema-oracion-19",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "En la parábola del fariseo y el publicano, ¿qué oró el publicano?",
+       "ok": "Dios, sé propicio a mí, pecador",
+       "malas": [
+        "Te doy gracias porque no soy como los otros hombres",
+        "Señor, dame lo que merezco",
+        "Señor, bendice mis negocios"
+       ],
+       "ref": "Lucas 18:13",
+       "exp": "La otra frase la dijo el fariseo; Jesús dice que el publicano volvió justificado.",
+       "id": "tema-oracion-20",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Ponlo en práctica",
+     "preguntas": [
+      {
+       "t": "completar",
+       "q": "«Echando toda vuestra ___ sobre él, porque él tiene cuidado de vosotros»",
+       "ok": "ansiedad",
+       "malas": [
+        "culpa",
+        "fe",
+        "alegría"
+       ],
+       "ref": "1 Pedro 5:7",
+       "id": "tema-oracion-21",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 1 Juan 5:14, ¿qué confianza tenemos al pedir?",
+       "ok": "Que si pedimos conforme a su voluntad, él nos oye",
+       "malas": [
+        "Que todo lo que pidamos se cumplirá al instante",
+        "Que basta con usar muchas palabras",
+        "Que Dios responde solo a los sacerdotes"
+       ],
+       "ref": "1 Juan 5:14",
+       "id": "tema-oracion-22",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Jesús contó una parábola para enseñar que es necesario orar siempre y no desmayar.",
+       "v": true,
+       "ref": "Lucas 18:1",
+       "id": "tema-oracion-23",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué promete Jesús donde están dos o tres congregados en su nombre?",
+       "ok": "Allí estoy yo en medio de ellos",
+       "malas": [
+        "Recibirán todo lo que pidan",
+        "Tendrán un templo",
+        "Nunca tendrán problemas"
+       ],
+       "ref": "Mateo 18:20",
+       "id": "tema-oracion-24",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Romanos 8:26, ¿quién nos ayuda cuando no sabemos qué pedir?",
+       "ok": "El Espíritu, que intercede por nosotros",
+       "malas": [
+        "Los ángeles",
+        "Los profetas",
+        "Los ancianos de la iglesia"
+       ],
+       "ref": "Romanos 8:26",
+       "id": "tema-oracion-25",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Velad y orad, para que no entréis en ___»",
+       "ok": "tentación",
+       "malas": [
+        "tristeza",
+        "peligro",
+        "guerra"
+       ],
+       "ref": "Mateo 26:41",
+       "id": "tema-oracion-26",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Santiago 1:5, si a alguno le falta sabiduría…",
+       "ok": "Pídala a Dios, el cual da a todos abundantemente",
+       "malas": [
+        "Que estudie la ley día y noche",
+        "Que consulte a los ancianos",
+        "Que espere a ser mayor"
+       ],
+       "ref": "Santiago 1:5",
+       "id": "tema-oracion-27",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Pablo exhorta a orar por los reyes y por todos los que están en eminencia.",
+       "v": true,
+       "ref": "1 Timoteo 2:1-2",
+       "id": "tema-oracion-28",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Jeremías 33:3, ¿qué promete Dios al que clama a él?",
+       "ok": "Que le responderá y le enseñará cosas grandes y ocultas",
+       "malas": [
+        "Que le dará riquezas",
+        "Que le librará de todo trabajo",
+        "Que le hará rey"
+       ],
+       "ref": "Jeremías 33:3",
+       "id": "tema-oracion-29",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según el Salmo 145, ¿a quiénes está cercano Jehová?",
+       "ok": "A todos los que le invocan de veras",
+       "malas": [
+        "Solo a los sacerdotes",
+        "A los que ofrecen sacrificios",
+        "A los sabios"
+       ],
+       "ref": "Salmos 145:18",
+       "id": "tema-oracion-30",
+       "libro": "temas"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "fe",
+   "nombre": "Fe",
+   "icono": "⛰️",
+   "desc": "Confiar en Dios aunque no se vea",
+   "lecciones": [
+    {
+     "titulo": "Lo básico",
+     "preguntas": [
+      {
+       "t": "opcion",
+       "q": "Según Hebreos 11:1, ¿qué es la fe?",
+       "ok": "La certeza de lo que se espera, la convicción de lo que no se ve",
+       "malas": [
+        "Un sentimiento de paz",
+        "Saberse toda la ley",
+        "Hacer muchas buenas obras"
+       ],
+       "ref": "Hebreos 11:1",
+       "id": "tema-fe-1",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Pero sin ___ es imposible agradar a Dios»",
+       "ok": "fe",
+       "malas": [
+        "obras",
+        "ofrendas",
+        "templo"
+       ],
+       "ref": "Hebreos 11:6",
+       "id": "tema-fe-2",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Romanos 10:17, ¿de dónde viene la fe?",
+       "ok": "Del oír, y el oír, por la palabra de Dios",
+       "malas": [
+        "De ver milagros",
+        "De los sueños",
+        "De la sabiduría humana"
+       ],
+       "ref": "Romanos 10:17",
+       "id": "tema-fe-3",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Con qué comparó Jesús la fe capaz de mover montes?",
+       "ok": "Con un grano de mostaza",
+       "malas": [
+        "Con un cedro",
+        "Con una perla",
+        "Con una lámpara"
+       ],
+       "ref": "Mateo 17:20",
+       "exp": "Una fe pequeña en un Dios grande hace cosas grandes.",
+       "id": "tema-fe-4",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Efesios dice que somos salvos por gracia, por medio de la fe, y que esto no es de nosotros, pues es don de Dios.",
+       "v": true,
+       "ref": "Efesios 2:8",
+       "id": "tema-fe-5",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Santiago 2:17, ¿cómo es la fe si no tiene obras?",
+       "ok": "Muerta",
+       "malas": [
+        "Pequeña",
+        "Secreta",
+        "Perfecta"
+       ],
+       "ref": "Santiago 2:17",
+       "id": "tema-fe-6",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué le dijo Jesús a Tomás cuando por fin creyó?",
+       "ok": "Bienaventurados los que no vieron, y creyeron",
+       "malas": [
+        "Hombre de poca fe, ¿por qué dudaste?",
+        "Tu fe te ha salvado",
+        "Vete, y no peques más"
+       ],
+       "ref": "Juan 20:29",
+       "id": "tema-fe-7",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Mas el justo por la ___ vivirá»",
+       "ok": "fe",
+       "malas": [
+        "ley",
+        "espada",
+        "sabiduría"
+       ],
+       "ref": "Romanos 1:17",
+       "id": "tema-fe-8",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 2 Corintios 5:7, ¿cómo andamos?",
+       "ok": "Por fe, no por vista",
+       "malas": [
+        "Por la ley, no por gracia",
+        "Por fuerza, no por fe",
+        "Por sueños, no por palabras"
+       ],
+       "ref": "2 Corintios 5:7",
+       "id": "tema-fe-9",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Jesús dijo a la mujer que tocó su manto: «Hija, tu fe te ha hecho salva».",
+       "v": true,
+       "ref": "Marcos 5:34",
+       "id": "tema-fe-10",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Profundiza",
+     "preguntas": [
+      {
+       "t": "opcion",
+       "q": "¿Qué hizo Abraham por la fe, según Hebreos 11:8?",
+       "ok": "Obedeció y salió sin saber a dónde iba",
+       "malas": [
+        "Construyó un templo",
+        "Escribió la ley",
+        "Conquistó Jericó"
+       ],
+       "ref": "Hebreos 11:8",
+       "id": "tema-fe-11",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué preparó Noé por la fe?",
+       "ok": "El arca",
+       "malas": [
+        "Una torre",
+        "Un altar de oro",
+        "Una ciudad"
+       ],
+       "ref": "Hebreos 11:7",
+       "id": "tema-fe-12",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué le pasó a Pedro al ver el fuerte viento mientras caminaba sobre el agua?",
+       "ok": "Tuvo miedo y comenzó a hundirse",
+       "malas": [
+        "Siguió caminando sin mirar",
+        "Volvió nadando a la barca",
+        "Calmó el viento"
+       ],
+       "ref": "Mateo 14:30",
+       "exp": "Jesús extendió la mano y le sostuvo.",
+       "id": "tema-fe-13",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "El centurión le dijo a Jesús que bastaba con que dijera la palabra, y su criado sanaría.",
+       "v": true,
+       "ref": "Mateo 8:8",
+       "id": "tema-fe-14",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué dijo Jesús de la fe del centurión?",
+       "ok": "Ni aun en Israel he hallado tanta fe",
+       "malas": [
+        "Tu fe es demasiado pequeña",
+        "Vuelve cuando creas más",
+        "Tu fe no basta"
+       ],
+       "ref": "Mateo 8:10",
+       "id": "tema-fe-15",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué respondieron Sadrac, Mesac y Abed-nego al rey antes del horno de fuego?",
+       "ok": "Que su Dios podía librarlos, y que aunque no lo hiciera, no servirían a sus dioses",
+       "malas": [
+        "Que harían lo que el rey mandara",
+        "Que necesitaban tiempo para pensarlo",
+        "Que su Dios los castigaría"
+       ],
+       "ref": "Daniel 3:17-18",
+       "id": "tema-fe-16",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué hicieron los amigos del paralítico para acercarlo a Jesús?",
+       "ok": "Abrieron el techo y lo bajaron en su lecho",
+       "malas": [
+        "Lo dejaron en la puerta",
+        "Pagaron a unos guardias",
+        "Esperaron toda la noche"
+       ],
+       "ref": "Marcos 2:3-5",
+       "exp": "Jesús vio la fe de ellos.",
+       "id": "tema-fe-17",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Hebreos 11 menciona a Rahab entre los que actuaron por la fe.",
+       "v": true,
+       "ref": "Hebreos 11:31",
+       "id": "tema-fe-18",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué clamó el padre del muchacho que Jesús sanó en Marcos 9?",
+       "ok": "Creo; ayuda mi incredulidad",
+       "malas": [
+        "Señor, no soy digno",
+        "Sálvanos, que perecemos",
+        "Ten misericordia de mí"
+       ],
+       "ref": "Marcos 9:24",
+       "exp": "Una fe sincera también puede tener dudas: él las llevó a Jesús.",
+       "id": "tema-fe-19",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Por la fe, ¿qué pasó con los muros de Jericó?",
+       "ok": "Cayeron después de rodearlos siete días",
+       "malas": [
+        "Fueron quemados",
+        "Sus puertas se abrieron solas",
+        "Los derribó un ejército extranjero"
+       ],
+       "ref": "Hebreos 11:30",
+       "id": "tema-fe-20",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Ponlo en práctica",
+     "preguntas": [
+      {
+       "t": "completar",
+       "q": "«Fíate de Jehová de todo tu ___, y no te apoyes en tu propia prudencia»",
+       "ok": "corazón",
+       "malas": [
+        "poder",
+        "pueblo",
+        "dinero"
+       ],
+       "ref": "Proverbios 3:5",
+       "id": "tema-fe-21",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Hebreos 12:2, ¿en quién debemos poner los ojos?",
+       "ok": "En Jesús, el autor y consumador de la fe",
+       "malas": [
+        "En los ángeles",
+        "En los grandes profetas",
+        "En nuestros propios logros"
+       ],
+       "ref": "Hebreos 12:2",
+       "id": "tema-fe-22",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Pablo escribió al final de su vida: «He peleado la buena batalla, he acabado la carrera, he guardado la fe».",
+       "v": true,
+       "ref": "2 Timoteo 4:7",
+       "id": "tema-fe-23",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Santiago 1:6, ¿cómo debemos pedir a Dios?",
+       "ok": "Con fe, no dudando nada",
+       "malas": [
+        "Con muchas palabras",
+        "En voz alta",
+        "Una sola vez"
+       ],
+       "ref": "Santiago 1:6",
+       "id": "tema-fe-24",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Marcos 11:24, todo lo que pidiereis orando…",
+       "ok": "Creed que lo recibiréis, y os vendrá",
+       "malas": [
+        "Esperad años para recibirlo",
+        "Pagadlo con una ofrenda",
+        "Pedidlo tres veces"
+       ],
+       "ref": "Marcos 11:24",
+       "id": "tema-fe-25",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Todo lo puedo en ___ que me fortalece»",
+       "ok": "Cristo",
+       "malas": [
+        "mi fuerza",
+        "la ley",
+        "el templo"
+       ],
+       "ref": "Filipenses 4:13",
+       "id": "tema-fe-26",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Romanos 8:28, ¿qué sabemos que ocurre a los que aman a Dios?",
+       "ok": "Que todas las cosas les ayudan a bien",
+       "malas": [
+        "Que nunca sufren",
+        "Que siempre prosperan",
+        "Que nunca se equivocan"
+       ],
+       "ref": "Romanos 8:28",
+       "id": "tema-fe-27",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Pedro compara la prueba de la fe con el oro, que se prueba con fuego.",
+       "v": true,
+       "ref": "1 Pedro 1:7",
+       "id": "tema-fe-28",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Isaías 40:31, ¿qué tendrán los que esperan a Jehová?",
+       "ok": "Nuevas fuerzas: levantarán alas como las águilas",
+       "malas": [
+        "Riquezas sin medida",
+        "Una larga descendencia",
+        "Victoria sobre todos sus enemigos"
+       ],
+       "ref": "Isaías 40:31",
+       "id": "tema-fe-29",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 1 Juan 5:4, ¿cuál es la victoria que vence al mundo?",
+       "ok": "Nuestra fe",
+       "malas": [
+        "Nuestra fuerza",
+        "Nuestra sabiduría",
+        "Nuestra riqueza"
+       ],
+       "ref": "1 Juan 5:4",
+       "id": "tema-fe-30",
+       "libro": "temas"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ansiedad",
+   "nombre": "Ansiedad",
+   "icono": "🌿",
+   "desc": "Paz cuando todo se mueve",
+   "lecciones": [
+    {
+     "titulo": "Lo básico",
+     "preguntas": [
+      {
+       "t": "completar",
+       "q": "«Por nada estéis ___, sino sean conocidas vuestras peticiones delante de Dios»",
+       "ok": "afanosos",
+       "malas": [
+        "tristes",
+        "solos",
+        "callados"
+       ],
+       "ref": "Filipenses 4:6",
+       "exp": "Llevar la preocupación a Dios no quita pedir ayuda: si la ansiedad te supera, habla también con alguien de confianza o con un profesional.",
+       "id": "tema-ansiedad-1",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Filipenses 4:7, ¿qué guardará nuestros corazones?",
+       "ok": "La paz de Dios, que sobrepasa todo entendimiento",
+       "malas": [
+        "Nuestra propia fuerza",
+        "El conocimiento de la ley",
+        "El silencio"
+       ],
+       "ref": "Filipenses 4:7",
+       "id": "tema-ansiedad-2",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué dijo Jesús sobre el día de mañana?",
+       "ok": "No os afanéis por el día de mañana, porque el día de mañana traerá su afán",
+       "malas": [
+        "Preparadlo todo para mañana",
+        "Mañana será siempre mejor que hoy",
+        "El mañana es de los sabios"
+       ],
+       "ref": "Mateo 6:34",
+       "id": "tema-ansiedad-3",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Jesús invitó: «Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar».",
+       "v": true,
+       "ref": "Mateo 11:28",
+       "id": "tema-ansiedad-4",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué dijo Jesús de las aves del cielo?",
+       "ok": "Que no siembran ni siegan, y el Padre celestial las alimenta",
+       "malas": [
+        "Que son más sabias que los hombres",
+        "Que nunca tienen miedo",
+        "Que vuelan hacia el templo"
+       ],
+       "ref": "Mateo 6:26",
+       "exp": "Y añadió: ¿no valéis vosotros mucho más que ellas?",
+       "id": "tema-ansiedad-5",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«La paz os dejo, mi paz os ___»",
+       "ok": "doy",
+       "malas": [
+        "pido",
+        "debo",
+        "guardo"
+       ],
+       "ref": "Juan 14:27",
+       "id": "tema-ansiedad-6",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "En Juan 14:27, ¿qué dice Jesús después de dar su paz?",
+       "ok": "No se turbe vuestro corazón, ni tenga miedo",
+       "malas": [
+        "Id y predicad a todos",
+        "Guardad mis mandamientos",
+        "Esperad en Jerusalén"
+       ],
+       "ref": "Juan 14:27",
+       "id": "tema-ansiedad-7",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "El Salmo 23 empieza: «Jehová es mi pastor; nada me faltará».",
+       "v": true,
+       "ref": "Salmos 23:1",
+       "id": "tema-ansiedad-8",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Isaías 41:10, ¿por qué no debemos temer?",
+       "ok": "Porque Dios está con nosotros",
+       "malas": [
+        "Porque nunca nos pasará nada malo",
+        "Porque somos muy fuertes",
+        "Porque nuestros enemigos son débiles"
+       ],
+       "ref": "Isaías 41:10",
+       "id": "tema-ansiedad-9",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 2 Timoteo 1:7, ¿qué espíritu NO nos ha dado Dios?",
+       "ok": "Espíritu de cobardía",
+       "malas": [
+        "Espíritu de poder",
+        "Espíritu de amor",
+        "Espíritu de dominio propio"
+       ],
+       "ref": "2 Timoteo 1:7",
+       "exp": "Nos ha dado espíritu de poder, de amor y de dominio propio.",
+       "id": "tema-ansiedad-10",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Profundiza",
+     "preguntas": [
+      {
+       "t": "opcion",
+       "q": "¿Qué hacía Jesús mientras la tempestad golpeaba la barca?",
+       "ok": "Dormía sobre un cabezal en la popa",
+       "malas": [
+        "Remaba con los discípulos",
+        "Oraba en la orilla",
+        "Pescaba"
+       ],
+       "ref": "Marcos 4:37-38",
+       "id": "tema-ansiedad-11",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué dijo Jesús al viento y al mar?",
+       "ok": "Calla, enmudece",
+       "malas": [
+        "Apártate de nosotros",
+        "Sed fuertes",
+        "Volved a vuestro lugar"
+       ],
+       "ref": "Marcos 4:39",
+       "exp": "Y se hizo grande bonanza.",
+       "id": "tema-ansiedad-12",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Elías, agotado tras huir, se durmió bajo un enebro, y un ángel lo despertó con pan y agua.",
+       "v": true,
+       "ref": "1 Reyes 19:5-6",
+       "exp": "Antes de hablarle, Dios le dio descanso y comida.",
+       "id": "tema-ansiedad-13",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué le dijo Jesús a Marta, preocupada con muchos quehaceres?",
+       "ok": "Afanada y turbada estás con muchas cosas, pero solo una cosa es necesaria",
+       "malas": [
+        "Termina primero tu trabajo",
+        "Llama a María para que te ayude",
+        "No es momento de hablar"
+       ],
+       "ref": "Lucas 10:41-42",
+       "id": "tema-ansiedad-14",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué parte eligió María, según Jesús?",
+       "ok": "La buena parte: sentarse a escuchar su palabra",
+       "malas": [
+        "Preparar la comida",
+        "Lavar los pies de los invitados",
+        "Ir a la sinagoga"
+       ],
+       "ref": "Lucas 10:39-42",
+       "id": "tema-ansiedad-15",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué hizo David en Siclag cuando el pueblo hablaba de apedrearlo?",
+       "ok": "Se fortaleció en Jehová su Dios",
+       "malas": [
+        "Huyó al desierto",
+        "Se escondió en una cueva",
+        "Pidió ayuda a los filisteos"
+       ],
+       "ref": "1 Samuel 30:6",
+       "id": "tema-ansiedad-16",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "En Getsemaní, Jesús dijo a sus discípulos: «Mi alma está muy triste».",
+       "v": true,
+       "ref": "Mateo 26:38",
+       "exp": "Jesús conoce la angustia por dentro, y la llevó a la oración.",
+       "id": "tema-ansiedad-17",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué le dijo Dios a Josué al entrar en la tierra prometida?",
+       "ok": "Esfuérzate y sé valiente; no temas ni desmayes",
+       "malas": [
+        "Espera a estar preparado",
+        "Envía primero a los sacerdotes",
+        "Vuelve atrás si tienes miedo"
+       ],
+       "ref": "Josué 1:9",
+       "exp": "Porque Jehová tu Dios estará contigo dondequiera que vayas.",
+       "id": "tema-ansiedad-18",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué se pregunta el salmista en el Salmo 42?",
+       "ok": "¿Por qué te abates, oh alma mía?",
+       "malas": [
+        "¿Hasta cuándo, Señor?",
+        "¿Quién subirá al monte de Jehová?",
+        "¿Qué es el hombre?"
+       ],
+       "ref": "Salmos 42:5",
+       "id": "tema-ansiedad-19",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "En el Salmo 42, ¿qué se dice el salmista a sí mismo?",
+       "ok": "Espera en Dios; porque aún he de alabarle",
+       "malas": [
+        "Olvida tu dolor",
+        "Huye lejos",
+        "Calla y no pienses"
+       ],
+       "ref": "Salmos 42:5",
+       "id": "tema-ansiedad-20",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Ponlo en práctica",
+     "preguntas": [
+      {
+       "t": "completar",
+       "q": "«Echa sobre Jehová tu ___, y él te sustentará»",
+       "ok": "carga",
+       "malas": [
+        "pecado",
+        "ofrenda",
+        "nombre"
+       ],
+       "ref": "Salmos 55:22",
+       "id": "tema-ansiedad-21",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Proverbios 12:25, ¿qué hace la congoja en el corazón del hombre?",
+       "ok": "Lo abate; mas la buena palabra lo alegra",
+       "malas": [
+        "Lo hace sabio",
+        "Lo hace fuerte",
+        "Lo hace rico"
+       ],
+       "ref": "Proverbios 12:25",
+       "exp": "Una buena palabra a tiempo puede levantar a alguien.",
+       "id": "tema-ansiedad-22",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Isaías dice que Dios guardará en completa paz a aquel cuyo pensamiento en él persevera.",
+       "v": true,
+       "ref": "Isaías 26:3",
+       "id": "tema-ansiedad-23",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Filipenses 4:8, ¿en qué debemos pensar?",
+       "ok": "En todo lo verdadero, honesto, justo, puro y amable",
+       "malas": [
+        "En los errores del pasado",
+        "En lo que piensan los demás",
+        "En todo lo que podría salir mal"
+       ],
+       "ref": "Filipenses 4:8",
+       "id": "tema-ansiedad-24",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según el Salmo 4, ¿cómo se acuesta el salmista?",
+       "ok": "En paz me acostaré, y asimismo dormiré",
+       "malas": [
+        "Con temor y temblor",
+        "Sin poder dormir",
+        "Con la espada a su lado"
+       ],
+       "ref": "Salmos 4:8",
+       "id": "tema-ansiedad-25",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Estad quietos, y conoced que yo soy ___»",
+       "ok": "Dios",
+       "malas": [
+        "fuerte",
+        "rey",
+        "juez"
+       ],
+       "ref": "Salmos 46:10",
+       "id": "tema-ansiedad-26",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Mateo 6:33, ¿qué debemos buscar primero?",
+       "ok": "El reino de Dios y su justicia",
+       "malas": [
+        "Nuestra seguridad",
+        "El dinero suficiente",
+        "La aprobación de los demás"
+       ],
+       "ref": "Mateo 6:33",
+       "id": "tema-ansiedad-27",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Pablo dice que ha aprendido a estar contento tanto en la abundancia como en la necesidad.",
+       "v": true,
+       "ref": "Filipenses 4:11-12",
+       "id": "tema-ansiedad-28",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 1 Pedro 5:7, ¿por qué podemos echar nuestra ansiedad sobre Dios?",
+       "ok": "Porque él tiene cuidado de nosotros",
+       "malas": [
+        "Porque así desaparece para siempre",
+        "Porque no tiene importancia",
+        "Porque es una obligación"
+       ],
+       "ref": "1 Pedro 5:7",
+       "id": "tema-ansiedad-29",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Lamentaciones 3, ¿cómo son las misericordias de Dios?",
+       "ok": "Nuevas cada mañana",
+       "malas": [
+        "Se acaban con el tiempo",
+        "Solo para los justos",
+        "Llegan una vez al año"
+       ],
+       "ref": "Lamentaciones 3:22-23",
+       "id": "tema-ansiedad-30",
+       "libro": "temas"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "trabajo",
+   "nombre": "Trabajo",
+   "icono": "🛠️",
+   "desc": "Trabajar con propósito",
+   "lecciones": [
+    {
+     "titulo": "Lo básico",
+     "preguntas": [
+      {
+       "t": "completar",
+       "q": "«Y todo lo que hagáis, hacedlo de ___, como para el Señor y no para los hombres»",
+       "ok": "corazón",
+       "malas": [
+        "prisa",
+        "memoria",
+        "mala gana"
+       ],
+       "ref": "Colosenses 3:23",
+       "id": "tema-trabajo-1",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Para qué puso Dios al hombre en el huerto del Edén?",
+       "ok": "Para que lo labrara y lo guardara",
+       "malas": [
+        "Para que descansara siempre",
+        "Para que lo vendiera",
+        "Para que lo abandonara"
+       ],
+       "ref": "Génesis 2:15",
+       "exp": "El trabajo existía antes de la caída: es parte del buen diseño de Dios.",
+       "id": "tema-trabajo-2",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Cuántos días mandó Dios trabajar antes del día de reposo?",
+       "ok": "Seis",
+       "malas": [
+        "Cinco",
+        "Siete",
+        "Cuatro"
+       ],
+       "ref": "Éxodo 20:9",
+       "id": "tema-trabajo-3",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Proverbios dice que la mano negligente empobrece, mas la mano de los diligentes enriquece.",
+       "v": true,
+       "ref": "Proverbios 10:4",
+       "id": "tema-trabajo-4",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Proverbios 16:3, ¿qué pasa si encomiendas a Jehová tus obras?",
+       "ok": "Tus pensamientos serán afirmados",
+       "malas": [
+        "Nunca tendrás problemas",
+        "Te harás rico",
+        "Trabajarás menos"
+       ],
+       "ref": "Proverbios 16:3",
+       "id": "tema-trabajo-5",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Eclesiastés 9:10, ¿cómo debemos hacer lo que venga a nuestra mano?",
+       "ok": "Según nuestras fuerzas",
+       "malas": [
+        "Con el menor esfuerzo",
+        "Solo si nos pagan bien",
+        "Cuando tengamos ganas"
+       ],
+       "ref": "Eclesiastés 9:10",
+       "id": "tema-trabajo-6",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«El que labra su tierra se saciará de ___»",
+       "ok": "pan",
+       "malas": [
+        "oro",
+        "vino",
+        "gloria"
+       ],
+       "ref": "Proverbios 12:11",
+       "id": "tema-trabajo-7",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Pablo trabajaba de noche y de día para no ser gravoso a nadie.",
+       "v": true,
+       "ref": "1 Tesalonicenses 2:9",
+       "id": "tema-trabajo-8",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 1 Corintios 10:31, ¿para qué debemos hacerlo todo?",
+       "ok": "Para la gloria de Dios",
+       "malas": [
+        "Para ser vistos",
+        "Para ganar más",
+        "Para ser los primeros"
+       ],
+       "ref": "1 Corintios 10:31",
+       "id": "tema-trabajo-9",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué oficio tenía José, el esposo de María?",
+       "ok": "Carpintero",
+       "malas": [
+        "Pescador",
+        "Pastor",
+        "Recaudador de impuestos"
+       ],
+       "ref": "Mateo 13:55",
+       "id": "tema-trabajo-10",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Profundiza",
+     "preguntas": [
+      {
+       "t": "opcion",
+       "q": "¿Qué hacía David antes de ser ungido rey?",
+       "ok": "Apacentaba las ovejas de su padre",
+       "malas": [
+        "Era soldado del rey",
+        "Era escriba",
+        "Era sacerdote"
+       ],
+       "ref": "1 Samuel 16:11",
+       "id": "tema-trabajo-11",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Quién dirigió la reconstrucción de los muros de Jerusalén?",
+       "ok": "Nehemías",
+       "malas": [
+        "Esdras",
+        "Zorobabel",
+        "Salomón"
+       ],
+       "ref": "Nehemías 2:17-18",
+       "id": "tema-trabajo-12",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Mientras reconstruían el muro, con una mano trabajaban en la obra y en la otra tenían la espada.",
+       "v": true,
+       "ref": "Nehemías 4:17",
+       "id": "tema-trabajo-13",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué oficio tenían Pedro, Andrés, Jacobo y Juan cuando Jesús los llamó?",
+       "ok": "Pescadores",
+       "malas": [
+        "Carpinteros",
+        "Pastores",
+        "Publicanos"
+       ],
+       "ref": "Mateo 4:18-21",
+       "id": "tema-trabajo-14",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿A qué se dedicaba Mateo antes de seguir a Jesús?",
+       "ok": "Era publicano: cobraba impuestos",
+       "malas": [
+        "Era pescador",
+        "Era médico",
+        "Era fariseo"
+       ],
+       "ref": "Mateo 9:9",
+       "id": "tema-trabajo-15",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué oficio tenía Lucas, según Colosenses?",
+       "ok": "Médico",
+       "malas": [
+        "Abogado",
+        "Carpintero",
+        "Pescador"
+       ],
+       "ref": "Colosenses 4:14",
+       "id": "tema-trabajo-16",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Potifar puso a José sobre toda su casa, porque Jehová hacía prosperar todo lo que José hacía.",
+       "v": true,
+       "ref": "Génesis 39:3-4",
+       "id": "tema-trabajo-17",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué hizo Rut para sostener a Noemí?",
+       "ok": "Recogió espigas en el campo detrás de los segadores",
+       "malas": [
+        "Vendió sus joyas",
+        "Tejió ropa para vender",
+        "Pidió limosna en la puerta"
+       ],
+       "ref": "Rut 2:2-3",
+       "id": "tema-trabajo-18",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿A quién llenó Dios de su Espíritu, en sabiduría y arte, para hacer las obras del tabernáculo?",
+       "ok": "A Bezaleel",
+       "malas": [
+        "A Aarón",
+        "A Josué",
+        "A Caleb"
+       ],
+       "ref": "Éxodo 31:2-5",
+       "exp": "Dios también da talento para el trabajo manual y artístico.",
+       "id": "tema-trabajo-19",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué dijo el señor al siervo que negoció bien sus talentos?",
+       "ok": "Bien, buen siervo y fiel; sobre poco has sido fiel, sobre mucho te pondré",
+       "malas": [
+        "Has ganado muy poco",
+        "Devuélvemelo todo",
+        "Ahora descansa para siempre"
+       ],
+       "ref": "Mateo 25:21",
+       "id": "tema-trabajo-20",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Ponlo en práctica",
+     "preguntas": [
+      {
+       "t": "completar",
+       "q": "«¿Has visto hombre ___ en su trabajo? Delante de los reyes estará»",
+       "ok": "solícito",
+       "malas": [
+        "rico",
+        "famoso",
+        "rápido"
+       ],
+       "ref": "Proverbios 22:29",
+       "id": "tema-trabajo-21",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Efesios 6:6, ¿cómo pide Pablo servir?",
+       "ok": "No sirviendo al ojo, sino de corazón, como siervos de Cristo",
+       "malas": [
+        "Solo cuando el jefe mira",
+        "Por miedo al castigo",
+        "Pensando solo en el salario"
+       ],
+       "ref": "Efesios 6:6",
+       "id": "tema-trabajo-22",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Proverbios dice que en toda labor hay fruto, mas las vanas palabras de los labios empobrecen.",
+       "v": true,
+       "ref": "Proverbios 14:23",
+       "id": "tema-trabajo-23",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Éxodo 20:10, ¿qué es el séptimo día?",
+       "ok": "Reposo para Jehová tu Dios",
+       "malas": [
+        "Día de mercado",
+        "Día de trabajo doble",
+        "Día de viaje"
+       ],
+       "ref": "Éxodo 20:10",
+       "exp": "Descansar también es obedecer.",
+       "id": "tema-trabajo-24",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué dijo Jesús a sus discípulos cuando estaban agotados?",
+       "ok": "Venid vosotros aparte a un lugar desierto, y descansad un poco",
+       "malas": [
+        "Seguid trabajando sin parar",
+        "Id a predicar a otra ciudad",
+        "Esperad a la noche"
+       ],
+       "ref": "Marcos 6:31",
+       "id": "tema-trabajo-25",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Por demás es que os levantéis de madrugada… pues que a su amado dará Dios el ___»",
+       "ok": "sueño",
+       "malas": [
+        "pan",
+        "oro",
+        "reino"
+       ],
+       "ref": "Salmos 127:2",
+       "id": "tema-trabajo-26",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Colosenses 4:1, ¿cómo deben tratar los amos a quienes trabajan para ellos?",
+       "ok": "Con justicia y rectitud",
+       "malas": [
+        "Con dureza",
+        "Como quieran",
+        "Solo con buenas palabras"
+       ],
+       "ref": "Colosenses 4:1",
+       "id": "tema-trabajo-27",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Santiago reprocha a los ricos haber retenido el jornal de los obreros.",
+       "v": true,
+       "ref": "Santiago 5:4",
+       "id": "tema-trabajo-28",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 1 Timoteo 5:18, ¿de qué es digno el obrero?",
+       "ok": "De su salario",
+       "malas": [
+        "De descanso eterno",
+        "De ser rey",
+        "De todos los honores"
+       ],
+       "ref": "1 Timoteo 5:18",
+       "id": "tema-trabajo-29",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 2 Tesalonicenses 3:12, ¿cómo pide Pablo trabajar?",
+       "ok": "Sosegadamente, comiendo su propio pan",
+       "malas": [
+        "Sin descanso de día y de noche",
+        "Solo para la iglesia",
+        "Únicamente cuando haya necesidad"
+       ],
+       "ref": "2 Tesalonicenses 3:12",
+       "id": "tema-trabajo-30",
+       "libro": "temas"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "amistad",
+   "nombre": "Amistad",
+   "icono": "🤝",
+   "desc": "Amigos que te acercan a Dios",
+   "lecciones": [
+    {
+     "titulo": "Lo básico",
+     "preguntas": [
+      {
+       "t": "completar",
+       "q": "«En todo tiempo ama el ___, y es como un hermano en tiempo de angustia»",
+       "ok": "amigo",
+       "malas": [
+        "padre",
+        "rey",
+        "vecino"
+       ],
+       "ref": "Proverbios 17:17",
+       "id": "tema-amistad-1",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Juan 15:13, ¿cuál es el amor más grande?",
+       "ok": "Que uno ponga su vida por sus amigos",
+       "malas": [
+        "Dar todo el dinero a los pobres",
+        "Amar solo a la familia",
+        "Perdonar una vez"
+       ],
+       "ref": "Juan 15:13",
+       "id": "tema-amistad-2",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Cómo llamó Jesús a sus discípulos en Juan 15:15?",
+       "ok": "Amigos",
+       "malas": [
+        "Siervos",
+        "Alumnos",
+        "Soldados"
+       ],
+       "ref": "Juan 15:15",
+       "exp": "Ya no os llamaré siervos… os he llamado amigos.",
+       "id": "tema-amistad-3",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Proverbios dice: «Hierro con hierro se aguza; y así el hombre aguza el rostro de su amigo».",
+       "v": true,
+       "ref": "Proverbios 27:17",
+       "id": "tema-amistad-4",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Proverbios 13:20, ¿qué le pasa al que anda con sabios?",
+       "ok": "Sabio será",
+       "malas": [
+        "Será rico",
+        "Será famoso",
+        "Será rey"
+       ],
+       "ref": "Proverbios 13:20",
+       "id": "tema-amistad-5",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 1 Corintios 15:33, ¿qué corrompen las malas conversaciones?",
+       "ok": "Las buenas costumbres",
+       "malas": [
+        "La salud",
+        "El dinero",
+        "La memoria"
+       ],
+       "ref": "1 Corintios 15:33",
+       "id": "tema-amistad-6",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Fieles son las heridas del que ___»",
+       "ok": "ama",
+       "malas": [
+        "odia",
+        "calla",
+        "huye"
+       ],
+       "ref": "Proverbios 27:6",
+       "exp": "Un amigo de verdad te dice la verdad, aunque duela.",
+       "id": "tema-amistad-7",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Proverbios dice que hay amigo más unido que un hermano.",
+       "v": true,
+       "ref": "Proverbios 18:24",
+       "id": "tema-amistad-8",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Eclesiastés 4:10, ¿qué pasa si uno de los dos cae?",
+       "ok": "El otro levantará a su compañero",
+       "malas": [
+        "Los dos caerán",
+        "El otro seguirá su camino",
+        "Nadie se dará cuenta"
+       ],
+       "ref": "Eclesiastés 4:10",
+       "id": "tema-amistad-9",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿A quién llama Santiago «amigo de Dios»?",
+       "ok": "A Abraham",
+       "malas": [
+        "A Salomón",
+        "A Saúl",
+        "A Jonás"
+       ],
+       "ref": "Santiago 2:23",
+       "id": "tema-amistad-10",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Profundiza",
+     "preguntas": [
+      {
+       "t": "opcion",
+       "q": "¿Qué pacto hicieron Jonatán y David?",
+       "ok": "Un pacto de amistad, porque Jonatán le amaba como a sí mismo",
+       "malas": [
+        "Un pacto de guerra contra Saúl",
+        "Un pacto para repartirse el reino",
+        "Un pacto comercial"
+       ],
+       "ref": "1 Samuel 18:3",
+       "id": "tema-amistad-11",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué le dio Jonatán a David como señal de su amistad?",
+       "ok": "Su manto, sus ropas, su espada y su arco",
+       "malas": [
+        "Su corona",
+        "Un rebaño de ovejas",
+        "Una casa en Jerusalén"
+       ],
+       "ref": "1 Samuel 18:4",
+       "id": "tema-amistad-12",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Jonatán avisó a David de que Saúl procuraba matarlo.",
+       "v": true,
+       "ref": "1 Samuel 19:2",
+       "id": "tema-amistad-13",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué hicieron los tres amigos de Job al saber de su desgracia?",
+       "ok": "Vinieron a consolarlo y se sentaron con él siete días en silencio",
+       "malas": [
+        "Se alejaron de él",
+        "Le pidieron dinero",
+        "Se burlaron desde lejos"
+       ],
+       "ref": "Job 2:11-13",
+       "exp": "A veces la mejor compañía es estar, sin decir nada.",
+       "id": "tema-amistad-14",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué hizo Jesús ante la tumba de su amigo Lázaro, al ver llorar a María?",
+       "ok": "Lloró",
+       "malas": [
+        "Se marchó",
+        "La reprendió",
+        "Se quedó lejos en silencio"
+       ],
+       "ref": "Juan 11:35",
+       "id": "tema-amistad-15",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿A quién presentó Bernabé a los apóstoles cuando todos le tenían miedo?",
+       "ok": "A Saulo, que después fue llamado Pablo",
+       "malas": [
+        "A Cornelio",
+        "A Timoteo",
+        "A Simón el mago"
+       ],
+       "ref": "Hechos 9:26-27",
+       "id": "tema-amistad-16",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Pablo llama a Timoteo «verdadero hijo en la fe».",
+       "v": true,
+       "ref": "1 Timoteo 1:2",
+       "id": "tema-amistad-17",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Hechos 2, ¿cómo vivían los primeros creyentes?",
+       "ok": "Juntos, compartiendo lo que tenían y comiendo con alegría",
+       "malas": [
+        "Cada uno por su lado",
+        "Escondidos en cuevas",
+        "Discutiendo por el poder"
+       ],
+       "ref": "Hechos 2:44-46",
+       "id": "tema-amistad-18",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "¿Qué le pidió Pablo a Timoteo desde la cárcel, al final de su vida?",
+       "ok": "Que procurara ir pronto a verle",
+       "malas": [
+        "Que le enviara dinero",
+        "Que no fuera a visitarle",
+        "Que fundara otra iglesia"
+       ],
+       "ref": "2 Timoteo 4:9",
+       "id": "tema-amistad-19",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Cuando otros lo dejaron, ¿qué amigo seguía con Pablo?",
+       "ok": "Lucas",
+       "malas": [
+        "Demas",
+        "Bernabé",
+        "Silas"
+       ],
+       "ref": "2 Timoteo 4:10-11",
+       "exp": "Pablo escribe: «Solo Lucas está conmigo»; Demas le había desamparado.",
+       "id": "tema-amistad-20",
+       "libro": "temas"
+      }
+     ]
+    },
+    {
+     "titulo": "Ponlo en práctica",
+     "preguntas": [
+      {
+       "t": "completar",
+       "q": "«Gozaos con los que se gozan; ___ con los que lloran»",
+       "ok": "llorad",
+       "malas": [
+        "orad",
+        "cantad",
+        "callad"
+       ],
+       "ref": "Romanos 12:15",
+       "id": "tema-amistad-21",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Proverbios 16:28, ¿qué hace el chismoso?",
+       "ok": "Aparta a los mejores amigos",
+       "malas": [
+        "Une a las familias",
+        "Hace reír a todos",
+        "Trae paz"
+       ],
+       "ref": "Proverbios 16:28",
+       "id": "tema-amistad-22",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Proverbios aconseja no entremeterse con el iracundo.",
+       "v": true,
+       "ref": "Proverbios 22:24",
+       "id": "tema-amistad-23",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según 1 Tesalonicenses 5:11, ¿qué debemos hacer unos con otros?",
+       "ok": "Animarnos y edificarnos unos a otros",
+       "malas": [
+        "Corregirnos en público",
+        "Compararnos",
+        "Competir"
+       ],
+       "ref": "1 Tesalonicenses 5:11",
+       "id": "tema-amistad-24",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Lucas 6:31, ¿cómo debemos tratar a los demás?",
+       "ok": "Como queremos que ellos nos traten",
+       "malas": [
+        "Como ellos nos tratan",
+        "Según lo que merecen",
+        "Solo si son nuestros amigos"
+       ],
+       "ref": "Lucas 6:31",
+       "id": "tema-amistad-25",
+       "libro": "temas"
+      },
+      {
+       "t": "completar",
+       "q": "«Amarás a tu prójimo como a ti ___»",
+       "ok": "mismo",
+       "malas": [
+        "padre",
+        "hermano",
+        "Dios"
+       ],
+       "ref": "Mateo 22:39",
+       "id": "tema-amistad-26",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Hebreos 10:24-25, ¿qué no debemos dejar de hacer?",
+       "ok": "Congregarnos, y exhortarnos unos a otros",
+       "malas": [
+        "Trabajar",
+        "Ayunar",
+        "Viajar"
+       ],
+       "ref": "Hebreos 10:24-25",
+       "id": "tema-amistad-27",
+       "libro": "temas"
+      },
+      {
+       "t": "vf",
+       "q": "Proverbios aconseja no dejar a tu amigo, ni al amigo de tu padre.",
+       "v": true,
+       "ref": "Proverbios 27:10",
+       "id": "tema-amistad-28",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Filipenses 2:4, ¿qué debemos mirar?",
+       "ok": "No solo lo propio, sino también lo de los otros",
+       "malas": [
+        "Solo lo nuestro",
+        "Lo que tienen otros, para envidiarlo",
+        "Los defectos de los demás"
+       ],
+       "ref": "Filipenses 2:4",
+       "id": "tema-amistad-29",
+       "libro": "temas"
+      },
+      {
+       "t": "opcion",
+       "q": "Según Romanos 12:10, ¿cómo debemos amarnos?",
+       "ok": "Con amor fraternal, prefiriéndonos los unos a los otros",
+       "malas": [
+        "Con condiciones",
+        "Solo a los de casa",
+        "A distancia"
+       ],
+       "ref": "Romanos 12:10",
+       "id": "tema-amistad-30",
+       "libro": "temas"
+      }
+     ]
+    }
+   ]
   }
  ],
  "creditos": "Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988."
