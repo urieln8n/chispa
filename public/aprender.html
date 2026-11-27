@@ -228,6 +228,8 @@
   body:has(#app[data-vista]) .sobre{display:none}
   /* Tarjetas de la portada */
   .saludo{color:var(--ambar);font-weight:800;margin:.6rem 0 0}
+  .verso-t{margin:.45rem 0 .35rem;font-family:'Baloo 2',Nunito,sans-serif;font-weight:600;font-size:1.12rem;line-height:1.35;color:var(--texto)}
+  .tarjeta-x.verso{align-items:flex-start;background:linear-gradient(135deg,var(--noche2),rgba(242,196,107,.10))}
   .tarjeta-x{display:flex;align-items:center;gap:.9rem;background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:1rem}
   .tarjeta-x .ico{font-size:1.8rem;flex:none}.tarjeta-x .txt{flex:1}.tarjeta-x .txt b{display:block}
   .tarjeta-x .x{background:none;border:0;color:var(--suave);font-size:1.2rem;cursor:pointer;padding:.2rem}
@@ -642,7 +644,10 @@ function pintarExtra() {
   const respuesta = q.t === 'vf' ? (q.v ? 'Verdadero' : 'Falso') : q.ok;
   const enun = q.t === 'vf' ? `Verdadero o falso: ${esc(q.q)}` : esc(q.q).replace('___', '_____');
   const conseguidos = LOGROS.filter(l => (E.logros || {})[l.id]).length;
-  h.innerHTML = `
+  const v = versoDelDia();
+  h.innerHTML = (v ? `
+    <div class="tarjeta-x verso"><span class="ico">📜</span><div class="txt"><b>Versículo del día</b><blockquote class="verso-t">«${esc(v.t)}»</blockquote><span class="pie" style="opacity:1">${enlaceRV(v.ref)}</span>
+      <button class="btn peq sec" id="b-verso" style="margin-top:.6rem">📤 Compartir imagen</button></div></div>` : '') + `
     <div class="tarjeta-x dia"><span class="ico">💡</span><div class="txt"><b>Pregunta del día</b><span>${enun}</span>
       <div class="resp" id="resp-dia" hidden><b style="color:var(--ambar)">${esc(respuesta)}</b>${q.exp ? `<span class="pie" style="opacity:1">${esc(q.exp)}</span>` : ''}<span class="pie" style="opacity:1">${enlaceRV(q.ref)}</span></div>
       <button class="btn peq sec" id="b-dia" style="margin-top:.6rem">Ver respuesta</button></div></div>
@@ -650,7 +655,57 @@ function pintarExtra() {
     <h2 class="grupo-t">Logros · ${conseguidos} de ${LOGROS.length}</h2>
     <div class="logros">${LOGROS.map(l => `<div class="logro${(E.logros || {})[l.id] ? ' si' : ''}" title="${esc(l.t)}"><i>${l.i}</i>${esc(l.t)}</div>`).join('')}</div>`;
   document.getElementById('b-coleccion').onclick = verColeccion;
+  if (v) document.getElementById('b-verso').onclick = () => compartirVerso(v);
   document.getElementById('b-dia').onclick = e => { document.getElementById('resp-dia').hidden = false; e.target.remove(); if (!hoyC().dia) { contar('dia'); revisarMisiones(); pintarMisiones(); } };
+}
+
+// ===================== Versículo del día (el mismo para todos cada día, con imagen para compartir) =====================
+let VERSOS = null;
+function versoDelDia() {
+  if (!VERSOS) { fetch(BASE + 'biblia/versiculos.json').then(r => r.json()).then(d => { VERSOS = d.versiculos || []; if (VERSOS.length) pintarExtra(); }).catch(() => { VERSOS = []; }); return null; }
+  return VERSOS.length ? VERSOS[(diaNum() * 7 + 3) % VERSOS.length] : null;
+}
+function compartirVerso(v) {
+  enviarMetrica({ e: 'compartir', que: 'verso' });
+  compartirTarjeta(`📜 Versículo del día:\n«${v.t}» (${v.ref}, RV1960)`, { verso: v });
+}
+// Parte un texto en líneas que caben en un ancho dado
+function lineasCanvas(x, texto, ancho) {
+  const out = []; let l = '';
+  for (const p of texto.split(' ')) { const t = l ? l + ' ' + p : p; if (x.measureText(t).width > ancho && l) { out.push(l); l = p; } else l = t; }
+  if (l) out.push(l); return out;
+}
+async function versoPNG(v) {
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d'), TIT = "'Baloo 2', Nunito, system-ui, sans-serif", TXT = "Nunito, system-ui, sans-serif";
+  try { await Promise.all([document.fonts.load("800 120px 'Baloo 2'"), document.fonts.load("600 60px 'Baloo 2'"), document.fonts.load('800 40px Nunito')]); } catch {}
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#1B1640'); g.addColorStop(1, '#2A2163'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const r = x.createRadialGradient(W / 2, 900, 40, W / 2, 900, 820); r.addColorStop(0, 'rgba(242,196,107,.22)'); r.addColorStop(1, 'rgba(242,196,107,0)'); x.fillStyle = r; x.fillRect(0, 0, W, H);
+  // Estrellas fijas (misma semilla siempre)
+  let s = 7; const az = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 120; i++) { x.fillStyle = `rgba(244,241,234,${.12 + az() * .4})`; x.beginPath(); x.arc(az() * W, az() * H, az() * 2.6 + .5, 0, 7); x.fill(); }
+  x.textAlign = 'center';
+  // Marca arriba
+  x.save(); x.translate(W / 2 - 40, 150); x.scale(2.5, 2.5);
+  x.fillStyle = '#F2C46B'; x.beginPath(); x.arc(16, 16, 15, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#1B1640'; x.fill(new Path2D('M16 6c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 12.5 13 10 16 6z')); x.fill(new Path2D('M9 22h14l-1.5 4h-11z'));
+  x.restore();
+  x.fillStyle = '#F2C46B'; x.font = `800 44px ${TXT}`; x.fillText('VERSÍCULO DEL DÍA', W / 2, 330);
+  x.fillStyle = '#B9B2D9'; x.font = `700 36px ${TXT}`; x.fillText(new Date(hoyISO()).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }), W / 2, 385);
+  // El versículo, lo más grande que quepa
+  let tam = 92, lin;
+  do { x.font = `600 ${tam}px ${TIT}`; lin = lineasCanvas(x, `«${v.t}»`, W - 170); tam -= 4; } while (lin.length * tam * 1.25 > 900 && tam > 48);
+  tam += 4; const alto = lin.length * tam * 1.25, y0 = 960 - alto / 2 + tam;
+  x.fillStyle = '#F4F1EA'; lin.forEach((l, i) => x.fillText(l, W / 2, y0 + i * tam * 1.25));
+  x.fillStyle = '#F2C46B'; x.font = `800 54px ${TXT}`; x.fillText(v.ref, W / 2, y0 + alto + 40);
+  x.fillStyle = '#B9B2D9'; x.font = `700 32px ${TXT}`; x.fillText('Reina-Valera 1960', W / 2, y0 + alto + 92);
+  // Pie: invitación
+  x.fillStyle = '#F2C46B'; x.beginPath(); x.roundRect(140, 1640, W - 280, 120, 60); x.fill();
+  const cta = 'Aprende la Biblia jugando · Lumbrera'; let tc = 44; x.font = `800 ${tc}px ${TXT}`;
+  while (x.measureText(cta).width > W - 360 && tc > 28) { tc -= 2; x.font = `800 ${tc}px ${TXT}`; }
+  x.fillStyle = '#1B1640'; x.fillText(cta, W / 2, 1700 + tc * .35);
+  x.fillStyle = '#F4F1EA'; x.font = `800 42px ${TXT}`; x.fillText(location.host || 'genesis.andresrendon.com', W / 2, 1840);
+  return new Promise(ok => c.toBlob(ok, 'image/png'));
 }
 
 // Recordatorio: evento diario en el calendario del móvil (iPhone y Android), sin notificaciones push
@@ -1435,6 +1490,7 @@ function formLiga({ grupo, invitado, volver, foco }) {
 
 // ===================== Imagen para compartir (formato Story 1080×1920) =====================
 async function tarjetaPNG(d) {
+  if (d.verso) return versoPNG(d.verso);
   const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d'), TIT = "'Baloo 2', Nunito, system-ui, sans-serif", TXT = "Nunito, system-ui, sans-serif";
   try { await Promise.all([document.fonts.load("800 120px 'Baloo 2'"), document.fonts.load('800 40px Nunito')]); } catch {}
@@ -1523,6 +1579,7 @@ metricaActivo();
 avisosSincronizar(); estadoParaAvisos();
 setTimeout(partidaAbierta, 600);
 libro('genesis').then(() => { revisarLogros(); }).catch(() => {});
+versoDelDia(); // carga los versículos del día en segundo plano
 var LIGA_INV = (new URLSearchParams(location.search).get('liga') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 20) || null;
 var IR_RETO = new URLSearchParams(location.search).has('reto');
 var IR_GRUPO = location.hash === '#grupo'; // se lee antes de que inicio() limpie la dirección
