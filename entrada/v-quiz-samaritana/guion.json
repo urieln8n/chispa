@@ -1,0 +1,49 @@
+{
+ "id": "v-quiz-samaritana",
+ "formato": "quiz",
+ "voz": [
+  {
+   "t": 0.0,
+   "texto": "Tres preguntas sobre la mujer samaritana. ¿Cuántas aciertas?"
+  },
+  {
+   "t": 3.0,
+   "texto": "¿Qué le pidió Jesús a la samaritana?"
+  },
+  {
+   "t": 9.2,
+   "texto": "¡Que le diera de beber! Juan 4:7."
+  },
+  {
+   "t": 13.0,
+   "texto": "¿Qué le ofreció Jesús?"
+  },
+  {
+   "t": 19.2,
+   "texto": "¡Agua viva! Juan 4:10."
+  },
+  {
+   "t": 23.0,
+   "texto": "¿Cómo dijo Jesús que hay que adorar al Padre?"
+  },
+  {
+   "t": 29.2,
+   "texto": "¡En espíritu y en verdad! Juan 4:24."
+  },
+  {
+   "t": 32.8,
+   "texto": "¿Cuántas acertaste? Juega el reto de hoy en genesis.andresrendon.com"
+  }
+ ],
+ "cuenta": 3,
+ "escenas": [
+  2.6,
+  12.6,
+  22.6,
+  32.6
+ ],
+ "titulo": "¿Cuánto sabes de la mujer samaritana? 💧 Quiz de Juan #Biblia #Shorts",
+ "descripcion": "Respuestas:\n1️⃣ Que le diera de beber (Juan 4:7)\n2️⃣ Agua viva (Juan 4:10)\n3️⃣ En espíritu y en verdad (Juan 4:23-24)\n\n¿Las sacaste todas? Sigue jugando con 900 preguntas de Génesis, Éxodo y los Evangelios en Lumbrera, una serie de Brote | Fe que Transforma.",
+ "comentario": "¿Cuántas acertaste? 👇 Juega el reto de hoy gratis: https://genesis.andresrendon.com/?reto",
+ "publicar": "2026-12-06T21:00"
+}

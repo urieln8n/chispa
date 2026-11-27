@@ -1,0 +1,49 @@
+{
+ "id": "v-quiz-lucas1",
+ "formato": "quiz",
+ "voz": [
+  {
+   "t": 0.0,
+   "texto": "Tres preguntas de la Navidad. ¿Cuántas aciertas?"
+  },
+  {
+   "t": 3.0,
+   "texto": "¿Qué ángel anunció a Zacarías el nacimiento de Juan?"
+  },
+  {
+   "t": 9.2,
+   "texto": "¡Gabriel! Lucas 1:19."
+  },
+  {
+   "t": 13.0,
+   "texto": "¿Quiénes eran los padres de Juan el Bautista?"
+  },
+  {
+   "t": 19.2,
+   "texto": "¡Zacarías y Elisabet! Lucas 1:5."
+  },
+  {
+   "t": 23.0,
+   "texto": "¿Qué anciano tomó al niño Jesús en brazos en el templo?"
+  },
+  {
+   "t": 29.2,
+   "texto": "¡Simeón! Lucas 2:28."
+  },
+  {
+   "t": 32.8,
+   "texto": "¿Cuántas acertaste? Juega el reto de hoy en genesis.andresrendon.com"
+  }
+ ],
+ "cuenta": 3,
+ "escenas": [
+  2.6,
+  12.6,
+  22.6,
+  32.6
+ ],
+ "titulo": "Quiz de Navidad: ¿qué pasó antes de Belén? ✨ #Biblia #Shorts",
+ "descripcion": "Respuestas:\n1️⃣ Gabriel (Lucas 1:19)\n2️⃣ Zacarías y Elisabet (Lucas 1:5)\n3️⃣ Simeón (Lucas 2:25-28)\n\nVive esta Navidad aprendiendo la Biblia con Lumbrera, una serie de Brote | Fe que Transforma.",
+ "comentario": "¿Cuántas acertaste: 1, 2 o 3? 🎄 Juega el reto de hoy gratis: https://genesis.andresrendon.com/?reto",
+ "publicar": "2026-12-05T13:00"
+}
