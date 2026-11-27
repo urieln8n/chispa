@@ -243,29 +243,36 @@ export class Juego extends DurableObject {
         if (p.conn && p.conn !== c) p.conn.rol = null;
         p.conn = c; p.conectado = true; c.rol = 'jugador'; c.jid = p.id;
         this.mandarJugadores();
-        const r = { id: p.id, token: p.token, apodo: p.apodo, estado: g.estado, puntos: p.puntos };
-        if (g.estado === 'pregunta') {
-          const q = this.pregunta();
-          r.pregunta = { indice: g.indice, total: g.quiz.preguntas.length, texto: q.texto, opciones: q.opciones, imagen: q.imagen || '', tiempo: q.tiempo,
-            empiezaEn: Math.max(0, g.inicio - Date.now()), restante: Math.max(0, g.fin - Date.now()), yaRespondio: g.respuestas.has(p.id) };
-        } else if (g.estado === 'resultado' || g.estado === 'ranking') r.resultado = this.resultado(p);
-        else if (g.estado === 'podio') {
-          const rk = this.ranking();
-          r.final = { puesto: rk.indexOf(p) + 1, puntos: p.puntos, total: rk.length, podio: rk.slice(0, 3).map(x => ({ apodo: x.apodo, puntos: x.puntos })), cierre: g.quiz.cierre || null };
-        }
-        return r;
+        return this.estadoJugador(p);
       }
     }
     const apodo = String(d.apodo || '').replace(/\s+/g, ' ').trim().slice(0, 20);
     if (!apodo) return { error: d.token ? 'reentrar' : 'Escribe un apodo' };
-    if (g.estado !== 'sala') return { error: 'La partida ya ha empezado' };
+    // Se puede entrar con la partida ya empezada (p. ej. en un directo): se juega desde la pregunta en curso, con 0 puntos
+    if (g.estado === 'podio') return { error: 'La partida ya ha terminado' };
     if (g.jugadores.size >= parseInt(this.env.MAX_PLAYERS || '500', 10)) return { error: 'La partida está llena' };
     if (g.apodos.has(apodo.toLowerCase())) return { error: 'Ese apodo ya está cogido, prueba otro' };
     const p = { id: aleatorio(5), token: aleatorio(12), apodo, puntos: 0, racha: 0, msTotal: 0, historial: [], conn: c, conectado: true };
     g.jugadores.set(p.id, p); g.apodos.add(apodo.toLowerCase());
     c.rol = 'jugador'; c.jid = p.id;
     this.mandarJugadores();
-    return { id: p.id, token: p.token, apodo, estado: 'sala', puntos: 0 };
+    return this.estadoJugador(p);
+  }
+
+  // Lo que necesita el móvil de un jugador para ponerse al día (al entrar o al volver a conectarse)
+  estadoJugador(p) {
+    const g = this.g;
+    const r = { id: p.id, token: p.token, apodo: p.apodo, estado: g.estado, puntos: p.puntos };
+    if (g.estado === 'pregunta') {
+      const q = this.pregunta();
+      r.pregunta = { indice: g.indice, total: g.quiz.preguntas.length, texto: q.texto, opciones: q.opciones, imagen: q.imagen || '', tiempo: q.tiempo,
+        empiezaEn: Math.max(0, g.inicio - Date.now()), restante: Math.max(0, g.fin - Date.now()), yaRespondio: g.respuestas.has(p.id) };
+    } else if (g.estado === 'resultado' || g.estado === 'ranking') r.resultado = this.resultado(p);
+    else if (g.estado === 'podio') {
+      const rk = this.ranking();
+      r.final = { puesto: rk.indexOf(p) + 1, puntos: p.puntos, total: rk.length, podio: rk.slice(0, 3).map(x => ({ apodo: x.apodo, puntos: x.puntos })), cierre: g.quiz.cierre || null };
+    }
+    return r;
   }
 
   responderPregunta(c, d) {
