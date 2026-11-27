@@ -19,6 +19,8 @@ const LLMS_LUMBRERA = `# Lumbrera · Aprende la Biblia jugando
 - Tipos de pregunta: elegir respuesta, verdadero o falso, completar versículos, ordenar hechos y emparejar personajes.
 - Cada respuesta muestra la cita bíblica y una explicación breve. Citas de la Reina-Valera 1960.
 - Puntos, racha diaria, meta diaria, logros y repaso de las preguntas falladas. El progreso se guarda en el propio dispositivo.
+- Aprende por temas: 150 preguntas más, solo con versículos de cada tema (familia, perdón, finanzas, matrimonio y evangelismo), 3 lecciones de 10 por tema: Lo básico, Profundiza y Ponlo en práctica. Enlace directo: {{ORIGEN}}/?temas
+- Reto diario: 5 preguntas, las mismas para todos cada día, con el resultado en cuadritos para compartir por WhatsApp. Enlace directo: {{ORIGEN}}/?reto
 
 ## Unidades de Génesis
 1. La creación y la caída (Génesis 1–5)
