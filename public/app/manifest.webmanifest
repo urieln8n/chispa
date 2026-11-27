@@ -4,7 +4,7 @@
   "description": "Lámpara es a mis pies tu palabra. Aprende la Biblia con lecciones cortas, racha diaria y partidas en grupo: Génesis, Éxodo y los cuatro Evangelios. Gratis y sin registro.",
   "lang": "es",
   "id": "/",
-  "start_url": "/?origen=app",
+  "start_url": "/aprender?origen=app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -17,7 +17,7 @@
     { "src": "/app/icono-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Seguir aprendiendo", "url": "/?libro=genesis", "icons": [{ "src": "/app/icono-192.png", "sizes": "192x192" }] },
+    { "name": "Seguir aprendiendo", "url": "/aprender?libro=genesis", "icons": [{ "src": "/app/icono-192.png", "sizes": "192x192" }] },
     { "name": "Entrar con un PIN", "url": "/jugar", "icons": [{ "src": "/app/icono-192.png", "sizes": "192x192" }] }
   ]
 }

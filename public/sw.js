@@ -1,6 +1,6 @@
 // Lumbrera: permite instalarla como app y aprender sin conexión.
 // Solo lo registra la web de Lumbrera (aprender.html). Nunca guarda la API ni las partidas en vivo.
-const VERSION = 'lumbrera-v10';
+const VERSION = 'lumbrera-v11';
 const BASICO = ['/', '/aprender', '/jugar', '/styles.css', '/comun.js', '/biblia/libros.json', '/biblia/genesis.json', '/biblia/exodo.json', '/biblia/mateo.json', '/biblia/marcos.json', '/biblia/lucas.json', '/biblia/juan.json', '/biblia/temas.json', '/biblia/personajes.json', '/biblia/versiculos.json',
   '/app/manifest.webmanifest', '/app/icono-192.png', '/app/icono-512.png',
   '/fonts/baloo-2-latin-600-normal.woff2', '/fonts/baloo-2-latin-800-normal.woff2', '/fonts/nunito-latin-400-normal.woff2', '/fonts/nunito-latin-600-normal.woff2', '/fonts/nunito-latin-800-normal.woff2'];
@@ -23,9 +23,13 @@ self.addEventListener('fetch', e => {
 
   // Páginas: primero la red (para tener siempre la última versión); sin conexión, la copia guardada
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(res => {
-      const copia = res.clone(); caches.open(VERSION).then(c => c.put(req, copia)); return res;
-    }).catch(async () => (await caches.match(req, { ignoreSearch: true })) || caches.match('/aprender')));
+    const copiaGuardada = async () => (await caches.match(req, { ignoreSearch: true })) || caches.match('/aprender');
+    e.respondWith(fetch(req).then(async res => {
+      if (res.ok) { const copia = res.clone(); caches.open(VERSION).then(c => c.put(req, copia)); return res; }
+      // Error del servidor o cupo diario agotado (p. ej. error 1027 de Cloudflare): mejor la app guardada que una página de error
+      if (res.status >= 429 && res.status !== 501) { const g = await copiaGuardada(); if (g) return g; }
+      return res;
+    }).catch(copiaGuardada));
     return;
   }
   // Fuentes de Google: de la copia (no cambian)

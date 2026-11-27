@@ -18,6 +18,11 @@
   "env": {
     "fe": {
       "name": "lumbrera",
+      // Lumbrera: /aprender, /grupos, /lider y el resto se sirven como archivos estáticos (gratis e ilimitados en Cloudflare),
+      // así la app abre aunque se agote el cupo diario de peticiones del plan gratis. Las cabeceras de seguridad de los
+      // estáticos están en public/_headers. Si algún día se activa DOMINIO_NUEVO (mudanza), volver a añadir "/aprender",
+      // "/aprender.html", "/lider" y "/lider.html" aquí para que la página de mudanza lleve el progreso.
+      "assets": { "directory": "./public", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "none", "run_worker_first": ["/", "/index.html", "/privacidad", "/privacidad.html", "/jugar", "/jugar.html", "/favicon.ico", "/preguntas", "/preguntas.html", "/preguntas/*", "/google4d510a5713a71d14.html", "/mudanza"] },
       "durable_objects": {
         "bindings": [
           { "name": "JUEGO", "class_name": "Juego" },

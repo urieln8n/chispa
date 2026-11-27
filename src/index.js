@@ -57,6 +57,49 @@ async function autorizado(req, env) {
 }
 
 // Cabeceras de seguridad básicas en todas las respuestas (no se tocan los WebSocket)
+// Lumbrera: contadores anónimos de uso (sin identificadores ni datos personales).
+// Desde METRICA_CORTE los contadores que se suman se guardan solo por día; la semana y el mes se calculan al leer
+// (así cada evento escribe 1 fila en vez de 3). Los «activos» de la semana y del mes son personas distintas: esos sí se guardan.
+const METRICA_CORTE = '2026-11-28';
+function paresMetrica(b) {
+  if (!b || typeof b !== 'object') return null;
+  const dia = diaLiga(), sem = 'S:' + semanaLiga(), mes = 'M:' + dia.slice(0, 7), pares = [], viejo = dia < METRICA_CORTE;
+  const sumar = (clave, enSemana = false, enMes = false) => { pares.push([dia, clave, 1]); if (viejo && enSemana) pares.push([sem, clave, 1]); if (viejo && enMes) pares.push([mes, clave, 1]); };
+  if (b.e === 'activo') {
+    sumar('activos');
+    if (b.semana === true) pares.push([sem, 'activos', 1]);
+    if (b.mes === true) pares.push([mes, 'activos', 1]);
+    if (b.nuevo === true) { sumar('nuevos', true, true); pares.push(['total', 'nuevos', 1]); }
+    if (b.racha === true) sumar('en_racha');
+    if (b.app === true) sumar('desde_app');
+  } else if (b.e === 'leccion') {
+    const modo = ['leccion', 'repaso', 'libre'].includes(b.modo) ? b.modo : 'leccion';
+    sumar(modo === 'leccion' ? 'lecciones' : modo === 'repaso' ? 'repasos' : 'partidas_libres', true, true);
+    if (b.perfecta === true && modo === 'leccion') sumar('perfectas', true, true);
+  } else if (b.e === 'compartir') sumar('compartidos', true, true);
+  else if (b.e === 'embudo') {
+    if (!['bienvenida_vista', 'bienvenida_fin', 'primera_leccion', 'racha_2'].includes(b.paso)) return null;
+    sumar('emb_' + b.paso, true, true);
+  } else if (b.e === 'perfil') {
+    if (['instagram', 'tiktok', 'whatsapp', 'youtube', 'iglesia', 'amigo', 'google', 'otro'].includes(b.origen)) sumar('origen_' + b.origen, true, true);
+    if (['conocer', 'grupo', 'familia', 'repasar', 'curiosidad'].includes(b.motivo)) sumar('motivo_' + b.motivo, true, true);
+    if ([1, 2, 3].includes(b.meta)) sumar('meta_' + b.meta, true, true);
+  } else return null;
+  return pares;
+}
+// Suma a las filas de semana (S:) y mes (M:) lo guardado por día desde METRICA_CORTE (menos «activos», que se cuentan aparte)
+function metricasConPeriodos(filas) {
+  const extra = new Map();
+  for (const f of filas) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(f.periodo) || f.periodo < METRICA_CORTE || f.clave === 'activos') continue;
+    const ms = Date.parse(f.periodo + 'T12:00:00Z');
+    for (const per of ['S:' + semanaLiga(ms), 'M:' + f.periodo.slice(0, 7)]) { const k = per + '|' + f.clave; extra.set(k, (extra.get(k) || 0) + f.n); }
+  }
+  const out = filas.map(f => ({ ...f })), idx = new Map(out.map((f, i) => [f.periodo + '|' + f.clave, i]));
+  for (const [k, n] of extra) { const i = k.indexOf('|'); if (idx.has(k)) out[idx.get(k)].n += n; else out.push({ periodo: k.slice(0, i), clave: k.slice(i + 1), n }); }
+  return out;
+}
+
 const SEGURIDAD = {
   'x-content-type-options': 'nosniff',
   'referrer-policy': 'strict-origin-when-cross-origin',
@@ -310,30 +353,13 @@ async function api(req, env, url, ruta) {
   // Lumbrera: contadores anónimos de uso (sin identificadores ni datos personales)
   if (ruta === 'm' && m === 'POST') {
     if (env.MARCA !== 'fe') return json({ ok: true });
-    const b = await cuerpo(), dia = diaLiga(), sem = 'S:' + semanaLiga(), mes = 'M:' + dia.slice(0, 7), pares = [];
-    const sumar = (clave, enSemana = false, enMes = false) => { pares.push([dia, clave, 1]); if (enSemana) pares.push([sem, clave, 1]); if (enMes) pares.push([mes, clave, 1]); };
-    if (b.e === 'activo') {
-      sumar('activos');
-      if (b.semana === true) pares.push([sem, 'activos', 1]);
-      if (b.mes === true) pares.push([mes, 'activos', 1]);
-      if (b.nuevo === true) { sumar('nuevos', true, true); pares.push(['total', 'nuevos', 1]); }
-      if (b.racha === true) sumar('en_racha');
-      if (b.app === true) sumar('desde_app');
-    } else if (b.e === 'leccion') {
-      const modo = ['leccion', 'repaso', 'libre'].includes(b.modo) ? b.modo : 'leccion';
-      sumar(modo === 'leccion' ? 'lecciones' : modo === 'repaso' ? 'repasos' : 'partidas_libres', true, true);
-      if (b.perfecta === true && modo === 'leccion') sumar('perfectas', true, true);
-    } else if (b.e === 'compartir') sumar('compartidos', true, true);
-    else if (b.e === 'embudo') {
-      if (!['bienvenida_vista', 'bienvenida_fin', 'primera_leccion', 'racha_2'].includes(b.paso)) return json({ error: 'Paso desconocido' }, 400);
-      sumar('emb_' + b.paso, true, true);
-    } else if (b.e === 'perfil') { // respuestas de la bienvenida: solo valores de la lista, sin nada personal
-      if (['instagram', 'tiktok', 'whatsapp', 'youtube', 'iglesia', 'amigo', 'google', 'otro'].includes(b.origen)) sumar('origen_' + b.origen, true, true);
-      if (['conocer', 'grupo', 'familia', 'repasar', 'curiosidad'].includes(b.motivo)) sumar('motivo_' + b.motivo, true, true);
-      if ([1, 2, 3].includes(b.meta)) sumar('meta_' + b.meta, true, true);
-    }
-    else return json({ error: 'Evento desconocido' }, 400);
-    await st.metricaSumar(pares);
+    const b = await cuerpo();
+    // Un envío puede traer varios eventos juntos ({ lote: [...] }): menos peticiones y una sola escritura por contador
+    const lista = Array.isArray(b.lote) ? b.lote.slice(0, 40) : [b];
+    const acum = new Map();
+    for (const ev of lista) { const p = paresMetrica(ev); if (p) for (const [periodo, clave, n] of p) { const k = periodo + '|' + clave; acum.set(k, (acum.get(k) || 0) + n); } }
+    if (!acum.size) return json({ error: 'Evento desconocido' }, 400);
+    await st.metricaSumar([...acum].map(([k, n]) => { const i = k.indexOf('|'); return [k.slice(0, i), k.slice(i + 1), n]; }));
     return json({ ok: true });
   }
   // Lumbrera: notificaciones push (recordatorio diario)
@@ -427,8 +453,10 @@ async function api(req, env, url, ruta) {
     return json(await st.grupoAmpliar(g.grupo, dias, plan));
   }
   if (ruta === 'metricas' && m === 'GET') {
-    const desde = diaLiga(Date.now() - 34 * 864e5);
-    return json({ hoy: diaLiga(), semana: semanaLiga(), ...(await st.metricas({ desdeDia: desde, semana: semanaLiga() })) }, 200, { 'cache-control': 'no-store' });
+    const hoy = diaLiga(), mesIni = hoy.slice(0, 7) + '-01', semIni = diaLiga(Date.now() - 6 * 864e5);
+    const desde = [diaLiga(Date.now() - 34 * 864e5), mesIni, semIni].sort()[0];
+    const r = await st.metricas({ desdeDia: desde, semana: semanaLiga() });
+    return json({ hoy, semana: semanaLiga(), ...r, filas: metricasConPeriodos(r.filas) }, 200, { 'cache-control': 'no-store' });
   }
   if (ruta === 'cuestionarios' && m === 'GET')
     return json((await st.listar()).map(q => ({ id: q.id, titulo: q.titulo, categoria: q.categoria || '', tipo: q.tipo || 'trivial',

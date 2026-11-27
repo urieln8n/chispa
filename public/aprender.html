@@ -1328,9 +1328,24 @@ async function partidaAbierta() {
 
 // ===================== Contadores anónimos de uso =====================
 // Solo se envía el tipo de evento (sin identificadores). Sirve para saber cuánta gente usa Lumbrera y si vuelve.
+// Las métricas se juntan y salen en un solo envío (a los 20 s o al salir de la app): menos peticiones al servidor
+let COLA_M = [], TIMER_M = null;
 function enviarMetrica(datos) {
-  try { fetch(BASE + 'api/m', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(datos), keepalive: true }).catch(() => {}); } catch {}
+  COLA_M.push(datos);
+  if (COLA_M.length >= 30) return vaciarMetricas();
+  if (!TIMER_M) TIMER_M = setTimeout(vaciarMetricas, 20000);
 }
+function vaciarMetricas() {
+  clearTimeout(TIMER_M); TIMER_M = null;
+  if (!COLA_M.length) return;
+  const cuerpo = JSON.stringify({ lote: COLA_M.splice(0, 40) });
+  try {
+    if (navigator.sendBeacon && navigator.sendBeacon(BASE + 'api/m', new Blob([cuerpo], { type: 'application/json' }))) return;
+    fetch(BASE + 'api/m', { method: 'POST', headers: { 'content-type': 'application/json' }, body: cuerpo, keepalive: true }).catch(() => {});
+  } catch {}
+}
+addEventListener('pagehide', vaciarMetricas);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') vaciarMetricas(); });
 function metricaActivo() {
   const hoy = hoyISO(), sem = semanaLocal(), mes = hoy.slice(0, 7), M = E.met;
   if (M && M.dia === hoy) return;
