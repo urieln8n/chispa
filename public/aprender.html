@@ -266,6 +266,9 @@
   #arranque .lema{font-weight:700;color:#B9B2D9;margin:2.2rem 0 0;opacity:0;animation:aparece .9s .8s ease forwards}
   @keyframes aparece{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){#arranque *{animation:none!important;opacity:1!important}}
+  /* Accesibilidad: foco visible al usar el teclado */
+  :where(button,a,summary,[tabindex]):focus-visible{outline:3px solid var(--ambar);outline-offset:3px}
+  .op:focus-visible,.ficha:focus-visible,.libro:focus-visible,.nodo:focus-visible{outline-offset:2px}
 </style>
 </head>
 <body class="tema-fe">
@@ -288,7 +291,7 @@
   setTimeout(function () { a.classList.add('fuera'); setTimeout(function () { a.remove(); }, 650); }, 2300);
 })();
 </script>
-<div class="app" id="app"></div>
+<main class="app" id="app"></main>
 <section class="sobre" id="sobre" aria-labelledby="sobre-t">
   <h2 id="sobre-t">Qué es Lumbrera</h2>
   <p>Lumbrera es una app gratuita para aprender la Biblia poco a poco, con <b>Génesis</b>, <b>Éxodo</b> y los cuatro <b>Evangelios</b> (Mateo, Marcos, Lucas y Juan): <b>150 preguntas</b> de cada libro, en <b>15 lecciones de 10 preguntas</b>. Hay preguntas de elegir respuesta, verdadero o falso, versículos para completar, hechos para ordenar y personajes para emparejar. Cada respuesta enseña la cita y una explicación breve.</p>
@@ -747,9 +750,9 @@ function pintarPregunta() {
   let cuerpo = '';
   if (q.t === 'opcion' || q.t === 'completar') {
     q._ops = q._ops || barajar([q.ok, ...q.malas]);
-    cuerpo = `<div class="ops">${q._ops.map((o, i) => `<button class="op" data-i="${i}">${esc(o)}</button>`).join('')}</div>`;
+    cuerpo = `<div class="ops">${q._ops.map((o, i) => `<button class="op" data-i="${i}" aria-pressed="false">${esc(o)}</button>`).join('')}</div>`;
   } else if (q.t === 'vf') {
-    cuerpo = `<div class="ops vf"><button class="op" data-v="1">Verdadero</button><button class="op" data-v="0">Falso</button></div>`;
+    cuerpo = `<div class="ops vf"><button class="op" data-v="1" aria-pressed="false">Verdadero</button><button class="op" data-v="0" aria-pressed="false">Falso</button></div>`;
   } else if (q.t === 'ordenar') {
     q._pool = barajar(q.orden.map((t, i) => ({ t, i })));
     cuerpo = `<div class="zona" id="zona"><div class="vacio">Toca los hechos en el orden en que ocurrieron</div></div><div class="ops" id="pool"></div>`;
@@ -759,15 +762,15 @@ function pintarPregunta() {
       <div class="col">${der.map(x => `<button class="ficha" data-lado="b" data-i="${x.i}">${esc(x.t)}</button>`).join('')}</div></div>`;
   }
   const enunciado = q.t === 'completar' ? esc(q.q).replace('___', '<span class="hueco">&nbsp;</span>') : esc(q.q);
-  APP.innerHTML = `<div class="lec-top"><button class="cerrar" id="b-salir" aria-label="Salir de la lección">✕</button><div class="prog"><i style="width:${pct}%"></i></div></div>
+  APP.innerHTML = `<div class="lec-top"><button class="cerrar" id="b-salir" aria-label="Salir de la lección">✕</button><div class="prog" role="progressbar" aria-label="Progreso de la lección" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div></div>
     <div class="tipo">${LEC.fallidas.has(q.id) ? '🔁 Otra vez · ' : ''}${ETIQ[q.t]}</div>
     <p class="enunciado">${enunciado}</p>${cuerpo}
-    <div class="pie-lec" id="pie"><div class="dentro"><button class="btn grande" id="b-comprobar" disabled>Comprobar</button></div></div>`;
+    <div class="pie-lec" id="pie"><div class="dentro" aria-live="polite"><button class="btn grande" id="b-comprobar" disabled>Comprobar</button></div></div>`;
   document.getElementById('b-salir').onclick = salir;
   const comprobar = document.getElementById('b-comprobar');
   if (q.t === 'opcion' || q.t === 'completar' || q.t === 'vf') {
     APP.querySelectorAll('.op').forEach(b => b.onclick = () => {
-      APP.querySelectorAll('.op').forEach(x => x.classList.remove('sel')); b.classList.add('sel');
+      APP.querySelectorAll('.op').forEach(x => { x.classList.remove('sel'); x.setAttribute('aria-pressed', 'false'); }); b.classList.add('sel'); b.setAttribute('aria-pressed', 'true');
       RESP = q.t === 'vf' ? b.dataset.v === '1' : q._ops[+b.dataset.i];
       if (q.t === 'completar') APP.querySelector('.hueco').textContent = RESP;
       comprobar.disabled = false;
@@ -789,12 +792,12 @@ function pintarPregunta() {
     comprobar.textContent = 'Empareja las cuatro parejas';
     APP.querySelectorAll('.pares .ficha').forEach(b => b.onclick = () => {
       if (b.classList.contains('ok')) return;
-      if (!sel || sel.dataset.lado === b.dataset.lado) { APP.querySelectorAll('.pares .ficha.sel').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = b; return; }
+      if (!sel || sel.dataset.lado === b.dataset.lado) { APP.querySelectorAll('.pares .ficha.sel').forEach(x => { x.classList.remove('sel'); x.removeAttribute('aria-pressed'); }); b.classList.add('sel'); b.setAttribute('aria-pressed', 'true'); sel = b; return; }
       if (sel.dataset.i === b.dataset.i) {
-        [sel, b].forEach(x => { x.classList.remove('sel'); x.classList.add('ok'); x.disabled = true; }); hechos++; sonido('tic');
+        [sel, b].forEach(x => { x.classList.remove('sel'); x.removeAttribute('aria-pressed'); x.classList.add('ok'); x.disabled = true; x.setAttribute('aria-label', x.textContent + ' (emparejado)'); }); hechos++; sonido('tic');
         if (hechos === q.pares.length) corregir(fallosPar === 0, null, fallosPar);
       } else {
-        fallosPar++; sonido('mal'); [sel, b].forEach(x => { x.classList.add('mal'); setTimeout(() => x.classList.remove('mal', 'sel'), 350); });
+        fallosPar++; sonido('mal'); [sel, b].forEach(x => { x.classList.add('mal'); x.removeAttribute('aria-pressed'); setTimeout(() => x.classList.remove('mal', 'sel'), 350); });
       }
       sel = null;
     });
@@ -822,6 +825,7 @@ function corregir(ok, correcta, fallosPar = 0) {
   guardarE();
   APP.querySelectorAll('.op,.ficha').forEach(b => b.disabled = true);
   document.querySelector('.prog i').style.width = (100 * LEC.bien / LEC.total) + '%';
+  document.querySelector('.prog').setAttribute('aria-valuenow', Math.round(100 * LEC.bien / LEC.total));
   const pie = document.getElementById('pie'); const bien = ok || q.t === 'emparejar';
   pie.className = 'pie-lec ' + (bien ? 'bien' : 'mal');
   const frases = ['¡Bien hecho!', '¡Correcto!', '¡Muy bien!', '¡Exacto!', '¡Eso es!'];
