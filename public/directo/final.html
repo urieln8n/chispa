@@ -1,0 +1,21 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Lumbrera · Gracias por jugar</title>
+<link rel="stylesheet" href="comun.css"><style>
+main{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.logo{width:210px;height:210px}
+h1{font-family:B;font-weight:800;font-size:120px;line-height:1;margin-top:30px;color:#F2C46B}
+.sub{font-size:46px;font-weight:600;margin-top:16px}
+.fila{display:flex;gap:28px;margin-top:44px}
+.caja{background:rgba(244,241,234,.07);border:3px solid rgba(185,178,217,.35);border-radius:30px;padding:22px 34px;font-size:34px;font-weight:800}
+.caja i{display:block;font-style:normal;font-size:56px}
+.pildora{font-size:44px;margin-top:44px}
+.prox{font-size:38px;color:#B9B2D9;margin-top:30px;font-weight:600}
+.verso{position:absolute;bottom:44px;left:0;right:0;text-align:center;font-size:30px;color:#B9B2D9}
+</style></head><body class="fondo"><canvas class="estrellas"></canvas>
+<main><img class="logo" src="/marca/lumbrera-logo-youtube-800.png" alt=""><h1>¡Gracias por jugar!</h1><p class="sub">Sigue aprendiendo la Biblia cada día, gratis</p>
+<div class="fila"><div class="caja"><i>🗓️</i>Reto diario</div><div class="caja"><i>🌿</i>Temas para tu vida</div><div class="caja"><i>🃏</i>Colección de personajes</div><div class="caja"><i>👥</i>Partidas en grupo</div></div>
+<div class="pildora">▶ genesis.andresrendon.com</div><p class="prox" id="prox">🔔 Suscríbete a Brote para el próximo directo</p></main>
+<p class="verso">«Lámpara es a mis pies tu palabra, y lumbrera a mi camino» · Salmos 119:105</p>
+<script src="estrellas.js"></script><script>
+// ?prox=Viernes 4 dic · 21:00
+const p=new URLSearchParams(location.search).get('prox');if(p)document.getElementById('prox').textContent='🔔 Próximo directo: '+p+' · Suscríbete a Brote';
+</script></body></html>

@@ -100,7 +100,7 @@ async function atender(req, env) {
         return env.JUEGO.get(env.JUEGO.idFromName('tele:' + codigo)).fetch(req);
       }
       if (ruta.startsWith('/api/')) return await api(req, env, url, ruta.slice(5));
-      if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /estadisticas\nDisallow: /editor\nDisallow: /presentar\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
+      if (ruta === '/robots.txt') return new Response(`User-agent: *\nAllow: /\nDisallow: /panel\nDisallow: /estadisticas\nDisallow: /editor\nDisallow: /presentar\nDisallow: /directo\nDisallow: /bingo-\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml\n`, { headers: { 'content-type': 'text/plain; charset=utf-8' } });
       // Fiestón: su portada, la página para entrar desde el móvil y la pantalla de la tele
       if (env.MARCA === 'fiesta') {
         const paginas = { '/': '/fiesta', '/index.html': '/fiesta', '/jugar': '/fiesta-movil', '/jugar.html': '/fiesta-movil', '/tv': '/fiesta-tv' };

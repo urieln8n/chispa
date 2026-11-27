@@ -1,0 +1,21 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Lumbrera · Empezamos pronto</title>
+<link rel="stylesheet" href="comun.css"><style>
+main{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.logo{width:230px;height:230px}
+h1{font-family:B;font-weight:800;font-size:110px;line-height:1;margin-top:34px}
+.sub{font-size:44px;font-weight:600;margin-top:14px;color:#B9B2D9}
+#cuenta{font-family:B;font-weight:800;font-size:150px;color:#F2C46B;margin-top:22px;font-variant-numeric:tabular-nums;line-height:1}
+.pildora{font-size:42px;margin-top:40px}
+.tip{position:absolute;bottom:56px;left:0;right:0;text-align:center;font-size:34px;font-weight:600;color:#F4F1EA;opacity:.9;transition:opacity .6s}
+</style></head><body class="fondo"><canvas class="estrellas"></canvas>
+<main><img class="logo" src="/marca/lumbrera-logo-youtube-800.png" alt=""><h1 id="titulo">Quiz bíblico en directo</h1><p class="sub">Empezamos en</p><div id="cuenta">5:00</div>
+<div class="pildora">📱 Ten el móvil a mano · genesis.andresrendon.com/jugar</div></main>
+<p class="tip" id="tip"></p>
+<script src="estrellas.js"></script><script>
+// ?min=5 (minutos de cuenta atrás) · ?titulo=Quiz de Génesis
+const p=new URLSearchParams(location.search);if(p.get('titulo'))document.getElementById('titulo').textContent=p.get('titulo');
+const fin=Date.now()+(parseFloat(p.get('min'))||5)*60e3,el=document.getElementById('cuenta');
+setInterval(()=>{const s=Math.max(0,Math.round((fin-Date.now())/1000));el.textContent=s?`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`:'¡Ya empezamos!';},250);
+const tips=['Jugarás desde el móvil, sin instalar nada y sin registrarte','Pon tu nombre o un apodo y espera el PIN','Las preguntas son de la Biblia Reina-Valera 1960','Escribe en el chat desde dónde nos ves 🌎','¿Te gusta? Suscríbete a Brote y activa la campana 🔔'];
+let i=0;const t=document.getElementById('tip');const pon=()=>{t.style.opacity=0;setTimeout(()=>{t.textContent=tips[i++%tips.length];t.style.opacity=.9},600)};pon();setInterval(pon,7000);
+</script></body></html>

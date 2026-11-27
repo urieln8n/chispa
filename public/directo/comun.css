@@ -1,0 +1,11 @@
+@font-face{font-family:B;src:url(/fonts/baloo-2-latin-800-normal.woff2);font-weight:800}
+@font-face{font-family:B;src:url(/fonts/baloo-2-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:N;src:url(/fonts/nunito-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:N;src:url(/fonts/nunito-latin-800-normal.woff2);font-weight:800}
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;font-family:N;color:#F4F1EA}
+.fondo{background:radial-gradient(ellipse at 50% 35%,#2A2163 0%,#1B1640 60%,#120e2e 100%)}
+canvas.estrellas{position:absolute;inset:0}
+.ambar{color:#F2C46B}
+.pildora{display:inline-flex;align-items:center;gap:14px;background:#F2C46B;color:#1B1640;font-weight:800;border-radius:999px;padding:14px 34px}
+.logo{border-radius:50%;box-shadow:0 0 140px rgba(242,196,107,.45)}

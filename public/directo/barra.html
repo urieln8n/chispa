@@ -1,0 +1,20 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Lumbrera · Barra del directo</title>
+<link rel="stylesheet" href="comun.css"><style>
+html,body{background:transparent}
+.barra{position:absolute;left:50%;top:5px;transform:translateX(-50%);display:flex;align-items:center;gap:18px;white-space:nowrap;background:rgba(27,22,64,.95);border:3px solid rgba(242,196,107,.75);border-radius:999px;padding:3px 6px 3px 4px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.abajo .barra{top:auto;bottom:24px}
+.barra img{width:44px;height:44px;border-radius:50%}
+.txt{font-size:24px;font-weight:800}.txt b{font-family:B;font-weight:800;color:#F2C46B;margin-right:8px}
+.pin{font-family:B;font-weight:800;font-size:30px;letter-spacing:3px;background:#F2C46B;color:#1B1640;border-radius:999px;padding:4px 28px}
+.pin small{font-family:N;font-size:22px;letter-spacing:0;margin-right:10px;vertical-align:middle}
+.vivo{position:absolute;left:36px;bottom:30px;background:#E5484D;color:#fff;font-weight:800;font-size:26px;border-radius:12px;padding:6px 18px;display:none}
+</style></head><body>
+<div class="barra"><img src="/marca/lumbrera-logo-youtube-800.png" alt=""><div class="txt"><b>📱 Juega conmigo:</b><span>genesis.andresrendon.com/jugar</span></div><div class="pin" id="pin" hidden><small>PIN</small><span></span></div></div>
+<div class="vivo" id="vivo">● EN DIRECTO</div>
+<script>
+// ?pin=123456 muestra el PIN · ?vivo=1 añade la etiqueta «en directo» · ?abajo=1 pone la barra abajo
+if(new URLSearchParams(location.search).get('abajo'))document.body.classList.add('abajo');
+const p=new URLSearchParams(location.search),pin=(p.get('pin')||'').replace(/\D/g,'');
+if(pin.length===6){const e=document.getElementById('pin');e.hidden=false;e.querySelector('span').textContent=pin.slice(0,3)+' '+pin.slice(3);}
+if(p.get('vivo'))document.getElementById('vivo').style.display='block';
+</script></body></html>
