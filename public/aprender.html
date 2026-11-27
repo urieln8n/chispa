@@ -161,6 +161,27 @@
   .reto{margin:0 0 1.2rem;background:linear-gradient(135deg,rgba(46,175,125,.16),rgba(46,175,125,.05));border-color:#2EAF7D}
   .reto .cuadros,.cuadros{display:block;font-size:1.25rem;letter-spacing:2px;margin:.15rem 0}.cuadros.grande{font-size:2.2rem;letter-spacing:4px}
   .tema-claro .reto{background:linear-gradient(135deg,#E8F7F0,#F6FCF9);border-color:#9FD9C0}
+  /* Aprende por temas */
+  .temas-entrada{display:flex;align-items:center;gap:.9rem;width:100%;text-align:left;margin:1rem 0 0;padding:1rem 1.1rem;border-radius:20px;cursor:pointer;font:inherit;color:#F7F2E8;
+    border:1px solid rgba(242,196,107,.45);background:radial-gradient(120% 140% at 0% 0%,rgba(242,196,107,.22) 0%,transparent 55%),linear-gradient(135deg,#2c2266,#1c1748);box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.06)}
+  .temas-entrada .te-ico{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:rgba(242,196,107,.16);font-size:1.5rem}
+  .temas-entrada .te-txt{flex:1;display:flex;flex-direction:column}.temas-entrada small{font-weight:800;font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--ambar)}
+  .temas-entrada b{font-family:var(--tit);font-size:1.25rem;line-height:1.15}.temas-entrada .te-txt>span{color:#C9C2E6;font-size:.88rem;font-weight:600}
+  .temas-entrada .te-flecha{font-size:1.3rem;color:var(--ambar)}
+  .temas-cab{padding:.4rem 0 .6rem}.temas-cab small{font-weight:800;font-size:.75rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--ambar)}
+  .temas-cab h1.t{font-size:1.75rem;line-height:1.12;margin:.3rem 0 .4rem}
+  .temas-prog{height:8px;border-radius:99px;background:var(--noche3);overflow:hidden;margin-top:.8rem}.temas-prog i{display:block;height:100%;background:var(--ambar);border-radius:99px}
+  .temas-lista{display:grid;gap:12px;margin-top:1.2rem}
+  .tema{position:relative;overflow:hidden;display:flex;align-items:center;gap:1rem;width:100%;text-align:left;border:0;border-radius:22px;padding:1.15rem 1.1rem;cursor:pointer;font:inherit;color:#fff;
+    background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 8px 24px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.12);transition:transform .12s}
+  .tema::after{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07)}
+  .tema:active{transform:scale(.985)}
+  .tema-ico{flex:none;display:grid;place-items:center;width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.16);font-size:1.75rem;backdrop-filter:blur(4px)}
+  .tema-txt{flex:1;display:flex;flex-direction:column;gap:.1rem;position:relative;z-index:1}.tema-txt b{font-family:var(--tit);font-size:1.3rem;line-height:1.1}
+  .tema-txt>span{font-weight:600;font-size:.9rem;opacity:.95}.tema-txt small{font-weight:800;font-size:.8rem;opacity:.95;margin-top:.25rem}.tema-est{color:#FFE29A;letter-spacing:1px}
+  .tema-flecha{font-size:1.3rem;font-weight:800;position:relative;z-index:1}
+  .t-familia{--a:#B43A57;--b:#7E2440}.t-perdon{--a:#1D6E86;--b:#124B5D}.t-finanzas{--a:#1B7453;--b:#11513A}.t-matrimonio{--a:#9B4E25;--b:#6E3418}.t-evangelismo{--a:#5B3FCC;--b:#3F2A99}
+  .tema-claro .temas-entrada{background:radial-gradient(120% 140% at 0% 0%,rgba(242,196,107,.35) 0%,transparent 55%),linear-gradient(135deg,#2c2266,#1c1748)}
   .partida.arriba{padding:.9rem 1rem;background:linear-gradient(160deg,#25265e 0%,#1d3557 100%);border-color:#3d5c8c}
   .partida.arriba h2::before{content:'🎲 '}
   .tema-claro .partida.arriba{background:linear-gradient(160deg,#FFFFFF 0%,#EAF3F7 100%);border-color:#C9DCE6}.partida.arriba h2{font-size:1.15rem}.partida.arriba .cantidades{margin:.55rem 0}.partida.arriba .cant,.partida.arriba .tiem,.partida.arriba .libp{padding:.45em 0;font-size:.9rem}.cantidades.libros-p{grid-template-columns:repeat(3,1fr)}#grupo-msg:empty{display:none}.partida.arriba .dos-btn .btn{padding:.75em .4em;font-size:1rem;white-space:nowrap}
@@ -535,12 +556,14 @@ async function inicio() {
     <div id="hueco-inst">${bloqueInstalar(false)}</div>
     ${totalFallos ? `<div class="repaso"><div><b>Repasa tus fallos</b><div class="pie" style="opacity:1">${totalFallos} pregunta${totalFallos === 1 ? '' : 's'} para afianzar</div></div><button class="btn peq" id="b-rep">Repasar</button></div>` : ''}
     <div class="libros solo">${cat.libros.map(tarjeta).join('')}</div>
+    <button class="temas-entrada" id="b-temas"><span class="te-ico" aria-hidden="true">✨</span><span class="te-txt"><small>Nuevo</small><b>Aprende por temas</b><span>Familia, perdón, finanzas, matrimonio y evangelismo</span></span><span class="te-flecha" aria-hidden="true">→</span></button>
     <div id="misiones"></div>
     <div id="liga"></div>
     <div id="extra"></div>
     <p class="pie" style="text-align:center;margin-top:1.2rem"><a href="jugar">¿Ya tienes un PIN? Entra en la partida</a></p>
     `;
   APP.querySelectorAll('[data-l]').forEach(b => b.onclick = () => verLibro(b.dataset.l));
+  document.getElementById('b-temas').onclick = verTemas;
   const br = document.getElementById('b-rep'); if (br) br.onclick = () => repasar(null);
   APP.querySelectorAll('.cant').forEach(b => b.onclick = () => { CANT = +b.dataset.n; APP.querySelectorAll('.cant').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); });
   document.getElementById('b-solo').onclick = async () => practicaLibre(await libro(libP().id), CANT);
@@ -759,6 +782,35 @@ function terminarReto() {
   setTimeout(revisarMisiones, 800);
 }
 
+// ===================== Aprende por temas (solo versículos de cada tema) =====================
+let TEMAS = null;
+async function temas() { if (!TEMAS) TEMAS = await fetch(BASE + 'biblia/temas.json').then(r => r.json()); return TEMAS; }
+async function verTemas() {
+  APP.dataset.vista = 'temas';
+  const T = await temas(); E.temas = E.temas || {};
+  const hechos = T.temas.filter(t => E.temas[t.id]).length;
+  APP.innerHTML = cabecera(`<button class="cerrar" id="b-atras" aria-label="Volver al inicio">←</button>`) + `
+    <div class="temas-cab"><small>Aprende por temas</small><h1 class="t">Lo que la Biblia dice sobre tu vida</h1>
+      <p class="sub">Diez preguntas por tema, solo con versículos de ese tema. Cada cita enlaza a la Reina-Valera 1960.</p>
+      <div class="temas-prog" role="progressbar" aria-label="Temas completados" aria-valuemin="0" aria-valuemax="${T.temas.length}" aria-valuenow="${hechos}"><i style="width:${100 * hechos / T.temas.length}%"></i></div>
+      <p class="pie" style="opacity:1;margin:.35rem 0 0">${hechos} de ${T.temas.length} temas completados</p></div>
+    <div class="temas-lista">${T.temas.map(t => { const h = E.temas[t.id]; return `
+      <button class="tema t-${t.id}" data-tema="${t.id}">
+        <span class="tema-ico" aria-hidden="true">${t.icono}</span>
+        <span class="tema-txt"><b>${esc(t.nombre)}</b><span>${esc(t.desc)}</span>
+          <small>${h ? `<span class="tema-est">${'★'.repeat(h.estrellas)}${'☆'.repeat(3 - h.estrellas)}</span> · Repetir` : `${t.preguntas.length} preguntas · Empezar`}</small></span>
+        <span class="tema-flecha" aria-hidden="true">${h ? '✓' : '→'}</span>
+      </button>`; }).join('')}</div>`;
+  document.getElementById('b-atras').onclick = inicio;
+  APP.querySelectorAll('[data-tema]').forEach(b => b.onclick = () => empezarTema(T.temas.find(t => t.id === b.dataset.tema)));
+  scrollTo(0, 0);
+}
+function empezarTema(t) {
+  LEC = { L: null, tema: t, cola: t.preguntas.map(q => ({ ...q })), total: t.preguntas.length, bien: 0, errores: 0, xp: 0, fallidas: new Set(), modo: 'tema', combo: 0, mejorCombo: 0 };
+  enviarMetrica({ e: 'tema', id: t.id });
+  pintarPregunta();
+}
+
 let CANT = 20, TIEMPO = 20, LIBRO_P = 'genesis';
 // Partida individual con el número de preguntas que elija la persona (al azar entre todo el libro)
 function practicaLibre(L, n) {
@@ -803,7 +855,7 @@ function pintarPregunta() {
   }
   const enunciado = q.t === 'completar' ? esc(q.q).replace('___', '<span class="hueco">&nbsp;</span>') : esc(q.q);
   APP.innerHTML = `<div class="lec-top"><button class="cerrar" id="b-salir" aria-label="Salir de la lección">✕</button><div class="prog" role="progressbar" aria-label="Progreso de la lección" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div></div>
-    <div class="tipo">${LEC.modo === 'reto' ? `🗓️ Reto de hoy · ${LEC.total - LEC.cola.length + 1} de ${LEC.total} · ` : ''}${LEC.fallidas.has(q.id) ? '🔁 Otra vez · ' : ''}${ETIQ[q.t]}</div>
+    <div class="tipo">${LEC.modo === 'reto' ? `🗓️ Reto de hoy · ${LEC.total - LEC.cola.length + 1} de ${LEC.total} · ` : LEC.modo === 'tema' ? `${LEC.tema.icono} ${esc(LEC.tema.nombre)} · ` : ''}${LEC.fallidas.has(q.id) ? '🔁 Otra vez · ' : ''}${ETIQ[q.t]}</div>
     <p class="enunciado">${enunciado}</p>${cuerpo}
     <div class="pie-lec" id="pie"><div class="dentro" aria-live="polite"><button class="btn grande" id="b-comprobar" disabled>Comprobar</button></div></div>`;
   document.getElementById('b-salir').onclick = salir;
@@ -858,10 +910,10 @@ function corregir(ok, correcta, fallosPar = 0) {
   if (ok || q.t === 'emparejar') {
     LEC.bien++; const g = ok && primera ? 10 : 5; LEC.xp += g;
     if (LEC.modo === 'repaso' && ok && primera) delete E.fallos[q.id]; // sale de la lista al acertarla en un repaso
-    if (emparejadoConFallos) { LEC.errores++; E.fallos[q.id] = { libro: q.libro }; }
+    if (emparejadoConFallos) { LEC.errores++; if (LEC.modo !== 'tema') E.fallos[q.id] = { libro: q.libro }; }
     sonido('ok'); vibrar(20);
   } else {
-    LEC.errores++; LEC.fallidas.add(q.id); if (LEC.modo !== 'reto') LEC.cola.push(q); E.fallos[q.id] = { libro: q.libro };
+    LEC.errores++; LEC.fallidas.add(q.id); if (LEC.modo !== 'reto') LEC.cola.push(q); if (LEC.modo !== 'tema') E.fallos[q.id] = { libro: q.libro };
     sonido('mal'); vibrar(120);
   }
   guardarE();
@@ -888,6 +940,12 @@ function terminar() {
   const rachaAntes = rachaViva();
   sumarXP(total);
   let estrellas = 0;
+  if (LEC.modo === 'tema') {
+    estrellas = perfecta ? 3 : LEC.errores <= 2 ? 2 : 1;
+    E.temas = E.temas || {}; const prev = E.temas[LEC.tema.id];
+    E.temas[LEC.tema.id] = { estrellas: Math.max(estrellas, prev ? prev.estrellas : 0), fecha: hoyISO() };
+    guardarE();
+  }
   if (LEC.modo === 'leccion') {
     estrellas = perfecta ? 3 : LEC.errores <= 2 ? 2 : 1;
     const k = claveLec(LEC.L.id, LEC.ui, LEC.li), prev = E.lecciones[k];
@@ -901,14 +959,14 @@ function terminar() {
   const nuevosLogros = revisarLogros();
   contar('lecciones'); if (perfecta && LEC.modo === 'leccion') contar('perfectas'); maximo('combo', LEC.mejorCombo || 0);
   const talentosLec = LEC.modo === 'leccion' ? (perfecta ? 10 : 5) : 3;
-  const nombreLibro = LEC.L ? LEC.L.nombre : (LIBROS[LEC.vuelta] ? LIBROS[LEC.vuelta].nombre : 'la Biblia');
+  const nombreLibro = LEC.tema ? LEC.tema.nombre : LEC.L ? LEC.L.nombre : (LIBROS[LEC.vuelta] ? LIBROS[LEC.vuelta].nombre : 'la Biblia');
   const textoCompartir = subioRacha && rachaViva() > 1
     ? `🔥 Llevo ${rachaViva()} días seguidos aprendiendo la Biblia en Lumbrera. ¿Te animas a seguirme el ritmo?`
-    : `${perfecta ? '🏆' : '⭐'} Acabo de ${LEC.libre ? 'jugar una partida' : 'completar una lección'} de ${nombreLibro} en Lumbrera con un ${precision}% de aciertos. ¿Te atreves?`;
+    : `${perfecta ? '🏆' : '⭐'} Acabo de ${LEC.modo === 'tema' ? 'aprender qué dice la Biblia sobre' : LEC.libre ? 'jugar una partida de' : 'completar una lección de'} ${LEC.modo === 'tema' ? nombreLibro.toLowerCase() : nombreLibro} en Lumbrera con un ${precision}% de aciertos. ¿Te atreves?`;
   const tu = AJ.nombre ? `, ${esc(AJ.nombre)}` : '';
   APP.innerHTML = `<div class="fin">
     <div class="big">${perfecta ? '🏆' : '🎉'}</div>
-    <h1 class="t">${LEC.libre ? '¡Partida completada' : LEC.modo === 'repaso' ? '¡Repaso completado' : perfecta ? '¡Lección perfecta' : '¡Lección completada'}${tu}!</h1>
+    <h1 class="t">${LEC.modo === 'tema' ? (perfecta ? '¡Tema perfecto' : '¡Tema completado') : LEC.libre ? '¡Partida completada' : LEC.modo === 'repaso' ? '¡Repaso completado' : perfecta ? '¡Lección perfecta' : '¡Lección completada'}${tu}!</h1>
     ${estrellas ? `<div style="font-size:2rem;color:var(--ambar);letter-spacing:4px">${'★'.repeat(estrellas)}${'☆'.repeat(3 - estrellas)}</div>` : ''}
     <div class="cajas"><div class="caja-f"><b>+${total}</b>puntos</div><div class="caja-f"><b>${precision}%</b>aciertos</div><div class="caja-f"><b>🔥 ${rachaViva()}</b>${rachaViva() === 1 ? 'día' : 'días'}</div></div>
     ${subioRacha ? `<p style="margin:0;font-weight:800;color:#FF9A4D">${rachaViva() === 1 ? '¡Empiezas tu racha! Vuelve mañana para seguir.' : '¡Tu racha sigue viva!'}</p>` : ''}
@@ -932,7 +990,7 @@ function terminar() {
   }
   avisarLogros(nuevosLogros);
   setTimeout(revisarMisiones, 800);
-  document.getElementById('b-fin').onclick = () => LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
+  document.getElementById('b-fin').onclick = () => LEC.modo === 'tema' ? verTemas() : LEC.libre || (LEC.modo === 'repaso' && !LEC.vuelta) ? inicio() : verLibro(LEC.L ? LEC.L.id : LEC.vuelta);
 }
 // ===================== Avisos (notificaciones push) =====================
 // El servidor manda un aviso a la hora elegida si hoy aún no has hecho tu lección; el texto lo pone el service worker con tu racha.
@@ -1325,7 +1383,7 @@ function salir() {
   v.querySelector('#b-quedar').onclick = () => v.remove();
   v.querySelector('#b-irse').onclick = () => { v.remove(); volver(); };
 }
-function volver() { const id = LEC && (LEC.L ? LEC.L.id : LEC.vuelta); LEC = null; id ? verLibro(id) : inicio(); }
+function volver() { if (LEC && LEC.modo === 'tema') { LEC = null; return verTemas(); } const id = LEC && (LEC.L ? LEC.L.id : LEC.vuelta); LEC = null; id ? verLibro(id) : inicio(); }
 
 // ===================== Arranque =====================
 const salvados = aplicarProtectores();
@@ -1339,7 +1397,7 @@ var LIGA_INV = (new URLSearchParams(location.search).get('liga') || '').toLowerC
 var IR_RETO = new URLSearchParams(location.search).has('reto');
 var IR_GRUPO = location.hash === '#grupo'; // se lee antes de que inicio() limpie la dirección
 const lib = new URLSearchParams(location.search).get('libro');
-lib ? verLibro(lib).catch(inicio) : inicio();
+new URLSearchParams(location.search).has('temas') && !necesitaBienvenida() ? verTemas().catch(inicio) : lib ? verLibro(lib).catch(inicio) : inicio();
 </script>
 <!-- Cloudflare Web Analytics (sin cookies) -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "e0ce934667604de6846373325dd96382"}'></script>

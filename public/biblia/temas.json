@@ -1,0 +1,662 @@
+{
+ "temas": [
+  {
+   "id": "familia",
+   "nombre": "Familia",
+   "icono": "🏡",
+   "desc": "Padres, hijos y un hogar que sirve a Dios",
+   "preguntas": [
+    {
+     "t": "opcion",
+     "q": "¿Qué declaró Josué sobre su casa?",
+     "ok": "Yo y mi casa serviremos a Jehová",
+     "malas": [
+      "Mi casa no será conmovida",
+      "Edificaré mi casa sobre la roca",
+      "Mi casa será la más grande de Israel"
+     ],
+     "ref": "Josué 24:15",
+     "id": "tema-familia-1",
+     "libro": "temas"
+    },
+    {
+     "t": "completar",
+     "q": "«Instruye al niño en su ___, y aun cuando fuere viejo no se apartará de él»",
+     "ok": "camino",
+     "malas": [
+      "fe",
+      "casa",
+      "ley"
+     ],
+     "ref": "Proverbios 22:6",
+     "exp": "Lo que se siembra en la infancia acompaña toda la vida.",
+     "id": "tema-familia-2",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Efesios, ¿cuál es el primer mandamiento con promesa?",
+     "ok": "Honra a tu padre y a tu madre",
+     "malas": [
+      "No hurtarás",
+      "Amarás a tu prójimo como a ti mismo",
+      "Acuérdate del día de reposo"
+     ],
+     "ref": "Efesios 6:2-3",
+     "exp": "La promesa: que te vaya bien y seas de larga vida sobre la tierra.",
+     "id": "tema-familia-3",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "Efesios pide a los padres que no provoquen a ira a sus hijos, sino que los críen en disciplina y amonestación del Señor.",
+     "v": true,
+     "ref": "Efesios 6:4",
+     "id": "tema-familia-4",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según el Salmo 127, ¿qué son los hijos?",
+     "ok": "Herencia de Jehová",
+     "malas": [
+      "Una carga pesada",
+      "El fruto del esfuerzo humano",
+      "La corona de los reyes"
+     ],
+     "ref": "Salmos 127:3",
+     "id": "tema-familia-5",
+     "libro": "temas"
+    },
+    {
+     "t": "completar",
+     "q": "«Hijos, obedeced en el Señor a vuestros ___, porque esto es justo»",
+     "ok": "padres",
+     "malas": [
+      "maestros",
+      "mayores",
+      "pastores"
+     ],
+     "ref": "Efesios 6:1",
+     "id": "tema-familia-6",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "Rut le dijo a su suegra Noemí: «Tu pueblo será mi pueblo, y tu Dios mi Dios».",
+     "v": true,
+     "ref": "Rut 1:16",
+     "exp": "Rut eligió quedarse con Noemí: lealtad familiar y fe a la vez.",
+     "id": "tema-familia-7",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "En Deuteronomio 6, ¿cuándo se pide hablar a los hijos de las palabras de Dios?",
+     "ok": "En casa, por el camino, al acostarse y al levantarse",
+     "malas": [
+      "Solo en el día de reposo",
+      "Una vez al año, en la Pascua",
+      "Cuando los hijos sean mayores"
+     ],
+     "ref": "Deuteronomio 6:6-7",
+     "exp": "La fe se enseña en lo cotidiano, no solo en ocasiones especiales.",
+     "id": "tema-familia-8",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "¿Qué hizo el padre del hijo pródigo al verlo venir de lejos?",
+     "ok": "Corrió, se echó sobre su cuello y lo besó",
+     "malas": [
+      "Lo esperó en la puerta sin hablarle",
+      "Mandó a sus siervos que lo echaran",
+      "Le ofreció trabajar como jornalero"
+     ],
+     "ref": "Lucas 15:20",
+     "exp": "El hijo pensaba pedir ser jornalero; el padre lo recibió como hijo.",
+     "id": "tema-familia-9",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según 1 Timoteo, ¿cómo describe Pablo al que no provee para los suyos?",
+     "ok": "Ha negado la fe y es peor que un incrédulo",
+     "malas": [
+      "Es un siervo inútil",
+      "Es como quien edifica sobre la arena",
+      "Pierde su recompensa en el cielo"
+     ],
+     "ref": "1 Timoteo 5:8",
+     "id": "tema-familia-10",
+     "libro": "temas"
+    }
+   ]
+  },
+  {
+   "id": "perdon",
+   "nombre": "Perdón",
+   "icono": "🕊️",
+   "desc": "Perdonados para perdonar",
+   "preguntas": [
+    {
+     "t": "opcion",
+     "q": "¿Cuántas veces dijo Jesús a Pedro que debía perdonar?",
+     "ok": "Hasta setenta veces siete",
+     "malas": [
+      "Hasta siete veces",
+      "Tres veces",
+      "Solo si el otro se arrepiente una vez"
+     ],
+     "ref": "Mateo 18:21-22",
+     "exp": "No es una cifra para contar, sino perdonar siempre.",
+     "id": "tema-perdon-1",
+     "libro": "temas"
+    },
+    {
+     "t": "completar",
+     "q": "«Sed benignos unos con otros, misericordiosos, ___ unos a otros, como Dios también os perdonó a vosotros en Cristo»",
+     "ok": "perdonándoos",
+     "malas": [
+      "ayudándoos",
+      "exhortándoos",
+      "sirviéndoos"
+     ],
+     "ref": "Efesios 4:32",
+     "id": "tema-perdon-2",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según 1 Juan 1:9, ¿qué hace Dios si confesamos nuestros pecados?",
+     "ok": "Es fiel y justo para perdonarnos y limpiarnos",
+     "malas": [
+      "Nos pide primero un sacrificio",
+      "Nos perdona solo la primera vez",
+      "Espera a que lo merezcamos"
+     ],
+     "ref": "1 Juan 1:9",
+     "id": "tema-perdon-3",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "En el Padrenuestro, Jesús enseña a pedir: «perdónanos nuestras deudas, como también nosotros perdonamos a nuestros deudores».",
+     "v": true,
+     "ref": "Mateo 6:12",
+     "id": "tema-perdon-4",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "En la parábola de Mateo 18, ¿qué hizo el siervo al que el rey perdonó una gran deuda?",
+     "ok": "No perdonó a un consiervo que le debía mucho menos",
+     "malas": [
+      "Perdonó a todos sus deudores",
+      "Vendió sus bienes para ayudar a otros",
+      "Volvió a pedir prestado al rey"
+     ],
+     "ref": "Mateo 18:23-35",
+     "exp": "Quien ha recibido mucho perdón está llamado a perdonar.",
+     "id": "tema-perdon-5",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "¿Qué dijo Jesús en la cruz sobre quienes lo crucificaban?",
+     "ok": "Padre, perdónalos, porque no saben lo que hacen",
+     "malas": [
+      "Consumado es",
+      "Tengo sed",
+      "En tus manos encomiendo mi espíritu"
+     ],
+     "ref": "Lucas 23:34",
+     "id": "tema-perdon-6",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según el Salmo 103, ¿cuán lejos aleja Dios nuestras rebeliones?",
+     "ok": "Cuanto está lejos el oriente del occidente",
+     "malas": [
+      "Más allá del mar grande",
+      "Hasta los confines de la tierra",
+      "Detrás de los montes eternos"
+     ],
+     "ref": "Salmos 103:12",
+     "id": "tema-perdon-7",
+     "libro": "temas"
+    },
+    {
+     "t": "completar",
+     "q": "«Soportándoos unos a otros, y perdonándoos unos a otros si alguno tuviere ___ contra otro»",
+     "ok": "queja",
+     "malas": [
+      "deuda",
+      "envidia",
+      "duda"
+     ],
+     "ref": "Colosenses 3:13",
+     "id": "tema-perdon-8",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "José se vengó de sus hermanos cuando se presentaron ante él en Egipto.",
+     "v": false,
+     "ref": "Génesis 50:19-21",
+     "exp": "Falso: José los perdonó y les dijo que Dios lo había encaminado a bien.",
+     "id": "tema-perdon-9",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Si al presentar tu ofrenda recuerdas que tu hermano tiene algo contra ti, ¿qué enseña Jesús?",
+     "ok": "Reconcíliate primero con tu hermano, y luego presenta tu ofrenda",
+     "malas": [
+      "Presenta una ofrenda mayor",
+      "Ora por él en silencio y sigue",
+      "Espera a que él venga a buscarte"
+     ],
+     "ref": "Mateo 5:23-24",
+     "id": "tema-perdon-10",
+     "libro": "temas"
+    }
+   ]
+  },
+  {
+   "id": "finanzas",
+   "nombre": "Finanzas",
+   "icono": "💼",
+   "desc": "Dinero, generosidad y contentamiento",
+   "preguntas": [
+    {
+     "t": "completar",
+     "q": "«Porque raíz de todos los males es el amor al ___»",
+     "ok": "dinero",
+     "malas": [
+      "poder",
+      "placer",
+      "mundo"
+     ],
+     "ref": "1 Timoteo 6:10",
+     "exp": "El problema no es el dinero, sino amarlo.",
+     "id": "tema-finanzas-1",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Jesús, ¿a qué dos señores no se puede servir a la vez?",
+     "ok": "A Dios y a las riquezas",
+     "malas": [
+      "Al rey y al templo",
+      "A la ley y a los profetas",
+      "Al padre y a la madre"
+     ],
+     "ref": "Mateo 6:24",
+     "id": "tema-finanzas-2",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "En Malaquías 3:10, ¿qué pide Dios traer al alfolí?",
+     "ok": "Todos los diezmos",
+     "malas": [
+      "Las primicias del ganado",
+      "Una ofrenda de paz",
+      "El pan de la proposición"
+     ],
+     "ref": "Malaquías 3:10",
+     "id": "tema-finanzas-3",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "Proverbios dice que el que toma prestado es siervo del que presta.",
+     "v": true,
+     "ref": "Proverbios 22:7",
+     "exp": "Una razón práctica para evitar las deudas.",
+     "id": "tema-finanzas-4",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según 2 Corintios 9:7, ¿a quién ama Dios?",
+     "ok": "Al dador alegre",
+     "malas": [
+      "Al que da en secreto y con tristeza",
+      "Al que da más que los demás",
+      "Al que da solo cuando le sobra"
+     ],
+     "ref": "2 Corintios 9:7",
+     "id": "tema-finanzas-5",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "¿Dónde aconseja Jesús hacer tesoros?",
+     "ok": "En el cielo, donde ni la polilla ni el orín corrompen",
+     "malas": [
+      "En la tierra, bien guardados",
+      "En el templo de Jerusalén",
+      "En manos de los banqueros"
+     ],
+     "ref": "Mateo 6:19-21",
+     "exp": "Donde esté tu tesoro, allí estará también tu corazón.",
+     "id": "tema-finanzas-6",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "En la parábola de los talentos, ¿qué hizo el siervo que recibió uno solo?",
+     "ok": "Lo escondió en la tierra",
+     "malas": [
+      "Lo dio a los pobres",
+      "Negoció con él y ganó otro",
+      "Lo gastó en una fiesta"
+     ],
+     "ref": "Mateo 25:18",
+     "id": "tema-finanzas-7",
+     "libro": "temas"
+    },
+    {
+     "t": "completar",
+     "q": "«Honra a Jehová con tus bienes, y con las ___ de todos tus frutos»",
+     "ok": "primicias",
+     "malas": [
+      "sobras",
+      "semillas",
+      "ramas"
+     ],
+     "ref": "Proverbios 3:9",
+     "exp": "Las primicias son lo primero, no lo que queda.",
+     "id": "tema-finanzas-8",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "Pablo escribe que ha aprendido a contentarse, cualquiera que sea su situación.",
+     "v": true,
+     "ref": "Filipenses 4:11",
+     "id": "tema-finanzas-9",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "¿Qué dijo Zaqueo cuando Jesús entró en su casa?",
+     "ok": "Que daría la mitad de sus bienes a los pobres y devolvería cuadruplicado",
+     "malas": [
+      "Que lo vendería todo para seguirle",
+      "Que pagaría solo el tributo a César",
+      "Que guardaría sus riquezas para sus hijos"
+     ],
+     "ref": "Lucas 19:8",
+     "exp": "Un encuentro con Jesús cambió su manera de ver el dinero.",
+     "id": "tema-finanzas-10",
+     "libro": "temas"
+    }
+   ]
+  },
+  {
+   "id": "matrimonio",
+   "nombre": "Matrimonio",
+   "icono": "💍",
+   "desc": "Amor, compromiso y unidad",
+   "preguntas": [
+    {
+     "t": "completar",
+     "q": "«Dejará el hombre a su padre y a su madre, y se unirá a su mujer, y serán una sola ___»",
+     "ok": "carne",
+     "malas": [
+      "familia",
+      "alma",
+      "casa"
+     ],
+     "ref": "Génesis 2:24",
+     "id": "tema-matrimonio-1",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Efesios 5, ¿cómo deben amar los maridos a sus mujeres?",
+     "ok": "Así como Cristo amó a la iglesia y se entregó por ella",
+     "malas": [
+      "Como aman a sus padres",
+      "Según lo que ellas merezcan",
+      "Solo cuando sean correspondidos"
+     ],
+     "ref": "Efesios 5:25",
+     "id": "tema-matrimonio-2",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "¿Qué dijo Jesús sobre lo que Dios juntó?",
+     "ok": "Que no lo separe el hombre",
+     "malas": [
+      "Que lo bendiga el sacerdote",
+      "Que dure mientras haya amor",
+      "Que se renueve cada año"
+     ],
+     "ref": "Mateo 19:6",
+     "id": "tema-matrimonio-3",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "En 1 Corintios 13, el amor «no busca lo suyo, no se irrita, no guarda rencor».",
+     "v": true,
+     "ref": "1 Corintios 13:5",
+     "id": "tema-matrimonio-4",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "¿En qué boda hizo Jesús su primera señal, convirtiendo el agua en vino?",
+     "ok": "En Caná de Galilea",
+     "malas": [
+      "En Nazaret",
+      "En Betania",
+      "En Capernaum"
+     ],
+     "ref": "Juan 2:1-11",
+     "id": "tema-matrimonio-5",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Proverbios 18:22, el que halla esposa…",
+     "ok": "Halla el bien, y alcanza la benevolencia de Jehová",
+     "malas": [
+      "Halla descanso de sus enemigos",
+      "Halla riquezas y honra",
+      "Halla una casa nueva"
+     ],
+     "ref": "Proverbios 18:22",
+     "id": "tema-matrimonio-6",
+     "libro": "temas"
+    },
+    {
+     "t": "completar",
+     "q": "«Mujer virtuosa, ¿quién la hallará? Porque su estima sobrepasa largamente a la de las ___»",
+     "ok": "piedras preciosas",
+     "malas": [
+      "riquezas del rey",
+      "coronas de oro",
+      "estrellas del cielo"
+     ],
+     "ref": "Proverbios 31:10",
+     "id": "tema-matrimonio-7",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "Pedro aconseja a los maridos vivir con sus esposas sabiamente, dándoles honor, para que sus oraciones no tengan estorbo.",
+     "v": true,
+     "ref": "1 Pedro 3:7",
+     "id": "tema-matrimonio-8",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Eclesiastés 4:12, ¿qué no se rompe pronto?",
+     "ok": "El cordón de tres dobleces",
+     "malas": [
+      "La casa sobre la roca",
+      "El arco de bronce",
+      "El vaso del alfarero"
+     ],
+     "ref": "Eclesiastés 4:9-12",
+     "exp": "Dos son mejor que uno; y con Dios en medio, el lazo es más fuerte.",
+     "id": "tema-matrimonio-9",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Efesios 4:26, ¿qué no debe pasar con nuestro enojo?",
+     "ok": "Que se ponga el sol sobre él",
+     "malas": [
+      "Que dure más de tres días",
+      "Que se diga en público",
+      "Que llegue a oídos de los hijos"
+     ],
+     "ref": "Efesios 4:26",
+     "exp": "Un buen consejo para cualquier pareja: no acostarse enfadados.",
+     "id": "tema-matrimonio-10",
+     "libro": "temas"
+    }
+   ]
+  },
+  {
+   "id": "evangelismo",
+   "nombre": "Evangelismo",
+   "icono": "🌍",
+   "desc": "Compartir la buena noticia",
+   "preguntas": [
+    {
+     "t": "opcion",
+     "q": "En la Gran Comisión, ¿qué mandó Jesús a sus discípulos?",
+     "ok": "Id y haced discípulos a todas las naciones",
+     "malas": [
+      "Construid un templo en cada ciudad",
+      "Quedaos para siempre en Jerusalén",
+      "Id solo a las ovejas perdidas de Israel"
+     ],
+     "ref": "Mateo 28:19-20",
+     "id": "tema-evangelismo-1",
+     "libro": "temas"
+    },
+    {
+     "t": "completar",
+     "q": "«Porque no me avergüenzo del ___, porque es poder de Dios para salvación a todo aquel que cree»",
+     "ok": "evangelio",
+     "malas": [
+      "nombre",
+      "camino",
+      "templo"
+     ],
+     "ref": "Romanos 1:16",
+     "id": "tema-evangelismo-2",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Hechos 1:8, ¿dónde serían testigos los discípulos?",
+     "ok": "En Jerusalén, Judea, Samaria y hasta lo último de la tierra",
+     "malas": [
+      "Solo en Galilea",
+      "En Roma y en Grecia",
+      "En el templo y en las sinagogas"
+     ],
+     "ref": "Hechos 1:8",
+     "id": "tema-evangelismo-3",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "Pedro anima a estar siempre preparados para presentar defensa, con mansedumbre y reverencia, ante quien pregunte por nuestra esperanza.",
+     "v": true,
+     "ref": "1 Pedro 3:15",
+     "id": "tema-evangelismo-4",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "¿Qué hizo la mujer samaritana después de hablar con Jesús junto al pozo?",
+     "ok": "Fue a la ciudad a contar a todos lo que Jesús le había dicho",
+     "malas": [
+      "Se quedó en silencio por miedo",
+      "Volvió a casa con su cántaro lleno",
+      "Pidió a Jesús que se marchara"
+     ],
+     "ref": "Juan 4:28-30",
+     "exp": "Dejó su cántaro: lo urgente era contarlo.",
+     "id": "tema-evangelismo-5",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Romanos 10:14, ¿cómo oirán si no hay…?",
+     "ok": "Quien les predique",
+     "malas": [
+      "Un templo cerca",
+      "Un milagro antes",
+      "Un maestro de la ley"
+     ],
+     "ref": "Romanos 10:14",
+     "id": "tema-evangelismo-6",
+     "libro": "temas"
+    },
+    {
+     "t": "completar",
+     "q": "«Vosotros sois la ___ del mundo; una ciudad asentada sobre un monte no se puede esconder»",
+     "ok": "luz",
+     "malas": [
+      "sal",
+      "esperanza",
+      "voz"
+     ],
+     "ref": "Mateo 5:14",
+     "exp": "La «sal» es de la tierra, en el versículo anterior; la luz, del mundo.",
+     "id": "tema-evangelismo-7",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "¿Qué dijo Jesús a Pedro y a Andrés al llamarlos?",
+     "ok": "Venid en pos de mí, y os haré pescadores de hombres",
+     "malas": [
+      "Dejad vuestras redes y orad",
+      "Id y vended todo lo que tenéis",
+      "Seguid pescando hasta que yo vuelva"
+     ],
+     "ref": "Mateo 4:19",
+     "id": "tema-evangelismo-8",
+     "libro": "temas"
+    },
+    {
+     "t": "vf",
+     "q": "Felipe le anunció el evangelio de Jesús al etíope empezando por un pasaje del profeta Isaías.",
+     "v": true,
+     "ref": "Hechos 8:30-35",
+     "id": "tema-evangelismo-9",
+     "libro": "temas"
+    },
+    {
+     "t": "opcion",
+     "q": "Según Lucas 15:10, ¿cuándo hay gozo delante de los ángeles de Dios?",
+     "ok": "Por un pecador que se arrepiente",
+     "malas": [
+      "Cuando se construye un templo",
+      "Cuando los justos ayunan",
+      "Al terminar cada año"
+     ],
+     "ref": "Lucas 15:10",
+     "id": "tema-evangelismo-10",
+     "libro": "temas"
+    }
+   ]
+  }
+ ],
+ "creditos": "Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988."
+}
