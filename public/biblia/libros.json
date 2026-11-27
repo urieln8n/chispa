@@ -41,6 +41,13 @@
 "testamento": "NT",
 "capitulos": 21,
 "preguntas": 150
+},
+{
+"id": "hechos",
+"nombre": "Hechos",
+"testamento": "NT",
+"capitulos": 28,
+"preguntas": 150
 }
 ],
 "creditos": "Citas: Reina-Valera 1960 © Sociedades Bíblicas en América Latina, 1960. Renovado © Sociedades Bíblicas Unidas, 1988."

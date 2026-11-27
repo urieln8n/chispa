@@ -1,7 +1,7 @@
 // Lumbrera: permite instalarla como app y aprender sin conexión.
 // Solo lo registra la web de Lumbrera (aprender.html). Nunca guarda la API ni las partidas en vivo.
-const VERSION = 'lumbrera-v11';
-const BASICO = ['/', '/aprender', '/jugar', '/styles.css', '/comun.js', '/biblia/libros.json', '/biblia/genesis.json', '/biblia/exodo.json', '/biblia/mateo.json', '/biblia/marcos.json', '/biblia/lucas.json', '/biblia/juan.json', '/biblia/temas.json', '/biblia/personajes.json', '/biblia/versiculos.json',
+const VERSION = 'lumbrera-v12';
+const BASICO = ['/', '/aprender', '/jugar', '/styles.css', '/comun.js', '/biblia/libros.json', '/biblia/genesis.json', '/biblia/exodo.json', '/biblia/mateo.json', '/biblia/marcos.json', '/biblia/lucas.json', '/biblia/juan.json', '/biblia/hechos.json', '/biblia/navidad.json', '/biblia/temas.json', '/biblia/personajes.json', '/biblia/versiculos.json',
   '/app/manifest.webmanifest', '/app/icono-192.png', '/app/icono-512.png',
   '/fonts/baloo-2-latin-600-normal.woff2', '/fonts/baloo-2-latin-800-normal.woff2', '/fonts/nunito-latin-400-normal.woff2', '/fonts/nunito-latin-600-normal.woff2', '/fonts/nunito-latin-800-normal.woff2'];
 

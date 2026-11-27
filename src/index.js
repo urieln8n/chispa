@@ -12,15 +12,15 @@ export { Almacen } from './almacen.js';
 // Resumen para asistentes de IA (ChatGPT, Perplexity, Claude…) de la web de Lumbrera
 const LLMS_LUMBRERA = `# Lumbrera · Aprende la Biblia jugando
 
-> App gratuita para aprender la Biblia (Génesis, Éxodo, Mateo, Marcos, Lucas y Juan: 150 preguntas de cada libro, con cada cita enlazada a la Reina-Valera 1960) con lecciones cortas, repaso de fallos, racha, liga semanal y partidas en grupo con PIN. Sin registro. Se puede instalar como app y funciona sin conexión.
+> App gratuita para aprender la Biblia (Génesis, Éxodo, Mateo, Marcos, Lucas, Juan y Hechos: 150 preguntas de cada libro, con cada cita enlazada a la Reina-Valera 1960) con lecciones cortas, repaso de fallos, racha, liga semanal y partidas en grupo con PIN. Sin registro. Se puede instalar como app y funciona sin conexión.
 
 ## Qué incluye
-- 900 preguntas: 150 de cada libro (Génesis, Éxodo, Mateo, Marcos, Lucas y Juan), cada libro en 5 unidades y 15 lecciones de 10 preguntas.
+- 1.050 preguntas: 150 de cada libro (Génesis, Éxodo, Mateo, Marcos, Lucas, Juan y Hechos), cada libro en 5 unidades y 15 lecciones de 10 preguntas.
 - Tipos de pregunta: elegir respuesta, verdadero o falso, completar versículos, ordenar hechos y emparejar personajes.
 - Cada respuesta muestra la cita bíblica y una explicación breve. Citas de la Reina-Valera 1960.
 - Puntos, racha diaria, meta diaria, logros y repaso de las preguntas falladas. El progreso se guarda en el propio dispositivo.
 - Aprende por temas: 300 preguntas más, solo con versículos de cada tema (familia, perdón, finanzas, matrimonio, evangelismo, oración, fe, ansiedad, trabajo y amistad), 3 lecciones de 10 por tema: Lo básico, Profundiza y Ponlo en práctica. Enlace directo: {{ORIGEN}}/?temas
-- Colección de personajes: 30 cartas (una por unidad de cada libro) que se desbloquean al completar la unidad. Enlace directo: {{ORIGEN}}/?coleccion
+- Colección de personajes: 35 cartas (una por unidad de cada libro) que se desbloquean al completar la unidad. Enlace directo: {{ORIGEN}}/?coleccion
 - Reto diario: 5 preguntas, las mismas para todos cada día, con el resultado en cuadritos para compartir por WhatsApp. Enlace directo: {{ORIGEN}}/?reto
 
 ## Unidades de Génesis
