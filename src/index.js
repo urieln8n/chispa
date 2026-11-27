@@ -53,8 +53,31 @@ async function autorizado(req, env) {
   return almacen(env).comprobarClave(clave);
 }
 
+// Cabeceras de seguridad básicas en todas las respuestas (no se tocan los WebSocket)
+const SEGURIDAD = {
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'strict-transport-security': 'max-age=31536000',
+  'permissions-policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+};
+function conSeguridad(res) {
+  if (!res || res.status === 101 || res.webSocket) return res;
+  const r = new Response(res.body, res);
+  for (const [k, v] of Object.entries(SEGURIDAD)) if (!r.headers.has(k)) r.headers.set(k, v);
+  return r;
+}
+// Lumbrera: página amable para direcciones que no existen
+const PAGINA_404_FE = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#1B1640"><title>Página no encontrada · Lumbrera</title><link rel="icon" href="/app/icono-192.png" type="image/png"><link rel="stylesheet" href="/styles.css"><style>main{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:.6rem}main svg{width:84px;height:84px;margin-bottom:.6rem}main p{color:var(--suave);max-width:24em;margin:0 0 1rem}</style></head><body class="tema-fe"><main><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#F2C46B"/><path d="M16 6c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 12.5 13 10 16 6z" fill="#1B1640"/><path d="M9 22h14l-1.5 4h-11z" fill="#1B1640"/></svg><h1>No encontramos esta página</h1><p>Puede que el enlace esté mal escrito o que la página ya no exista.</p><a class="btn" href="/">Volver a Lumbrera</a><a href="/preguntas" style="color:var(--ambar);font-weight:800;margin-top:.6rem">Ver las preguntas por libro</a></main></body></html>`;
+
 export default {
   async fetch(req, env) {
+    return conSeguridad(await atender(req, env));
+  },
+  async scheduled(ev, env, ctx) { return programado(ev, env, ctx); }
+};
+
+async function atender(req, env) {
+  {
     const url = new URL(req.url);
     const ruta = url.pathname;
     try {
@@ -137,18 +160,22 @@ export default {
           .on('script#jsonld', { text(t) { if (t.text) t.replace(t.text.replaceAll('{{ORIGEN}}', url.origin)); } })
           .transform(res);
       }
+      if (env.MARCA === 'fe' && res.status === 404 && req.method === 'GET' && (req.headers.get('accept') || '').includes('text/html'))
+        return new Response(PAGINA_404_FE, { status: 404, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
       return res;
     } catch (e) {
       console.error(e);
       return json({ error: 'Error del servidor' }, 500);
     }
-  },
-  // Cada hora (solo Lumbrera): recordatorios push a quien aún no ha hecho su lección hoy
-  async scheduled(ev, env, ctx) {
+  }
+}
+// Cada hora (solo Lumbrera): recordatorios push a quien aún no ha hecho su lección hoy
+async function programado(ev, env, ctx) {
+  {
     if (env.MARCA !== 'fe') return;
     ctx.waitUntil(almacen(env).pushEnviar({ contacto: CONTACTO_PUSH }).then(r => console.log('push', JSON.stringify(r))));
   }
-};
+}
 
 async function api(req, env, url, ruta) {
   const m = req.method;

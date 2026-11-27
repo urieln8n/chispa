@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;800&display=swap');
+/* Tipografías servidas desde la propia web (sin Google Fonts): más rápido, más privado y también sin conexión */
+@font-face{font-family:'Baloo 2';font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/baloo-2-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Baloo 2';font-style:normal;font-weight:800;font-display:swap;src:url(/fonts/baloo-2-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/nunito-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/nunito-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:800;font-display:swap;src:url(/fonts/nunito-latin-800-normal.woff2) format('woff2')}
 :root{
   --noche:#0F1B2D; --noche2:#16263F; --noche3:#22385A; --ambar:#FFB020; --texto:#F4F1EA; --suave:#9FB0C8;
   --coral:#FF5A5F; --turquesa:#2EC4B6; --violeta:#8B5CF6; --oro:#FFB020; --ok:#22C55E; --mal:#EF4444;
