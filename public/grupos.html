@@ -46,7 +46,7 @@
   .pantalla .preg{font-family:var(--tit);font-size:1.25rem;font-weight:800;margin:0 0 14px;line-height:1.25}
   .pantalla .ops{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .pantalla .op{background:var(--c);color:#fff;border-radius:12px;padding:.7em .8em;font-weight:800;font-size:.92rem;box-shadow:0 3px 0 rgba(0,0,0,.25)}
-  .pantalla .op.o3{color:var(--noche)}
+  .pantalla .op.o0,.pantalla .op.o1,.pantalla .op.o3{color:var(--noche)}
   .pantalla .barra-t{height:6px;border-radius:9px;background:#332B6E;margin-top:14px;overflow:hidden}
   .pantalla .barra-t i{display:block;height:100%;width:62%;background:var(--ambar)}
   .movil{position:absolute;right:-24px;bottom:0;width:132px;background:#0d0a26;border:3px solid #433a86;border-radius:24px;padding:14px 10px;box-shadow:0 20px 40px rgba(0,0,0,.5)}
@@ -55,7 +55,7 @@
   .movil .m-ops span{aspect-ratio:1;border-radius:10px;background:var(--c)}
   .movil .m-ok{margin-top:8px;text-align:center;font-weight:800;font-size:.75rem;color:#22C55E}
   @media (max-width:640px){.maqueta{padding:0}.movil{position:relative;right:auto;bottom:auto;width:150px;margin:-18px 12px 0 auto}}
-  .o0{--c:#FF5A5F}.o1{--c:#2EC4B6}.o2{--c:#8B5CF6}.o3{--c:#F2C46B}
+  .o0{--c:#FF5A5F}.o1{--c:#2EC4B6}.o2{--c:#7C3AED}.o3{--c:#F2C46B}
 
   section.bloque{padding:64px 0;border-top:1px solid rgba(67,58,134,.5)}
   section.bloque h2{font-size:clamp(1.6rem,3.5vw,2.2rem);margin-bottom:.4rem}
@@ -84,8 +84,9 @@
   .unidad{border-radius:16px;padding:1rem;color:#fff;background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.25)}
   .unidad b{display:block;font-family:var(--tit);font-size:1.02rem;line-height:1.2}
   .unidad small{opacity:.9;font-weight:700}
+  .unidad.o0,.unidad.o1,.unidad.o3{color:var(--noche)}
   .unidad.o3{color:var(--noche)}
-  .unidad.o4{--c:#3B82F6}
+  .unidad.o4{--c:#1D4ED8}
 
   .iglesias{background:linear-gradient(135deg,#2a2163,#1f1850);border:1px solid #5a4fb0;border-radius:24px;padding:2rem;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center}
   @media (max-width:760px){.iglesias{grid-template-columns:1fr}}

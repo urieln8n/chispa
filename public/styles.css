@@ -76,3 +76,6 @@ body.tema-fe .tarjeta{background:rgba(36,30,82,.85);border-color:#433a86}
 .compartir{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;width:100%}
 .compartir .btn{flex:1 1 auto;min-width:9rem;font-size:.95rem;padding:.75em 1em}
 .btn.wa{background:#25D366;color:#fff;box-shadow:0 4px 0 #1a9e4b}
+
+/* Evita el zoom por doble toque en botones sin bloquear el zoom con dos dedos */
+button,a,.op{touch-action:manipulation}

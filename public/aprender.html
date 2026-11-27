@@ -223,7 +223,7 @@
   .combo{display:inline-block;background:#FF9A4D;color:#1B1640;font-weight:800;border-radius:99px;padding:.2em .8em;font-size:.95rem;animation:aparece .3s ease;margin-left:.3rem;vertical-align:middle}
   @keyframes aparece{from{opacity:0;transform:scale(.7)}}
   @media(max-width:420px){.stats{gap:.3rem}.stat{padding:.25em .5em;font-size:.85rem}.boton-ajustes{width:34px;height:34px;font-size:.95rem}.top .marca-txt{display:none}}
-  .tema-claro .misiones,.tema-claro .tienda{border-color:#E3D6BC}.tema-claro .mision{border-color:rgba(0,0,0,.06)}
+  .tema-claro .misiones,.tema-claro .tienda{border-color:#E3D6BC}.tema-claro .mision .prem,.tema-claro .stat.tal b{color:#8A5A00}.tema-claro .mision{border-color:rgba(0,0,0,.06)}
   /* Personalizar */
   .ajuste{background:var(--noche2);border:1px solid #433a86;border-radius:18px;padding:1rem 1.1rem;margin-top:.9rem}
   .ajuste h3{font-size:1.05rem;margin-bottom:.6rem}
@@ -376,7 +376,11 @@ function sumarXP(n) {
 // ===================== Datos =====================
 let CAT = null; const LIBROS = {};
 async function catalogo() { if (!CAT) CAT = await fetch(BASE + 'biblia/libros.json').then(r => r.json()); return CAT; }
-async function libro(id) { if (!LIBROS[id]) LIBROS[id] = await fetch(BASE + 'biblia/' + id + '.json').then(r => r.json()); return LIBROS[id]; }
+const CARGANDO = {};
+async function libro(id) {
+  if (!LIBROS[id]) { CARGANDO[id] = CARGANDO[id] || fetch(BASE + 'biblia/' + id + '.json').then(r => r.json()).finally(() => setTimeout(() => delete CARGANDO[id])); LIBROS[id] = await CARGANDO[id]; }
+  return LIBROS[id];
+}
 // Cada cita abre el pasaje en la Reina-Valera 1960 (Bible Gateway), sin copiar el texto en la app
 function urlRV(ref) { return 'https://www.biblegateway.com/passage/?search=' + encodeURIComponent(String(ref).replace(/[–—]/g, '-')) + '&version=RVR1960'; }
 function enlaceRV(ref) { return `<a class="rv" href="${urlRV(ref)}" target="_blank" rel="noopener">📖 ${esc(ref)} <small>· Leer en la RV1960 ↗</small></a>`; }
