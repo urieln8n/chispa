@@ -209,11 +209,20 @@ async function api(req, env, url, ruta) {
     const b = await cuerpo();
     const n = Math.max(5, Math.min(150, parseInt(b.n, 10) || 10));
     const tiempo = Math.max(5, Math.min(120, parseInt(b.tiempo, 10) || 0)) || null; // segundos por pregunta que elige el grupo
-    const cat = await env.ASSETS.fetch(new Request(new URL('/biblia/libros.json', url))).then(r => r.json());
-    const lid = cat.libros.some(x => x.id === b.libro && x.preguntas) ? b.libro : 'genesis';
-    const L = await env.ASSETS.fetch(new Request(new URL(`/biblia/${lid}.json`, url))).then(r => r.json());
-    const todas = []; L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => todas.push(q))));
-    const quiz = limpiarCuestionario({ titulo: `${L.nombre} · ${n} preguntas`, preguntas: barajar(todas).slice(0, n).map(preguntaEnVivo).map(p => tiempo ? { ...p, tiempo } : p) });
+    let L, todas = [];
+    if (b.tema) {
+      // Partida en grupo de un tema (familia, perdón…): todas sus lecciones
+      const T = await env.ASSETS.fetch(new Request(new URL('/biblia/temas.json', url))).then(r => r.json());
+      const t = T.temas.find(x => x.id === b.tema);
+      if (!t) return json({ error: 'Ese tema no existe' }, 400);
+      L = { nombre: t.nombre }; t.lecciones.forEach(l => l.preguntas.forEach(q => todas.push(q)));
+    } else {
+      const cat = await env.ASSETS.fetch(new Request(new URL('/biblia/libros.json', url))).then(r => r.json());
+      const lid = cat.libros.some(x => x.id === b.libro && x.preguntas) ? b.libro : 'genesis';
+      L = await env.ASSETS.fetch(new Request(new URL(`/biblia/${lid}.json`, url))).then(r => r.json());
+      L.unidades.forEach(u => u.lecciones.forEach(l => l.preguntas.forEach(q => todas.push(q))));
+    }
+    const quiz = limpiarCuestionario({ titulo: `${L.nombre} · ${Math.min(n, todas.length)} preguntas`, preguntas: barajar(todas).slice(0, n).map(preguntaEnVivo).map(p => tiempo ? { ...p, tiempo } : p) });
     for (let i = 0; i < 8; i++) {
       const pin = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
       const res = await juego(env, pin).crear(pin, { titulo: quiz.titulo, preguntas: quiz.preguntas, cierre: null });
